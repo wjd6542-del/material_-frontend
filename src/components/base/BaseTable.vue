@@ -117,6 +117,13 @@
                 <span v-else>-</span>
               </template>
 
+              <template v-else-if="col.type === 'button'">
+                <button
+                  class="px-3 py-1.5 bg-green-500 text-white rounded-md text-sm hover:bg-green-600"
+                >
+                  {{ col.label }}
+                </button>
+              </template>
               <!-- 기본 slot -->
               <template v-else>
                 <slot :name="col.key" :row="row" :value="row[col.key]">
