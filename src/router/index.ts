@@ -24,7 +24,8 @@ import OutboundScanPage from "@/pages/outbound/OutboundScanPage.vue"
 
 import StockPage from "@/pages/stock/StockPage.vue"
 import StockDetailPage from "@/pages/stock/StockDetailPage.vue"
-import StockAreaPage from "@/pages/stock/StockAreaPage.vue"
+import StockWarehousePage from "@/pages/stock/StockWarehousePage.vue"
+import StockLoctoinPage from "@/pages/stock/StockLoctoinPage.vue"
 
 
 
@@ -124,11 +125,15 @@ const routes = [
 						meta: { title: "재고 변동 이력", auth: true }
 					},
 					{
-						path: "/stock/area",
-						component: StockAreaPage,
-						meta: { title: "재고 위치 확인", auth: true }
+						path: "/stock/warehouse",
+						component: StockWarehousePage,
+						meta: { title: "재고 위치 (창고)", auth: true }
 					},
-
+					{
+						path: "/stock/loctoin",
+						component: StockLoctoinPage,
+						meta: { title: "재고 위치 (선반)", auth: true }
+					},
 					{
 						path: "statistics/inbound",
 						component: SatisticsInboundPage,

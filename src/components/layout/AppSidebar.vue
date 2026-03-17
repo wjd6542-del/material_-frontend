@@ -116,7 +116,8 @@ export default defineComponent({
           children: [
             { to: "/stock", label: "재고현황" },
             { to: "/stock/detail", label: "재고 변동 이력" },
-            { to: "/stock/area", label: "재고 위치 확인" },
+            { to: "/stock/warehouse", label: "재고 위치 (창고)" },
+            { to: "/stock/loctoin", label: "재고 위치 (선반)" },
           ],
         },
         {
