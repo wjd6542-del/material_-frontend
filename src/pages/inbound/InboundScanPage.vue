@@ -1,0 +1,507 @@
+﻿<template>
+  <div class="p-6 grid grid-cols-12 gap-6 h-full">
+    <!-- 좌측 작업 패널 -->
+    <div
+      class="col-span-4 bg-white border rounded-2xl shadow-sm p-6 flex flex-col gap-6"
+    >
+      <!-- 타이틀 -->
+      <h2 class="font-semibold text-gray-700 flex items-center gap-2 text-lg">
+        <i class="fa-solid fa-box-open text-blue-500"></i>
+        입고 처리
+      </h2>
+
+      <!-- 자재 검색 카드 -->
+      <div class="bg-gray-50 border rounded-xl p-4 space-y-3">
+        <div class="flex items-center gap-2 text-sm font-medium text-gray-700">
+          <i class="fa-solid fa-magnifying-glass text-blue-500"></i>
+          자재 검색
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <!-- 자재명 검색 -->
+          <input
+            v-model="searchText"
+            @change="searchMaterial"
+            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            placeholder="자재명 검색"
+          />
+
+          <!-- 자재 선택 -->
+          <button
+            @click="addRow"
+            class="px-3 py-1.5 text-sm rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition flex items-center gap-1"
+          >
+            <i class="fa-solid fa-plus"></i>
+            {{ "추가" }}
+          </button>
+        </div>
+      </div>
+
+      <!-- 자재 목록 카드 -->
+      <div class="bg-gray-50 border rounded-xl p-4 space-y-3 flex flex-col">
+        <div class="flex items-center gap-2 text-sm font-medium text-gray-700">
+          <i class="fa-solid fa-boxes-stacked text-blue-500"></i>
+          재고 목록
+        </div>
+
+        <div
+          v-if="materials.length"
+          class="border rounded-lg max-h-80 overflow-y-auto bg-white"
+        >
+          <div
+            v-for="m in materials"
+            :key="m.id"
+            @click="addItem(m)"
+            class="px-3 py-2 hover:bg-blue-50 cursor-pointer flex justify-between items-center border-b last:border-b-0 transition"
+          >
+            <span class="font-medium text-gray-700">
+              {{ m.location?.code }} - {{ m.material?.name }}
+            </span>
+
+            <span class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
+              재고 {{ m.quantity }}
+            </span>
+          </div>
+        </div>
+
+        <div v-else class="text-sm text-gray-400 text-center py-6">
+          검색된 자재가 없습니다
+        </div>
+      </div>
+    </div>
+
+    <!-- 우측 입고 목록 -->
+    <div class="col-span-8 bg-white border rounded-xl shadow-sm flex flex-col">
+      <!-- header -->
+      <div class="p-4 border-b flex justify-between items-center">
+        <!-- 타이틀 -->
+        <h2 class="font-semibold text-gray-700 flex items-center gap-2 text-lg">
+          <i class="fa-solid fa-list text-gray-500"></i>
+          입고 번호 : {{ inbound_no }}
+        </h2>
+
+        <div class="text-sm text-gray-500">총 {{ totalCount }} 개</div>
+      </div>
+
+      <!-- list -->
+      <div class="flex-1 overflow-y-auto">
+        <!-- AG Grid -->
+        <div class="ag-theme-alpine w-full" style="width: 100%; height: 600px">
+          <AgGridVue
+            class="ag-theme-alpine"
+            theme="legacy"
+            domLayout="normal"
+            style="width: 100%; height: 600px"
+            :rowData="rowData"
+            :columnDefs="columnDefs"
+            :defaultColDef="defaultColDef"
+            :gridOptions="gridOptions"
+            @grid-ready="onGridReady"
+            @cell-editing-stopped="onCellEditingStopped"
+            :localeText="{
+              noRowsToShow: '데이터가 없습니다',
+            }"
+          />
+        </div>
+      </div>
+
+      <!-- footer -->
+      <div
+        class="border-t bg-gray-50 px-6 py-5 flex items-center justify-between"
+      >
+        <!-- summary badges -->
+        <div class="flex items-center gap-6">
+          <!-- 총 수량 -->
+          <div
+            class="flex items-center gap-3 bg-blue-100 text-blue-800 px-5 py-3 rounded-xl text-sm font-semibold"
+          >
+            <i class="fa-solid fa-box text-lg"></i>
+            <span>총 수량</span>
+            <span class="bg-blue-200 px-3 py-1 rounded-lg text-lg font-bold">
+              {{ totalQty }}
+            </span>
+          </div>
+
+          <!-- 총 금액 -->
+          <div
+            class="flex items-center gap-3 bg-purple-100 text-purple-800 px-5 py-3 rounded-xl text-sm font-semibold"
+          >
+            <i class="fa-solid fa-coins text-lg"></i>
+            <span>총 지출 금액</span>
+            <span class="bg-purple-200 px-3 py-1 rounded-lg text-lg font-bold">
+              {{ totalAmount }}
+            </span>
+          </div>
+        </div>
+
+        <!-- action buttons -->
+        <div class="flex items-center gap-3">
+          <!-- 전체 삭제 -->
+          <button
+            @click="clearItems"
+            class="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-5 py-3 rounded-xl font-semibold shadow-sm"
+          >
+            <i class="fa-solid fa-trash"></i>
+            전체 삭제
+          </button>
+
+          <!-- 입고 확정 -->
+          <button
+            @click="saveOutbound"
+            class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-7 py-3 rounded-xl font-semibold shadow-md text-base"
+          >
+            <i class="fa-solid fa-check"></i>
+            입고 확정
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import api from "@/api/api";
+import SearchSelect from "@/components/base/SearchSelect.vue";
+import { AgGridVue } from "ag-grid-vue3";
+
+export default {
+  components: { SearchSelect, AgGridVue },
+  data() {
+    return {
+      tempId: -1,
+      totalAmount: 0,
+      totalProfit: 0,
+      totalQty: 0,
+      totalCount: 0,
+
+      gridApi: null,
+      columnApi: null,
+
+      scanCode: "",
+      searchText: "",
+      material_id: "",
+      // 재고 목록
+      materials: [],
+      selectedMaterial: null,
+      quantity: 1,
+
+      materialsArr: [],
+
+      // 테이블
+      rowData: [],
+      columnDefs: [],
+      gridOptions: {
+        getRowId: (params) => String(params.data.id), // ⭐ 필수
+        rowSelection: {
+          mode: "multiRow",
+          checkboxes: true, // 🔥 반드시 필요
+          headerCheckbox: true,
+        },
+        onCellValueChanged: (params) => {
+          if (params.oldValue !== params.newValue) {
+            params.node.setSelected(true);
+          }
+          this.updateFooter();
+        },
+        rowClassRules: {
+          "row-inactive": (params) => params.data?.is_active === false,
+        },
+      },
+
+      defaultColDef: {
+        sortable: true,
+        filter: true,
+        editable: true,
+        resizable: true,
+      },
+
+      inbound_no: "",
+      warehouses: [],
+      locations: [],
+
+      materialMap: {},
+      warehouseMap: {},
+      locationMap: {},
+    };
+  },
+
+  computed: {},
+
+  methods: {
+    mk_number() {
+      this.inbound_no = "IN-" + Date.now();
+    },
+    onCellEditingStopped(params) {
+      params.api.setNodesSelected({
+        nodes: [params.node],
+        newValue: true,
+        clearSelection: false,
+      });
+    },
+
+    onGridReady(params) {
+      this.gridApi = params.api;
+      this.columnApi = params.columnApi;
+
+      params.api.addEventListener("rowDataUpdated", () => {
+        this.totalCount = this.gridApi.getDisplayedRowCount();
+      });
+
+      setTimeout(() => {
+        params.api.sizeColumnsToFit();
+      }, 0);
+    },
+
+    // QR 조회 API
+    async scanMaterial() {
+      this.search({ scan_code: this.scanCode });
+    },
+
+    // 자재 검색 API
+    async searchMaterial() {
+      this.search({ scan_code: this.searchText });
+    },
+
+    // 검색 진행
+    async search(where) {
+      this.materials = [];
+      try {
+        const res = await api.post("/api/stock/list", where);
+
+        // 목록 추가
+        this.materials = res.data;
+      } catch (e) {
+        this.$toast.error(e.message);
+        this.materials = [];
+      }
+    },
+
+    deleteRow(row) {
+      this.rowData = this.rowData.filter((r) => r !== row);
+    },
+
+    // 로우 항목 추가
+    addRow() {
+      let newRow = {
+        id: this.tempId--,
+        material_id: 0,
+        warehouse_id: 0,
+        location_id: 0,
+        quantity: 0,
+        cost_price: 0,
+      };
+      this.addItem(newRow);
+    },
+
+    // 항목추가
+    addItem(item) {
+      const newRow = {
+        id: this.tempId--,
+        material_id: item.material_id,
+        warehouse_id: item.warehouse_id,
+        location_id: item.location_id,
+        quantity: 0,
+        cost_price: 0,
+      };
+
+      const res = this.gridApi.applyTransaction({ add: [newRow], addIndex: 0 });
+      res.add[0].setSelected(true);
+    },
+
+    // 화면 삭제처리
+    clearItems() {
+      const rows = [];
+
+      this.gridApi.forEachNode((node) => {
+        rows.push(node.data);
+      });
+
+      this.gridApi.applyTransaction({
+        remove: rows,
+      });
+
+      this.totalCount = 0;
+
+      this.updateFooter();
+    },
+
+    // 저장 처리
+    async saveOutbound() {
+      try {
+        const rows = this.gridApi.getSelectedRows();
+
+        const ok = await this.$confirm(
+          `입고항목 총${rows.length}개  처리하시겠습니까?`,
+          "입고 확인",
+        );
+        if (!ok) return;
+
+        await api.post("/api/inbound/save", {
+          id: 0,
+          inbound_no: this.inbound_no,
+          memo: "pos 자동등록처리",
+          items: rows,
+        });
+
+        this.$toast.success("입고 처리가 완료 되었습니다");
+      } catch (e) {
+        this.$toast.error(e.message);
+      }
+    },
+
+    async loadMaterial() {
+      const res = await api.post("/api/material/list");
+      const materialsArr = res.data;
+      this.materialsArr = materialsArr;
+
+      this.materialMap = Object.fromEntries(
+        materialsArr.map((w) => [w.id, w.name]),
+      );
+    },
+
+    async loadWarehouse() {
+      const res = await api.post("/api/warehouse/list");
+      const warehouses = res.data;
+      this.warehouses = warehouses;
+
+      this.warehouseMap = Object.fromEntries(
+        warehouses.map((w) => [w.id, w.name]),
+      );
+    },
+    async loadLocation() {
+      const res = await api.post("/api/location/list");
+      const locations = res.data;
+      this.locations = locations;
+      this.locationMap = Object.fromEntries(
+        locations.map((w) => [w.id, w.name]),
+      );
+    },
+
+    // 하단 데이터 업데이트
+    updateFooter() {
+      let totalQty = 0;
+      let totalAmount = 0;
+
+      const rows = this.gridApi.getSelectedRows();
+
+      rows.forEach((row) => {
+        const qty = Number(row.quantity) || 0;
+        const cost = Number(row.cost_price) || 0;
+
+        totalQty += qty;
+        totalAmount += qty * cost;
+      });
+
+      this.totalQty = totalQty;
+      this.totalAmount = totalAmount;
+    },
+
+    // 테이블 로드
+    loadTable() {
+      const warehouses = this.warehouses;
+      const warehouseMap = this.warehouseMap;
+
+      const materialsArr = this.materialsArr;
+      const materialMap = this.materialMap;
+
+      const locations = this.locations;
+      const locationMap = this.locationMap;
+
+      this.columnDefs = [
+        {
+          headerName: "제품",
+          field: "material_id",
+          flex: 1,
+          editable: true,
+          cellEditor: "agSelectCellEditor",
+          valueFormatter: (params) => materialMap[params.value] || "",
+          cellEditorParams: {
+            values: materialsArr.map((w) => w.id),
+          },
+        },
+        {
+          headerName: "창고위치",
+          field: "warehouse_id",
+          flex: 0.3,
+          editable: true,
+          cellEditor: "agSelectCellEditor",
+          valueFormatter: (params) => warehouseMap[params.value] || "",
+          cellEditorParams: {
+            values: warehouses.map((w) => w.id),
+          },
+        },
+        {
+          headerName: "선반위치",
+          field: "location_id",
+          flex: 0.5,
+          editable: true,
+          cellEditor: "agSelectCellEditor",
+          valueFormatter: (params) => locationMap[params.value] || "",
+          cellEditorParams: {
+            values: locations.map((w) => w.id),
+          },
+        },
+        {
+          headerName: "수량",
+          field: "quantity",
+          filter: "agTextColumnFilter",
+          flex: 0.3,
+        },
+
+        {
+          headerName: "원가",
+          field: "cost_price",
+          filter: "agNumberColumnFilter",
+          flex: 0.5,
+        },
+        {
+          headerName: "금액",
+          field: "cost_price",
+          filter: "agNumberColumnFilter",
+          flex: 0.5,
+          editable: false, // 수정 불가
+          valueGetter: (params) => {
+            const qty = params.data.quantity || 0;
+            const price = params.data.cost_price || 0;
+            return qty * price;
+          },
+          valueFormatter: (params) =>
+            params.value ? params.value.toLocaleString() : "0",
+        },
+        {
+          headerName: "처리",
+          field: "action",
+          flex: 0.2,
+          sortable: false,
+          filter: false,
+          editable: false,
+          cellRenderer: (params) => {
+            const btn = document.createElement("button");
+            btn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+            btn.className = "text-red-500 hover:text-red-700 px-2 py-1 rounded";
+
+            btn.addEventListener("click", () => {
+              params.api.applyTransaction({
+                remove: [params.data],
+              });
+            });
+
+            return btn;
+          },
+        },
+      ];
+    },
+  },
+
+  async mounted() {
+    await this.loadMaterial();
+    await this.loadWarehouse();
+    await this.loadLocation();
+    await this.loadTable();
+
+    this.mk_number();
+
+    this.search({});
+  },
+};
+</script>
