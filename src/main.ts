@@ -2,6 +2,9 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import { router } from './router'
 import pinia from './stores/pinia'
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate"
+
+
 
 // 토스 알림용
 import Toast, { useToast } from "vue-toastification";
@@ -61,6 +64,8 @@ const app = createApp(App)
 
 // 피나야 적용
 app.use(pinia)
+pinia.use(piniaPluginPersistedstate)
+
 // 데이터 레인지 
 app.use(VCalendar, {});
 // 전역 토스 적용

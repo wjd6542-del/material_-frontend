@@ -34,11 +34,36 @@
     <table class="w-full text-sm">
       <thead>
         <tr class="border-b-2 border-gray-300 text-gray-600">
-          <th class="py-2 text-left">자재</th>
-          <th class="py-2 text-left">창고</th>
-          <th class="py-2 text-right">수량</th>
-          <th class="py-2 text-right">단가</th>
-          <th class="py-2 text-right">금액</th>
+          <th class="py-2 text-left">
+            <div class="flex items-center gap-1">
+              <i class="fa-solid fa-box text-gray-400"></i>
+              자재
+            </div>
+          </th>
+          <th class="py-2 text-center">
+            <div class="flex items-center justify-center gap-1">
+              <i class="fa-solid fa-warehouse text-gray-400"></i>
+              창고
+            </div>
+          </th>
+          <th class="py-2 text-right">
+            <div class="flex items-center justify-end gap-1">
+              <i class="fa-solid fa-hashtag text-gray-400"></i>
+              수량
+            </div>
+          </th>
+          <th class="py-2 text-right">
+            <div class="flex items-center justify-end gap-1">
+              <i class="fa-solid fa-coins text-gray-400"></i>
+              단가
+            </div>
+          </th>
+          <th class="py-2 text-right">
+            <div class="flex items-center justify-end gap-1">
+              <i class="fa-solid fa-sack-dollar text-gray-400"></i>
+              금액
+            </div>
+          </th>
         </tr>
       </thead>
 

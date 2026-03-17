@@ -123,6 +123,7 @@ export default {
   },
 
   mounted() {
+    console.log(this.authStore);
     this.notificationStore.loadCounts();
   },
 };

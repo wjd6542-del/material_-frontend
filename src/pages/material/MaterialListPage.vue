@@ -12,19 +12,42 @@
         <div class="p-4 pb-0 flex items-center gap-1">
           <button
             @click="openModal"
-            class="px-3 py-1.5 bg-green-500 text-white rounded-md text-sm hover:bg-green-600"
+            class="h-[40px] px-3 py-1.5 bg-green-500 text-white rounded-md text-sm hover:bg-green-600"
           >
             <i class="fa-solid fa-add"></i>
-            추가
           </button>
 
           <button
             @click="batchDelete"
-            class="px-3 py-1.5 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 flex items-center gap-1"
+            class="h-[40px] px-3 py-1.5 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 flex items-center gap-1"
           >
             <i class="fa-solid fa-trash"></i>
-            삭제
           </button>
+          <div class="w-[450px]">
+            <DateRangePicker
+              v-model="dateRange"
+              :minuteStep="5"
+              :showQuickButtons="true"
+              @change="loadList"
+            />
+          </div>
+          <div class="w-[350px]">
+            <SearchSelect
+              v-model="where.category_id"
+              :options="categorys"
+              labelKey="name"
+              valueKey="id"
+              placeholder="카테고리 검색"
+              @change="loadList"
+            />
+          </div>
+          <div class="w-[350px]">
+            <BaseInput
+              v-model="where.keyword"
+              placeholder="자재명 / 메모 검색"
+              @change="loadList"
+            />
+          </div>
         </div>
 
         <div class="p-4">
@@ -94,6 +117,12 @@
 import BaseTable from "@/components/base/BaseTable.vue";
 import { useModalStore } from "@/stores/modal";
 import MaterialModal from "@/components/material/MaterialModal.vue";
+import BaseInput from "@/components/base/BaseInput.vue";
+
+import SearchSelect from "@/components/base/SearchSelect.vue";
+import DateRangePicker from "@/components/base/DateRangePicker.vue";
+import ImageModal from "@/components/base/ImageModal.vue";
+
 import api from "@/api/api";
 
 export default {
@@ -102,6 +131,9 @@ export default {
   components: {
     BaseTable,
     MaterialModal,
+    SearchSelect,
+    DateRangePicker,
+    BaseInput,
   },
 
   data() {
@@ -113,6 +145,14 @@ export default {
           label: "QR",
           type: "img",
           width: "80px",
+          align: "center",
+          sortable: true,
+        },
+        {
+          key: "image",
+          label: "이미지",
+          type: "img",
+          width: "100px",
           align: "center",
           sortable: true,
         },
@@ -178,6 +218,16 @@ export default {
       ],
 
       rows: [],
+
+      categorys: [],
+
+      dateRange: { start: null, end: null },
+      where: {
+        category_id: "",
+        keyword: "",
+      },
+
+      url: import.meta.env.VITE_API_URL,
     };
   },
 
@@ -219,8 +269,31 @@ export default {
     // 데이터 로드 처리
     async loadList() {
       this.rows = [];
-      const res = await api.post("/api/material/list");
-      this.rows = res.data;
+      const where = {
+        ...this.where,
+      };
+
+      if (this.dateRange?.start) {
+        where.startDate = this.dateRange.start.toISOString();
+      }
+      if (this.dateRange?.end) {
+        where.endDate = this.dateRange.end.toISOString();
+      }
+      const res = await api.post("/api/material/list", where);
+
+      const list = res.data.map((row) => {
+        const images = (row.images || []).map((img) => ({
+          ...img,
+          file_url: this.url + img.file_url,
+        }));
+
+        return {
+          ...row,
+          image: images[0]?.file_url || "",
+        };
+      });
+
+      this.rows = list;
     },
 
     // 셀클릭시
@@ -231,10 +304,22 @@ export default {
           id: data.row.id,
           onSaved: this.loadList,
         });
+      } else if (data.key == "image") {
+        if (!data.value) {
+          return;
+        }
+        console.log(data.image);
+        this.modal.openModal(ImageModal, { image: data.value });
       }
+    },
+
+    async loadCategory() {
+      const res = await api.post("/api/category/list");
+      this.categorys = res.data;
     },
   },
   mounted() {
+    this.loadCategory();
     this.loadList();
   },
 };

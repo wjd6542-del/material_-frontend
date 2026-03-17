@@ -213,9 +213,9 @@ export default {
     handleSelect(val: any) {
       if (this.mode === "date") {
         if (val.start) val.start.setHours(0, 0, 0, 0);
-        if (val.end) val.end.setHours(0, 0, 0, 0);
+        if (val.end) val.end.setHours(23, 59, 59, 999);
       }
-
+      if (val.end) val.end.setHours(23, 59, 59, 999);
       this.innerValue = val;
 
       this.$emit("update:modelValue", val);

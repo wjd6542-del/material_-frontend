@@ -43,6 +43,16 @@
           />
         </div>
 
+        <div class="p-4 pb-0 flex items-center gap-1">
+          <button
+            @click="openModal"
+            class="h-[40px] px-3 py-1.5 bg-green-500 text-white rounded-md text-sm hover:bg-green-600"
+          >
+            <i class="fa-solid fa-clipboard-list"></i>
+            현재고 전표
+          </button>
+        </div>
+
         <div class="p-4">
           <BaseTable
             ref="inboundDetailTable"
@@ -55,30 +65,6 @@
           />
         </div>
       </div>
-
-      <!-- 카드 -->
-      <div class="lg:col-span-2 flex flex-col gap-4">
-        <!-- 이번달 입고 -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow">
-          <!-- header -->
-          <div
-            class="flex items-center justify-between px-4 py-3 border-b bg-gray-50"
-          >
-            <div class="flex items-center gap-2 text-gray-700 font-medium">
-              <i class="fa-solid fa-boxes-stacked text-blue-500"></i>
-
-              <span>재고 총 수량</span>
-            </div>
-          </div>
-
-          <!-- body -->
-          <div class="p-4">
-            <div class="text-3xl font-semibold text-gray-800">1,245</div>
-
-            <div class="text-sm text-gray-400 mt-1">이번 달 입고 기준</div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -87,6 +73,9 @@
 import BaseTable from "@/components/base/BaseTable.vue";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
+
+import { useModalStore } from "@/stores/modal";
+import StockPrintModal from "@/components/stock/StockPrintModal.vue";
 
 import api from "@/api/api";
 
@@ -103,6 +92,7 @@ export default {
 
   data() {
     return {
+      modal: useModalStore(),
       columns: [
         {
           key: "material_code",
@@ -110,7 +100,6 @@ export default {
           sortable: true,
           width: "200px",
         },
-
         {
           key: "material_name",
           label: "자재명",
@@ -184,6 +173,11 @@ export default {
 
       const res = await api.post("/api/stock/list", where);
       this.rows = res.data;
+    },
+
+    // 현재고 전표
+    openModal() {
+      this.modal.openModal(StockPrintModal, {}, "xl");
     },
 
     async loadMaterial() {
