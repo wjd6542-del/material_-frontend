@@ -86,9 +86,10 @@
 import BaseTable from "@/components/base/BaseTable.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
 import BaseInput from "@/components/base/BaseInput.vue";
-
 import { useModalStore } from "@/stores/modal";
 import InboundModal from "@/components/inbound/InboundModal.vue";
+import InboundVoucherPrintModal from "@/components/inbound/InboundVoucherPrintModal.vue";
+
 import api from "@/api/api";
 
 export default {
@@ -104,6 +105,13 @@ export default {
     return {
       modal: useModalStore(),
       columns: [
+        {
+          key: "id",
+          label: "전표",
+          type: "button",
+          width: "80px",
+          align: "center",
+        },
         {
           key: "qrcode",
           label: "QR",
@@ -140,8 +148,9 @@ export default {
           sortable: true,
         },
       ],
-      where: { inbound_no: "" },
+
       rows: [],
+      where: { inbound_no: "" },
       dateRange: { start: null, end: null },
     };
   },
@@ -209,6 +218,14 @@ export default {
           {
             id: data.row.id,
             onSaved: this.loadList,
+          },
+          "xl",
+        );
+      } else if (data.key == "id") {
+        this.modal.openModal(
+          InboundVoucherPrintModal,
+          {
+            id: data.row.id,
           },
           "xl",
         );

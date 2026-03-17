@@ -12,19 +12,32 @@
         <div class="p-4 pb-0 flex items-center gap-1">
           <button
             @click="openModal"
-            class="px-3 py-1.5 bg-green-500 text-white rounded-md text-sm hover:bg-green-600"
+            class="h-[40px] px-3 py-1.5 bg-green-500 text-white rounded-md text-sm hover:bg-green-600"
           >
             <i class="fa-solid fa-add"></i>
-            추가
           </button>
 
           <button
             @click="batchDelete"
-            class="px-3 py-1.5 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 flex items-center gap-1"
+            class="h-[40px] px-3 py-1.5 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 flex items-center gap-1"
           >
             <i class="fa-solid fa-trash"></i>
-            삭제
           </button>
+          <div class="w-[450px]">
+            <DateRangePicker
+              v-model="dateRange"
+              :minuteStep="5"
+              :showQuickButtons="true"
+              @change="loadList"
+            />
+          </div>
+          <div class="w-[450px]">
+            <BaseInput
+              v-model="where.outbound_no"
+              placeholder="출고번호 입력"
+              @change="loadList"
+            />
+          </div>
         </div>
 
         <div class="p-4">
@@ -71,8 +84,13 @@
 
 <script>
 import BaseTable from "@/components/base/BaseTable.vue";
+import DateRangePicker from "@/components/base/DateRangePicker.vue";
+import BaseInput from "@/components/base/BaseInput.vue";
 import { useModalStore } from "@/stores/modal";
 import OutboundModal from "@/components/outbound/OutboundModal.vue";
+
+import OutboundVoucherPrintModal from "@/components/outbound/OutboundVoucherPrintModal.vue";
+
 import api from "@/api/api";
 
 export default {
@@ -80,12 +98,21 @@ export default {
 
   components: {
     BaseTable,
+    DateRangePicker,
+    BaseInput,
   },
 
   data() {
     return {
       modal: useModalStore(),
       columns: [
+        {
+          key: "id",
+          label: "전표",
+          type: "button",
+          width: "80px",
+          align: "center",
+        },
         {
           key: "qrcode",
           label: "QR",
@@ -124,6 +151,8 @@ export default {
       ],
 
       rows: [],
+      where: { outbound_no: "" },
+      dateRange: { start: null, end: null },
     };
   },
 
@@ -165,10 +194,19 @@ export default {
     // 데이터 로드 처리
     async loadList() {
       this.rows = [];
-      const res = await api.post("/api/outbound/list");
-      this.rows = res.data;
 
-      console.log(this.rows);
+      const where = {
+        ...this.where,
+      };
+
+      if (this.dateRange?.start) {
+        where.startDate = this.dateRange.start.toISOString();
+      }
+      if (this.dateRange?.end) {
+        where.endDate = this.dateRange.end.toISOString();
+      }
+      const res = await api.post("/api/outbound/list", where);
+      this.rows = res.data;
     },
 
     // 셀클릭시
@@ -180,6 +218,15 @@ export default {
           {
             id: data.row.id,
             onSaved: this.loadList,
+          },
+          "xl",
+        );
+        // 전표 모달 출력
+      } else if (data.key == "id") {
+        this.modal.openModal(
+          OutboundVoucherPrintModal,
+          {
+            id: data.row.id,
           },
           "xl",
         );

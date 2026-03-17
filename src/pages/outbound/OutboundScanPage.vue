@@ -48,7 +48,7 @@
             labelKey="name"
             valueKey="id"
             placeholder="자재 선택"
-            @change="search_id"
+            @change="search_material"
           />
         </div>
       </div>
@@ -307,7 +307,7 @@ export default {
       this.rowData = this.rowData.filter((r) => r !== row);
     },
 
-    search_id() {
+    search_material() {
       this.search({ material_id: this.material_id });
     },
 
@@ -508,6 +508,8 @@ export default {
     await this.loadTable();
 
     this.mk_out_no();
+
+    this.search({ in_stock: true });
   },
 };
 </script>
