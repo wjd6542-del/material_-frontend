@@ -139,10 +139,18 @@ export default defineComponent({
             { to: "/statistics/stock", label: "재고 통계" },
           ],
         },
+        {
+          icon: "fa-user",
+          label: "계정관리",
+          open: false,
+          children: [
+            { to: "/user", label: "계정관리" },
+            { to: "/user/permission", label: "계정권한" },
+          ],
+        },
 
         { to: "/notification", icon: "fa-bell", label: "알림" },
         { to: "/setting", icon: "fa-gear", label: "환경설정" },
-        { to: "/user", icon: "fa-user", label: "계정관리" },
         { to: "/log", icon: "fa-clipboard-list", label: "로그" },
       ],
     };

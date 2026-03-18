@@ -65,7 +65,6 @@
           >
             <div class="flex items-center gap-2 text-gray-700 font-medium">
               <i class="fa-solid fa-boxes-stacked text-blue-500"></i>
-
               <span>이번달 입고 수량</span>
             </div>
           </div>
@@ -73,7 +72,6 @@
           <!-- body -->
           <div class="p-4">
             <div class="text-3xl font-semibold text-gray-800">1,245</div>
-
             <div class="text-sm text-gray-400 mt-1">이번 달 입고 기준</div>
           </div>
         </div>

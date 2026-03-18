@@ -36,6 +36,9 @@ import SatisticsStockPage from "@/pages/statistics/SatisticsStockPage.vue"
 
 import SettingPage from "@/pages/setting/SettingPage.vue"
 import UserManagerPage from "@/pages/user/UserManagerPage.vue"
+import UserManagerPermissionPage from "@/pages/user/UserManagerPermissionPage.vue"
+
+
 import NotificationPage from "@/pages/notification/NotificationPage.vue"
 
 
@@ -159,11 +162,13 @@ const routes = [
 					{
 						path: "user",
 						component: UserManagerPage,
-						meta: { title: "회원관리", auth: true }
+						meta: { title: "계정관리", auth: true }
 					},
-
-
-
+					{
+						path: "user/permission",
+						component: UserManagerPermissionPage,
+						meta: { title: "계정권한", auth: true }
+					},
 					{
 						path: "warehouse",
 						component: WarehousePage,

@@ -3,7 +3,6 @@
     <div
       v-if="modal.isOpen"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-      @click.self="modal.closeModal()"
     >
       <div
         class="bg-white rounded-xl shadow-xl p-6 min-w-[400px] w-full"

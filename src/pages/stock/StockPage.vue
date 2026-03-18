@@ -65,6 +65,152 @@
           />
         </div>
       </div>
+
+      <!-- 카드 영역 -->
+      <div class="lg:col-span-2 flex flex-col gap-4">
+        <!-- 총 재고 -->
+        <div
+          class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition"
+        >
+          <div
+            class="flex items-center justify-between px-4 py-3 border-b bg-gray-50"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-9 h-9 flex items-center justify-center rounded-lg bg-blue-100"
+              >
+                <i class="fa-solid fa-warehouse text-blue-600"></i>
+              </div>
+              <span class="text-gray-700 font-medium">총 재고 수량</span>
+            </div>
+          </div>
+
+          <div class="p-5 flex items-center justify-between">
+            <div>
+              <div class="text-3xl font-bold text-gray-800">
+                {{ formatNumber(total_stock || 0) }}
+              </div>
+              <div class="text-sm text-gray-400 mt-1">전체 창고 기준</div>
+            </div>
+
+            <!-- 우측 강조 아이콘 -->
+            <i class="fa-solid fa-boxes-stacked text-4xl text-gray-200"></i>
+          </div>
+        </div>
+
+        <!-- 안전재고 미만 -->
+        <div
+          class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition"
+        >
+          <div
+            class="flex items-center justify-between px-4 py-3 border-b bg-gray-50"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-9 h-9 flex items-center justify-center rounded-lg bg-red-100"
+              >
+                <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
+              </div>
+              <span class="text-gray-700 font-medium">안전재고 미만</span>
+            </div>
+
+            <button class="text-xs text-blue-500 hover:underline">
+              최대 10개
+            </button>
+          </div>
+
+          <div class="p-3 max-h-[200px] overflow-y-auto">
+            <div
+              v-for="row in lowStockList"
+              :key="row.id"
+              class="flex justify-between items-center px-3 py-2 text-sm border-b last:border-0 hover:bg-gray-50 rounded"
+            >
+              <div class="flex items-center gap-2">
+                <i
+                  class="fa-solid fa-circle-exclamation text-red-400 text-xs"
+                ></i>
+
+                <div class="flex flex-col">
+                  <span class="font-medium text-gray-700">
+                    {{ row.name }}
+                  </span>
+                  <span class="text-xs text-gray-400">
+                    최소 {{ row.safe_qty }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="text-red-600 font-semibold">
+                {{ formatNumber(row.qty) }}
+              </div>
+            </div>
+
+            <div
+              v-if="!lowStockList.length"
+              class="text-center text-gray-400 py-4"
+            >
+              <i class="fa-regular fa-face-meh mb-1"></i><br />
+              데이터 없음
+            </div>
+          </div>
+        </div>
+
+        <!-- 이번달 신규 자재 -->
+        <div
+          class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition"
+        >
+          <div
+            class="flex items-center justify-between px-4 py-3 border-b bg-gray-50"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-9 h-9 flex items-center justify-center rounded-lg bg-green-100"
+              >
+                <i class="fa-solid fa-box-open text-green-600"></i>
+              </div>
+              <span class="text-gray-700 font-medium">이번달 신규 자재</span>
+            </div>
+
+            <button
+              class="text-xs text-blue-500 hover:underline"
+              @click="goNewMaterialPage"
+            >
+              전체보기 →
+            </button>
+          </div>
+
+          <div class="p-3 max-h-[400px] overflow-y-auto">
+            <div
+              v-for="row in newMaterialList"
+              :key="row.id"
+              class="flex justify-between items-center px-3 py-2 text-sm border-b last:border-0 hover:bg-gray-50 rounded"
+            >
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-plus text-green-500 text-xs"></i>
+
+                <div class="flex flex-col">
+                  <span class="font-medium text-gray-700">
+                    {{ row.name }}
+                  </span>
+                  <span class="text-xs text-gray-400">
+                    {{ formatDate(row.created_at) }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="text-green-600 font-semibold text-xs">NEW</div>
+            </div>
+
+            <div
+              v-if="!newMaterialList.length"
+              class="text-center text-gray-400 py-4"
+            >
+              <i class="fa-regular fa-face-meh mb-1"></i><br />
+              데이터 없음
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -152,10 +298,44 @@ export default {
       materials: [],
       warehouses: [],
       locations: [],
+
+      // 카드 영역
+
+      newMaterialList: [],
+      lowStockList: [],
+      total_stock: 0,
     };
   },
 
   methods: {
+    // 모달로 리스트출력
+    goLowStockPage() {
+      this.$router.push("/login");
+    },
+
+    //자재 페이지로 이동
+    goNewMaterialPage() {
+      this.$router.push("/materials");
+    },
+
+    formatNumber(v) {
+      return new Intl.NumberFormat().format(v || 0);
+    },
+
+    formatDate(value) {
+      const d = new Date(value);
+
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mi = String(d.getMinutes()).padStart(2, "0");
+      const ss = String(d.getSeconds()).padStart(2, "0");
+
+      return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+    },
+
     // 데이터 로드 처리
     async loadList() {
       this.rows = [];
@@ -194,12 +374,32 @@ export default {
       const res = await api.post("/api/location/list");
       this.locations = res.data;
     },
+
+    async newMonthMaterial() {
+      const res = await api.post("/api/material/newMonthMaterial");
+      this.newMaterialList = res.data;
+    },
+
+    async lowStockMaterials() {
+      const res = await api.post("/api/stock/lowStockMaterials");
+      this.lowStockList = res.data;
+    },
+
+    async totalStockCount() {
+      const res = await api.post("/api/stock/stockSummary");
+      const data = res.data;
+      this.total_stock = data.total_qty;
+      console.log(data);
+    },
   },
   mounted() {
     this.loadList();
     this.loadMaterial();
     this.loadWarehouse();
     this.loadLocation();
+    this.newMonthMaterial();
+    this.lowStockMaterials();
+    this.totalStockCount();
   },
 };
 </script>

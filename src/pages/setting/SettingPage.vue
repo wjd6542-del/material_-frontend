@@ -38,6 +38,7 @@ import Supplier from "@/components/setting/Supplier.vue";
 import Warehouse from "@/components/setting/Warehouse.vue";
 import Role from "@/components/setting/Role.vue";
 import Location from "@/components/setting/Location.vue";
+import Permission from "@/components/setting/Permission.vue";
 
 /* 🔥 markRaw 로 컴포넌트 보호 */
 const tabs = [
@@ -73,9 +74,16 @@ const tabs = [
   },
   {
     key: "role",
-    label: "권한설정",
+    label: "관리자 권한",
     icon: "fa-solid fa-shield-halved",
     component: markRaw(Role),
+  },
+
+  {
+    key: "permission",
+    label: "접근 권한",
+    icon: "fa-solid fa-shield-halved",
+    component: markRaw(Permission),
   },
 ];
 

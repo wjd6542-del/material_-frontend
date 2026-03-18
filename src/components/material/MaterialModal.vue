@@ -199,6 +199,11 @@ export default {
      코드 자동 생성
     ========================== */
     changeCode() {
+      // 수정 상태이면 자동 코드생성 비활성
+      if (this.isEdit) {
+        return;
+      }
+
       const category = this.categorys.find(
         (row) => row.id == this.form.category_id,
       );

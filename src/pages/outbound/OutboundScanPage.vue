@@ -292,6 +292,9 @@ export default {
     // 검색 진행
     async search(where) {
       this.materials = [];
+
+      // 재고 없는건 조회 안되게
+      where.in_stock = true;
       try {
         const res = await api.post("/api/stock/list", where);
 

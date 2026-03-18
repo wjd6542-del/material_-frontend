@@ -127,6 +127,28 @@ export default {
       labelFormat: "A4_20",
 
       labelFormats: {
+        A4_9: {
+          name: "A4 9칸 (3x3)",
+          cols: 3,
+          rows: 3,
+          qr: 75,
+          fontName: 12,
+          fontCode: 11,
+          gap: 6,
+          padding: 6,
+        },
+
+        A4_12: {
+          name: "A4 12칸 (4x3)",
+          cols: 4,
+          rows: 3,
+          qr: 75,
+          fontName: 12,
+          fontCode: 11,
+          gap: 6,
+          padding: 6,
+        },
+
         A4_20: {
           name: "A4 20칸 (4x5)",
           cols: 4,
