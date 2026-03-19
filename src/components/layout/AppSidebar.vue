@@ -63,7 +63,7 @@
             <RouterLink
               v-for="sub in menu.children"
               :key="sub.to"
-              v-if="!sub.permission || hasPermission(sub.permission)"
+              v-if="!sub?.permission || hasPermission(sub?.permission)"
               :to="sub.to"
               class="submenu"
             >
@@ -241,7 +241,7 @@ export default defineComponent({
           to: "/user",
           icon: "fa-user",
           label: "계정관리",
-          permission: "user.view",
+          permission: "usermanager.view",
         },
 
         {
@@ -262,7 +262,7 @@ export default defineComponent({
           to: "/log",
           icon: "fa-clipboard-list",
           label: "로그",
-          permission: "log.view",
+          permission: "logs.view",
         },
       ],
     };
