@@ -21,7 +21,11 @@
       <div v-for="menu in menus" :key="menu.label">
         <!-- 부모 메뉴 -->
         <div
-          v-if="!menu.to"
+          v-if="
+            !menu.to &&
+            ((menu.permission && hasPermission(menu.permission)) ||
+              (!menu.permission && hasAnyChildPermission(menu)))
+          "
           class="menu cursor-pointer"
           @click.stop="toggle(menu)"
         >
@@ -39,7 +43,11 @@
         </div>
 
         <!-- 일반 메뉴 -->
-        <RouterLink v-if="menu.to" :to="menu.to" class="menu">
+        <RouterLink
+          v-if="menu.to && (!menu.permission || hasPermission(menu.permission))"
+          :to="menu.to"
+          class="menu"
+        >
           <i class="fa-solid" :class="menu.icon"></i>
           <span v-if="open">{{ menu.label }}</span>
         </RouterLink>
@@ -47,12 +55,15 @@
         <!-- 하위 메뉴 -->
         <transition name="submenu">
           <div
-            v-if="menu.children && menu.open && open"
+            v-if="
+              menu.children && menu.open && open && hasAnyChildPermission(menu)
+            "
             class="ml-8 mt-1 space-y-1"
           >
             <RouterLink
               v-for="sub in menu.children"
               :key="sub.to"
+              v-if="!sub.permission || hasPermission(sub.permission)"
               :to="sub.to"
               class="submenu"
             >
@@ -67,6 +78,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { useAuthStore } from "@/stores/auth";
 
 export default defineComponent({
   props: {
@@ -79,79 +91,179 @@ export default defineComponent({
   data() {
     return {
       menus: [
-        { to: "/", icon: "fa-chart-line", label: "대시보드" },
+        {
+          to: "/",
+          icon: "fa-chart-line",
+          label: "대시보드",
+          permission: "dashboard.view",
+        },
+
         {
           icon: "fa-box",
           label: "자재관리",
           open: false,
           children: [
-            { to: "/materials", label: "자재목록" },
-            { to: "/materials/print", label: "자재라벨" },
+            {
+              to: "/materials",
+              label: "자재목록",
+              permission: "material.view",
+            },
+            {
+              to: "/materials/print",
+              label: "자재라벨",
+              permission: "material.print",
+            },
           ],
         },
+
         {
           icon: "fa-arrow-down",
           label: "입고관리",
           open: false,
           children: [
-            { to: "/inbound", label: "입고목록" },
-            { to: "/inbound/detail", label: "입고 세부내역" },
-            { to: "/inbound/scan", label: "입고 스캔" },
+            { to: "/inbound", label: "입고목록", permission: "inbound.view" },
+            {
+              to: "/inbound/detail",
+              label: "입고 세부내역",
+              permission: "inbound.view",
+            },
+            {
+              to: "/inbound/scan",
+              label: "입고 스캔",
+              permission: "inbound.scan",
+            },
           ],
         },
+
         {
           icon: "fa-arrow-up",
           label: "출고관리",
           open: false,
           children: [
-            { to: "/outbound", label: "출고목록" },
-            { to: "/outbound/detail", label: "출고 세부내역" },
-            { to: "/outbound/scan", label: "출고 스캔" },
+            { to: "/outbound", label: "출고목록", permission: "outbound.view" },
+            {
+              to: "/outbound/detail",
+              label: "출고 세부내역",
+              permission: "outbound.view",
+            },
+            {
+              to: "/outbound/scan",
+              label: "출고 스캔",
+              permission: "outbound.scan",
+            },
           ],
         },
+
         {
           icon: "fa-boxes-stacked",
           label: "재고관리",
           open: false,
           children: [
-            { to: "/stock", label: "재고현황" },
-            { to: "/stock/detail", label: "재고 변동 이력" },
-            { to: "/stock/warehouse", label: "재고 위치 (창고)" },
-            { to: "/stock/loctoin", label: "재고 위치 (선반)" },
+            { to: "/stock", label: "재고현황", permission: "stock.view" },
+            {
+              to: "/stock/detail",
+              label: "재고 변동 이력",
+              permission: "stock.view",
+            },
+            {
+              to: "/stock/warehouse",
+              label: "재고 위치 (창고)",
+              permission: "stock.warehouse",
+            },
+            {
+              to: "/stock/loctoin",
+              label: "재고 위치 (선반)",
+              permission: "stock.location",
+            },
           ],
         },
+
         {
           icon: "fa-warehouse",
           label: "창고관리",
           open: false,
           children: [
-            { to: "/warehouse", label: "창고관리" },
-            { to: "/warehouse/rack", label: "선반관리" },
+            {
+              to: "/warehouse",
+              label: "창고관리",
+              permission: "warehouse.view",
+            },
+            {
+              to: "/warehouse/rack",
+              label: "선반관리",
+              permission: "warehouse.rack",
+            },
           ],
         },
+
         {
           icon: "fa-chart-line",
           label: "통계",
           open: false,
           children: [
-            { to: "/statistics/inbound", label: "입고 통계" },
-            { to: "/statistics/outbound", label: "출고 통계" },
-            { to: "/statistics/stock", label: "재고 통계" },
-          ],
-        },
-        {
-          icon: "fa-user",
-          label: "계정관리",
-          open: false,
-          children: [
-            { to: "/user", label: "계정관리" },
-            { to: "/user/permission", label: "계정권한" },
+            {
+              to: "/statistics/inbound",
+              label: "입고 통계",
+              permission: "statistics.inbound",
+            },
+            {
+              to: "/statistics/outbound",
+              label: "출고 통계",
+              permission: "statistics.outbound",
+            },
+            {
+              to: "/statistics/stock",
+              label: "재고 통계",
+              permission: "statistics.stock",
+            },
           ],
         },
 
-        { to: "/notification", icon: "fa-bell", label: "알림" },
-        { to: "/setting", icon: "fa-gear", label: "환경설정" },
-        { to: "/log", icon: "fa-clipboard-list", label: "로그" },
+        {
+          icon: "fa-user-shield",
+          label: "권한관리",
+          open: false,
+          children: [
+            {
+              to: "/permission/user",
+              label: "계정권한",
+              permission: "permission.user",
+            },
+            {
+              to: "/permission/menu",
+              label: "메뉴권한",
+              permission: "permission.menu",
+            },
+          ],
+        },
+
+        {
+          to: "/user",
+          icon: "fa-user",
+          label: "계정관리",
+          permission: "user.view",
+        },
+
+        {
+          to: "/notification",
+          icon: "fa-bell",
+          label: "알림",
+          permission: "notification.view",
+        },
+
+        {
+          to: "/setting",
+          icon: "fa-gear",
+          label: "환경설정",
+          permission: "setting.view",
+        },
+
+        {
+          to: "/log",
+          icon: "fa-clipboard-list",
+          label: "로그",
+          permission: "log.view",
+        },
       ],
     };
   },
@@ -168,6 +280,20 @@ export default defineComponent({
         if (menu.children) {
           menu.open = menu.children.some((c: any) => path.startsWith(c.to));
         }
+      });
+    },
+
+    hasPermission(permission: string) {
+      const auth = useAuthStore();
+      return auth.hasPermission(permission);
+    },
+
+    // 🔥 부모 메뉴 필터 핵심
+    hasAnyChildPermission(menu: any) {
+      if (!menu.children) return false;
+
+      return menu.children.some((sub: any) => {
+        return !sub.permission || this.hasPermission(sub.permission);
       });
     },
   },

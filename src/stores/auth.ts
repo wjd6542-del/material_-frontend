@@ -8,10 +8,19 @@ interface AuthState {
 
 interface User {
 	id: number
-	login_id: string
+	username: string
 	name: string
 	email?: string
-	role?: string
+
+	role?: {
+		id: number
+		name: string
+	}
+
+	is_super: boolean
+
+	// 🔥 권한 배열
+	permissions: string[]
 }
 
 interface LoginResponse {
@@ -30,6 +39,27 @@ export const useAuthStore = defineStore("auth", {
 
 		isLogin: (state): boolean => {
 			return !!state.token
+		},
+
+		// 🔥 권한 체크 (슈퍼 관리자 포함)
+		hasPermission: (state) => {
+			return (code?: string) => {
+				console.log("1111")
+
+				// ❌ user 없으면 차단
+				if (!state.user) return false
+
+				// 🔥 super admin (전체 허용)
+				if (state.user.is_super) return true
+				console.log("222")
+
+				// ✅ permission 없는 경우 허용
+				if (!code) return true
+
+				const permissions = state.user.permissions || []
+				console.log("permissions > ", permissions)
+				return permissions.includes(code)
+			}
 		}
 
 	},
@@ -38,23 +68,25 @@ export const useAuthStore = defineStore("auth", {
 
 		checkToken () {
 			const token = this.token
-
 			if (!token) return false
 
-			const decoded = jwtDecode(token)
+			try {
+				const decoded: any = jwtDecode(token)
+				const now = Date.now() / 1000
 
-			const now = Date.now() / 1000
+				if (decoded.exp < now) {
+					this.logout()
+					return false
+				}
 
-			if (decoded.exp < now) {
+				return true
+			} catch (e) {
 				this.logout()
 				return false
 			}
-
-			return true
 		},
 
 		login (data: LoginResponse) {
-
 			this.token = data.token
 			this.user = data.user
 
@@ -63,7 +95,6 @@ export const useAuthStore = defineStore("auth", {
 		},
 
 		logout () {
-
 			this.token = null
 			this.user = null
 
@@ -72,28 +103,28 @@ export const useAuthStore = defineStore("auth", {
 		},
 
 		restore () {
-
 			const token = localStorage.getItem("token")
+			const user = localStorage.getItem("user")
 
-			if (!token) return
+			if (!token || !user) return
 
 			this.token = token
+			this.user = JSON.parse(user)
 
+			// 🔥 토큰 만료 체크
 			try {
-
-				const decoded = jwtDecode(token)
+				const decoded: any = jwtDecode(token)
 				const now = Date.now() / 1000
 
 				if (decoded.exp < now) {
 					this.logout()
 				}
-
 			} catch (e) {
 				this.logout()
 			}
-
 		}
 
 	},
+
 	persist: true,
 })

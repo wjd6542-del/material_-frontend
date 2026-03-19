@@ -1,7 +1,7 @@
 ﻿<template>
   <div class="flex h-screen bg-gray-100">
     <!-- 좌측 계정 리스트 -->
-    <div class="w-1/4 bg-white border-r flex flex-col">
+    <div class="w-1/4 bg-white border-r flex flex-col rounded-3xl">
       <!-- 헤더 -->
       <div class="p-4 border-b">
         <div class="flex items-center gap-2 mb-3">
@@ -95,14 +95,44 @@
     </div>
 
     <!-- 우측 권한 설정 -->
-    <div class="flex-1 p-6">
-      <div v-if="selectedUser">
-        <!-- 🔥 핵심: 강제 리렌더 -->
-        <PermissionBoard :key="selectedUser.id" :user="selectedUser" />
-      </div>
+    <div class="flex-1 ps-3">
+      <transition name="page">
+        <PermissionBoard v-if="selectedUser" :user="selectedUser" />
+      </transition>
 
-      <div v-else class="text-gray-400 text-center mt-20">
-        계정을 선택하세요
+      <div
+        v-if="!selectedUser"
+        class="flex-1 p-6 flex items-center justify-center"
+      >
+        <div
+          class="bg-white border rounded-2xl shadow-sm p-10 text-center max-w-md w-full"
+        >
+          <!-- 아이콘 -->
+          <div
+            class="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-blue-50 mb-4"
+          >
+            <i class="fa-solid fa-user-check text-2xl text-blue-500"></i>
+          </div>
+
+          <!-- 타이틀 -->
+          <div class="text-lg font-semibold text-gray-700 mb-1">
+            계정을 선택하세요
+          </div>
+
+          <!-- 설명 -->
+          <div class="text-sm text-gray-400 mb-4">
+            좌측 목록에서 계정을 선택하면 권한을 설정할 수 있습니다
+          </div>
+
+          <!-- 보조 버튼 (선택사항) -->
+          <div class="flex justify-center gap-2">
+            <span
+              class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-500"
+            >
+              권한 관리
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -110,6 +140,7 @@
 
 <script>
 import PermissionBoard from "./PermissionBoard.vue";
+import api from "@/api/api";
 
 export default {
   components: { PermissionBoard },
@@ -140,20 +171,42 @@ export default {
 
   methods: {
     async loadUsers() {
-      this.users = [
-        { id: 1, name: "관리자", email: "admin@test.com" },
-        { id: 2, name: "직원", email: "user@test.com" },
-      ];
+      const res = await api.post("/api/user/list");
+      this.users = res.data;
     },
 
     async selectUser(user) {
-      // 🔥 기존 컴포넌트 완전 제거
-      this.selectedUser = null;
-
-      await this.$nextTick();
-
       this.selectedUser = user;
     },
   },
 };
 </script>
+
+<style>
+.page-enter-active,
+.page-leave-active {
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+}
+
+.page-enter-to {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.page-leave-from {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+}
+</style>

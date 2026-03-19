@@ -145,6 +145,12 @@ export default {
           flex: 0.5,
         },
         {
+          headerName: "액션",
+          field: "action",
+          filter: "agTextColumnFilter",
+          flex: 0.5,
+        },
+        {
           headerName: "정렬",
           field: "sort",
           filter: "agNumberColumnFilter",
@@ -170,6 +176,7 @@ export default {
         name: "",
         code: "",
         group: "",
+        action: "",
         sort: maxSort + 1,
       };
 
