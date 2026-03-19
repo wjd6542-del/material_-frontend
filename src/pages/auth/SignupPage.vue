@@ -149,7 +149,9 @@ export default {
           passwordConfirm: this.passwordConfirm,
         });
 
-        useAuthStore.login(res.data);
+        this.$toast.error("회원가입 되었습니다 로그인 하시기 바랍니다");
+
+        this.$router.push("/login");
       } catch (e) {
         this.$toast.error(e.message);
       } finally {
