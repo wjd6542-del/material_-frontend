@@ -90,7 +90,7 @@
         class="lg:col-span-8 bg-white rounded-xl shadow border border-gray-200"
       >
         <div class="flex items-center justify-between px-5 py-4 border-b">
-          <h2 class="text-lg font-semibold text-gray-800">출고 세부내역</h2>
+          <h2 class="text-lg font-semibold text-gray-800">반품 세부내역</h2>
         </div>
 
         <div class="p-4 pb-0 flex items-center gap-1">
@@ -175,7 +175,7 @@ export default {
         },
         {
           key: "outbound_code",
-          label: "출고번호",
+          label: "반품번호",
           width: "200px",
           align: "center",
           sortable: true,

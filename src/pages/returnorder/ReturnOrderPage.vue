@@ -6,7 +6,7 @@
         class="lg:col-span-8 bg-white rounded-xl shadow border border-gray-200"
       >
         <div class="flex items-center justify-between px-5 py-4 border-b">
-          <h2 class="text-lg font-semibold text-gray-800">출고 목록</h2>
+          <h2 class="text-lg font-semibold text-gray-800">반품 목록</h2>
         </div>
 
         <div class="p-4 pb-0 flex items-center gap-1">
@@ -33,8 +33,8 @@
           </div>
           <div class="w-[450px]">
             <BaseInput
-              v-model="where.outbound_no"
-              placeholder="출고번호 입력"
+              v-model="where.return_no"
+              placeholder="반품번호 입력"
               @change="loadList"
             />
           </div>
@@ -42,7 +42,7 @@
 
         <div class="p-4">
           <BaseTable
-            ref="outboundTable"
+            ref="returnorderTable"
             :columns="columns"
             :rows="rows"
             sortable
@@ -85,9 +85,9 @@ import BaseTable from "@/components/base/BaseTable.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
 import BaseInput from "@/components/base/BaseInput.vue";
 import { useModalStore } from "@/stores/modal";
-import OutboundModal from "@/components/outbound/OutboundModal.vue";
+import ReturnOrderModal from "@/components/returnorder/ReturnOrderModal.vue";
 
-import OutboundVoucherPrintModal from "@/components/outbound/OutboundVoucherPrintModal.vue";
+import ReturnOrderVoucherPrintModal from "@/components/returnorder/ReturnOrderVoucherPrintModal.vue";
 
 import api from "@/api/api";
 
@@ -120,8 +120,8 @@ export default {
           sortable: true,
         },
         {
-          key: "outbound_no",
-          label: "출고번호",
+          key: "return_no",
+          label: "반품번호",
           width: "200px",
           align: "center",
           sortable: true,
@@ -129,6 +129,12 @@ export default {
         {
           key: "username",
           label: "작성자",
+          sortable: true,
+          width: "100px",
+        },
+        {
+          key: "status",
+          label: "상태",
           sortable: true,
           width: "100px",
         },
@@ -149,7 +155,7 @@ export default {
       ],
 
       rows: [],
-      where: { outbound_no: "" },
+      where: { return_no: "" },
       dateRange: { start: null, end: null },
     };
   },
@@ -157,7 +163,7 @@ export default {
   methods: {
     // 삭제
     async batchDelete() {
-      const rows = this.$refs.outboundTable.getSelectedRows();
+      const rows = this.$refs.returnorderTable.getSelectedRows();
       if (!rows.length) {
         this.$toast.error("테이블에서 데이터를 선택하세요");
         return;
@@ -176,7 +182,7 @@ export default {
       if (!ok) return;
 
       try {
-        await api.post("/api/outbound/batchDelete", ids);
+        await api.post("/api/returnorder/batchDelete", ids);
         this.$toast.success("선택 항목이 삭제되었습니다");
         this.loadList();
       } catch (e) {
@@ -186,7 +192,7 @@ export default {
 
     // 추가 처리
     openModal() {
-      this.modal.openModal(OutboundModal, { onSaved: this.loadList }, "xl");
+      this.modal.openModal(ReturnOrderModal, { onSaved: this.loadList }, "xl");
     },
 
     // 데이터 로드 처리
@@ -203,16 +209,19 @@ export default {
       if (this.dateRange?.end) {
         where.endDate = this.dateRange.end.toISOString();
       }
-      const res = await api.post("/api/outbound/list", where);
+
+      const res = await api.post("/api/returnorder/list", where);
       this.rows = res.data;
+
+      console.log("!111", res.data);
     },
 
     // 셀클릭시
     onCellClick(data) {
       // 자재명 클릭시 모달 상세 오픈
-      if (data.key == "outbound_no") {
+      if (data.key == "return_no") {
         this.modal.openModal(
-          OutboundModal,
+          returnorderModal,
           {
             id: data.row.id,
             onSaved: this.loadList,
@@ -222,7 +231,7 @@ export default {
         // 전표 모달 출력
       } else if (data.key == "id") {
         this.modal.openModal(
-          OutboundVoucherPrintModal,
+          ReturnOrderVoucherPrintModal,
           {
             id: data.row.id,
           },
