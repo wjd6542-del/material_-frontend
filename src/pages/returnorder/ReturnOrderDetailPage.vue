@@ -154,7 +154,7 @@ import DateRangePicker from "@/components/base/DateRangePicker.vue";
 import api from "@/api/api";
 
 export default {
-  name: "OutboundDetailPage",
+  name: "ReturnOrderDetailPage",
 
   components: {
     BaseTable,

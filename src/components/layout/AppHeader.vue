@@ -18,56 +18,154 @@
 
     <!-- right -->
     <div class="flex items-center gap-6">
-      <!-- 입고 확인 -->
+      <!-- 입고 -->
       <div
-        class="relative cursor-pointer text-gray-600 hover:text-blue-600"
+        class="relative cursor-pointer group"
         @click="openNotification('INBOUND')"
       >
-        입고
+        <div
+          class="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 group-hover:bg-blue-100 transition"
+        >
+          <i class="fa-solid fa-arrow-down"></i>
+        </div>
+
         <span
           v-if="notificationStore.counts.INBOUND > 0"
-          class="absolute -top-2 -right-2 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-blue-500 text-white rounded-full px-1"
+          class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-blue-500 text-white rounded-full px-1"
         >
           {{ notificationStore.counts.INBOUND }}
         </span>
       </div>
 
-      <!-- 출고 확인 -->
+      <!-- 출고 -->
       <div
-        class="relative cursor-pointer text-gray-600 hover:text-red-600"
+        class="relative cursor-pointer group"
         @click="openNotification('OUTBOUND')"
       >
-        출고
+        <div
+          class="w-10 h-10 flex items-center justify-center rounded-xl bg-red-50 text-red-600 group-hover:bg-red-100 transition"
+        >
+          <i class="fa-solid fa-arrow-up"></i>
+        </div>
+
         <span
           v-if="notificationStore.counts.OUTBOUND > 0"
-          class="absolute -top-2 -right-2 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-red-500 text-white rounded-full px-1"
+          class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-red-500 text-white rounded-full px-1"
         >
           {{ notificationStore.counts.OUTBOUND }}
         </span>
       </div>
 
-      <!-- 신규 물품 -->
+      <!-- 반품 (Orange/Yellow) - 색상 및 아이콘 변경 -->
       <div
-        class="relative cursor-pointer text-gray-600 hover:text-green-600"
+        class="relative cursor-pointer group"
+        @click="openNotification('RETURNORDER')"
+      >
+        <div
+          class="w-10 h-10 flex items-center justify-center rounded-xl bg-orange-50 text-orange-600 group-hover:bg-orange-100 transition"
+        >
+          <i class="fa-solid fa-rotate-left"></i>
+          <!-- 반품을 의미하는 화살표 아이콘 -->
+        </div>
+        <span
+          v-if="notificationStore.counts.RETURNORDER > 0"
+          class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-orange-500 text-white rounded-full px-1 border-2 border-white"
+        >
+          {{ notificationStore.counts.RETURNORDER }}
+        </span>
+      </div>
+
+      <!-- 자재 -->
+      <div
+        class="relative cursor-pointer group"
         @click="openNotification('MATERIAL')"
       >
-        자재
+        <div
+          class="w-10 h-10 flex items-center justify-center rounded-xl bg-green-50 text-green-600 group-hover:bg-green-100 transition"
+        >
+          <i class="fa-solid fa-box"></i>
+        </div>
+
         <span
           v-if="notificationStore.counts.MATERIAL > 0"
-          class="absolute -top-2 -right-2 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-green-500 text-white rounded-full px-1"
+          class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-green-500 text-white rounded-full px-1"
         >
           {{ notificationStore.counts.MATERIAL }}
         </span>
       </div>
 
-      <!-- 사용자 -->
-      <div class="flex items-center gap-3 text-sm text-gray-700">
-        <i class="fa-solid fa-user-shield"></i>
-        {{ authStore.user?.name }}
+      <!-- 사용자 드롭다운 -->
+      <div class="relative">
+        <button
+          @click.stop="toggleUserMenu"
+          class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-100 transition"
+        >
+          <div
+            class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600"
+          >
+            <i class="fa-solid fa-user"></i>
+          </div>
 
-        <button class="ml-3 text-red-500 hover:text-red-700" @click="logout">
-          로그아웃
+          <span class="text-sm text-gray-700">
+            {{ authStore.user?.name }}
+          </span>
+
+          <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
         </button>
+
+        <!-- dropdown -->
+        <div
+          v-if="userMenu"
+          class="absolute right-0 mt-2 w-56 bg-white border rounded-2xl shadow-xl py-2 z-50"
+        >
+          <!-- 👤 사용자 정보 -->
+          <div class="px-4 py-3 border-b">
+            <div class="text-sm font-semibold text-gray-800">
+              {{ authStore.user?.name }}
+            </div>
+            <div class="text-xs text-gray-500">
+              {{ authStore.user?.role_name || "사용자" }}
+            </div>
+          </div>
+
+          <!-- 📌 메뉴 -->
+          <div class="py-1">
+            <button
+              class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-3"
+              @click="$router.push('/mypage')"
+            >
+              <i class="fa-solid fa-user text-gray-500"></i>
+              내 정보
+            </button>
+
+            <button
+              class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-3"
+              @click="$router.push('/notification')"
+            >
+              <i class="fa-solid fa-bell text-gray-500"></i>
+              알림
+            </button>
+
+            <button
+              class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-3"
+              @click="openModal"
+            >
+              <i class="fa-solid fa-key text-gray-500"></i>
+              비밀번호 변경
+            </button>
+          </div>
+
+          <!-- 🚨 로그아웃 -->
+          <div class="border-t mt-1 pt-1">
+            <button
+              class="w-full text-left px-4 py-2 text-sm hover:bg-red-50 text-red-500 flex items-center gap-3"
+              @click="logout"
+            >
+              <i class="fa-solid fa-right-from-bracket"></i>
+              로그아웃
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -79,9 +177,11 @@
 import { useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { useNotificationStore } from "@/stores/notification";
-
-// 패널 적용
 import Notification from "@/components/panel/Notification.vue";
+
+// 모달
+import { useModalStore } from "@/stores/modal";
+import UserProfileModal from "@/components/user/UserProfileModal.vue";
 
 export default {
   emits: ["toggle-sidebar"],
@@ -102,18 +202,29 @@ export default {
     Notification,
   },
 
+  data() {
+    return {
+      modal: useModalStore(),
+      userMenu: false,
+    };
+  },
+
   methods: {
+    openModal() {
+      this.modal.openModal(UserProfileModal, {}, "xl");
+    },
+    toggleUserMenu() {
+      this.userMenu = !this.userMenu;
+    },
+
+    handleOutside(e) {
+      if (!this.$el.contains(e.target)) {
+        this.userMenu = false;
+      }
+    },
+
     openNotification(type) {
       this.notificationStore.openPanel(type);
-    },
-
-    read(row) {
-      this.notificationStore.read(row.id);
-    },
-
-    goNotification() {
-      this.$router.push("/notification");
-      this.notificationStore.closePanel();
     },
 
     logout() {
@@ -123,8 +234,14 @@ export default {
   },
 
   mounted() {
-    console.log(this.authStore);
     this.notificationStore.loadCounts();
+
+    // 외부 클릭 시 드롭다운 닫기
+    document.addEventListener("click", this.handleOutside);
+  },
+
+  beforeUnmount() {
+    document.removeEventListener("click", this.handleOutside);
   },
 };
 </script>

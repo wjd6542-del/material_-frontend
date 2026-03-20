@@ -22,6 +22,11 @@ import OutboundDetailPage from "@/pages/outbound/OutboundDetailPage.vue"
 import OutboundScanPage from "@/pages/outbound/OutboundScanPage.vue"
 
 
+import ReturnOrderPage from "@/pages/returnorder/ReturnOrderPage.vue"
+import ReturnOrderDetailPage from "@/pages/returnorder/ReturnOrderDetailPage.vue"
+
+
+
 import StockPage from "@/pages/stock/StockPage.vue"
 import StockDetailPage from "@/pages/stock/StockDetailPage.vue"
 import StockWarehousePage from "@/pages/stock/StockWarehousePage.vue"
@@ -36,9 +41,10 @@ import SatisticsStockPage from "@/pages/statistics/SatisticsStockPage.vue"
 
 import SettingPage from "@/pages/setting/SettingPage.vue"
 import UserManagerPage from "@/pages/user/UserManagerPage.vue"
+import UserManagerIpPage from "@/pages/user/UserManagerIpPage.vue"
+
 import UserManagerPermissionPage from "@/pages/permission/UserManagerPermissionPage.vue"
 import MenuPermissionPage from "@/pages/permission/MenuPermissionPage.vue"
-
 import NotificationPage from "@/pages/notification/NotificationPage.vue"
 
 
@@ -46,6 +52,10 @@ import WarehousePage from "@/pages/warehouse/WarehousePage.vue"
 import WarehouseDetailPage from "@/pages/warehouse/WarehouseDetailPage.vue"
 
 import LogPage from "@/pages/log/LogPage.vue"
+import UserMyPage from "@/pages/user/UserMyPage.vue"
+
+
+
 
 
 
@@ -61,7 +71,7 @@ const routes = [
 		children: [
 			{
 				path: "",
-				redirect: "/dashboard"
+				redirect: "/dashboard",
 			},
 			{
 				path: "",
@@ -70,180 +80,221 @@ const routes = [
 					{
 						path: "dashboard",
 						component: DashboardPage,
-						meta: { title: "대시보드", auth: true }
+						meta: { title: "대시보드", auth: true, permission: "dashboard.view" },
 					},
+
+					// 자재
 					{
 						path: "materials",
 						component: MaterialListPage,
-						meta: { title: "자재목록", auth: true }
+						meta: { title: "자재목록", auth: true, permission: "material.view" },
 					},
-
 					{
 						path: "materials/print",
 						component: MaterialPrintPage,
-						meta: { title: "자재라벨", auth: true }
+						meta: { title: "자재라벨", auth: true, permission: "material.print" },
 					},
 
-
+					// 입고
 					{
 						path: "inbound",
 						component: InboundPage,
-						meta: { title: "입고관리", auth: true }
+						meta: { title: "입고관리", auth: true, permission: "inbound.view" },
 					},
 					{
 						path: "inbound/detail",
 						component: InboundDetailPage,
-						meta: { title: "입고 세부내역", auth: true }
+						meta: { title: "입고 세부내역", auth: true, permission: "inbound.detail.view" },
 					},
 					{
 						path: "inbound/scan",
 						component: InboundScanPage,
-						meta: { title: "입고 스캔", auth: true }
+						meta: { title: "입고 스캔", auth: true, permission: "inbound.scan" },
 					},
+
+					// 출고
 					{
 						path: "outbound",
 						component: OutboundPage,
-						meta: { title: "출고목록", auth: true }
+						meta: { title: "출고목록", auth: true, permission: "outbound.view" },
 					},
-
 					{
 						path: "outbound/detail",
 						component: OutboundDetailPage,
-						meta: { title: "출고 세부내역", auth: true }
+						meta: { title: "출고 세부내역", auth: true, permission: "outbound.detail.view" },
 					},
 					{
 						path: "outbound/scan",
 						component: OutboundScanPage,
-						meta: { title: "출고 스캔", auth: true }
+						meta: { title: "출고 스캔", auth: true, permission: "outbound.scan" },
 					},
 
+					// 반품
+					{
+						path: "returnorder",
+						component: ReturnOrderPage,
+						meta: { title: "반품목록", auth: true, permission: "returnorder.view" },
+					},
+					{
+						path: "returnorder/detail",
+						component: ReturnOrderDetailPage,
+						meta: { title: "반품 세부내역", auth: true, permission: "returnorder.detail.view" },
+					},
+
+					// 재고
 					{
 						path: "stock",
 						component: StockPage,
-						meta: { title: "재고현황", auth: true }
+						meta: { title: "재고현황", auth: true, permission: "stock.view" },
 					},
 					{
 						path: "stock/detail",
 						component: StockDetailPage,
-						meta: { title: "재고 변동 이력", auth: true }
+						meta: { title: "재고 변동 이력", auth: true, permission: "stock.detail.view" },
 					},
 					{
 						path: "/stock/warehouse",
 						component: StockWarehousePage,
-						meta: { title: "재고 위치 (창고)", auth: true }
+						meta: { title: "재고 위치 (창고)", auth: true, permission: "stock.warehouse" },
 					},
 					{
 						path: "/stock/loctoin",
 						component: StockLoctoinPage,
-						meta: { title: "재고 위치 (선반)", auth: true }
+						meta: { title: "재고 위치 (선반)", auth: true, permission: "stock.location" },
 					},
+
+					// 통계
 					{
 						path: "statistics/inbound",
 						component: SatisticsInboundPage,
-						meta: { title: "입고통계", auth: true }
+						meta: { title: "입고통계", auth: true, permission: "statistics.inbound.view" },
 					},
 					{
 						path: "statistics/outbound",
 						component: SatisticsOutboundPage,
-						meta: { title: "출고통계", auth: true }
+						meta: { title: "출고통계", auth: true, permission: "statistics.outbound.view" },
 					},
 					{
 						path: "statistics/stock",
 						component: SatisticsStockPage,
-						meta: { title: "재고통계", auth: true }
+						meta: { title: "재고통계", auth: true, permission: "statistics.stock.view" },
 					},
 
-
+					// 설정
 					{
 						path: "setting",
 						component: SettingPage,
-						meta: { title: "환경설정", auth: true }
+						meta: { title: "환경설정", auth: true, permission: "setting.view" },
 					},
+
+					// 계정
 					{
 						path: "user",
 						component: UserManagerPage,
-						meta: { title: "계정관리", auth: true }
+						meta: { title: "계정관리", auth: true, permission: "usermanager.view" },
+					},
+					{
+						path: "user/ip",
+						component: UserManagerIpPage,
+						meta: { title: "계정 아이피", auth: true, permission: "usermanager.ip" },
 					},
 					{
 						path: "/permission/user",
 						component: UserManagerPermissionPage,
-						meta: { title: "계정권한", auth: true }
+						meta: { title: "계정권한", auth: true, permission: "permission.user" },
 					},
 					{
 						path: "/permission/menu",
 						component: MenuPermissionPage,
-						meta: { title: "메뉴권한", auth: true }
+						meta: { title: "메뉴권한", auth: true, permission: "permission.menu" },
 					},
+
+					// 창고
 					{
 						path: "warehouse",
 						component: WarehousePage,
-						meta: { title: "창고관리", auth: true }
+						meta: { title: "창고관리", auth: true, permission: "warehouse.house.view" },
 					},
 					{
 						path: "warehouse/rack",
 						component: WarehouseDetailPage,
-						meta: { title: "선반관리", auth: true }
+						meta: { title: "선반관리", auth: true, permission: "warehouse.location.view" },
 					},
 
+					// 로그
 					{
 						path: "log",
 						component: LogPage,
-						meta: { title: "로그", auth: true }
+						meta: { title: "로그", auth: true, permission: "logs.view" },
 					},
 
+					// 알림
 					{
 						path: "notification",
 						component: NotificationPage,
-						meta: { title: "알림", auth: true }
-					}
-				]
+						meta: { title: "알림", auth: true, permission: "notification.view" },
+					},
+
+					{
+						path: "mypage",
+						component: UserMyPage,
+						meta: { title: "비밀번호 찾기" },
+					},
+				],
 			},
+
+
+			// 인증 필요없는 페이지
 			{
 				path: "",
 				component: AuthLayout,
 				children: [
 					{
 						path: "login",
-						component: LoginPage
+						component: LoginPage,
+						meta: { title: "로그인" },
 					},
 					{
 						path: "signup",
 						component: SignupPage,
-						meta: { title: "재고 관리" }
+						meta: { title: "회원가입" },
 					},
 					{
 						path: "forgotPassword",
 						component: ForgotPassword,
-						meta: { title: "재고 관리" }
-					}
-				]
-			}
-		]
-	}
-]
+						meta: { title: "비밀번호 찾기" },
+					},
+				],
+			},
+		],
+	},
+];
+
 
 export const router = createRouter({
 	history: createWebHistory(),
 	routes
 })
 
-router.beforeEach((to) => {
+router.beforeEach((to, from) => {
+	const auth = useAuthStore();
 
-	const auth = useAuthStore()
-
-	const token = auth.token || localStorage.getItem("token")
-
-	// 로그인 필요한 페이지
-	if (to.meta.auth && !token) {
-		return "/login"
+	// 1. 로그인 체크
+	if (to.meta.auth && !auth.user) {
+		return "/login";
 	}
 
-	// 로그인 페이지 접근 차단
-	if (token && to.path === "/login") {
-		return "/dashboard"
+	// 2. 권한 체크
+	if (to.meta.permission) {
+		const has = auth.hasPermission(to.meta.permission);
+
+		if (!has) {
+			return "/"; // 또는 홈으로
+		}
 	}
 
-})
+	return true; // ✅ 정상 진행
+});
 
 router.afterEach((to) => {
 	const baseTitle = "자재관리 시스템";

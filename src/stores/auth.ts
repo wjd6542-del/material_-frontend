@@ -44,20 +44,16 @@ export const useAuthStore = defineStore("auth", {
 		// 🔥 권한 체크 (슈퍼 관리자 포함)
 		hasPermission: (state) => {
 			return (code?: string) => {
-				console.log("1111")
-
 				// ❌ user 없으면 차단
 				if (!state.user) return false
 
 				// 🔥 super admin (전체 허용)
 				if (state.user.is_super) return true
-				console.log("222")
 
 				// ✅ permission 없는 경우 허용
 				if (!code) return true
 
 				const permissions = state.user.permissions || []
-				console.log("permissions > ", permissions)
 				return permissions.includes(code)
 			}
 		}

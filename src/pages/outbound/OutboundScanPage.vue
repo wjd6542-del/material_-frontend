@@ -315,25 +315,54 @@ export default {
     },
 
     // 항목추가
+    // 항목 추가
     addItem(item) {
-      // 재고 확인
-      if (item.quantity == 0) {
+      // 1. 재고 확인
+      if (item.quantity <= 0) {
         this.$toast.error(`${item.material.name} 재고가 부족합니다`);
         return;
       }
 
+      // 2. 이미 그리드에 동일한 자재/창고/선반 조합이 있는지 확인
+      let duplicateNode = null;
+      this.gridApi.forEachNode((node) => {
+        if (
+          node.data.material_id === item.material_id &&
+          node.data.warehouse_id === item.warehouse_id &&
+          node.data.location_id === item.location_id
+        ) {
+          duplicateNode = node;
+        }
+      });
+
+      // 3. 중복된 항목이 있으면 경고 후 중단 (또는 수량 합산 처리)
+      if (duplicateNode) {
+        this.$toast.warning("이미 목록에 추가된 자재입니다.");
+
+        // (옵션) 추가하는 대신 해당 셀로 포커스를 이동시키고 싶을 때
+        this.gridApi.ensureNodeVisible(duplicateNode);
+        return;
+      }
+
+      // 4. 중복이 없으면 새로 추가
       const newRow = {
-        id: this.tempId--,
+        id: this.tempId--, // 임시 ID 부여
         material_id: item.material_id,
         warehouse_id: item.warehouse_id,
         location_id: item.location_id,
-        quantity: 0,
+        quantity: 1, // 기본 수량 1로 설정 (원하는 값으로 수정 가능)
         sale_price: 0,
         cost_price: 0,
       };
 
       const res = this.gridApi.applyTransaction({ add: [newRow], addIndex: 0 });
-      res.add[0].setSelected(true);
+
+      // 추가된 행 바로 선택 처리
+      if (res.add && res.add.length > 0) {
+        res.add[0].setSelected(true);
+      }
+
+      this.updateFooter();
     },
 
     // 화면 삭제처리

@@ -7,6 +7,7 @@ export const useNotificationStore = defineStore("notification", {
 			INBOUND: 0,
 			OUTBOUND: 0,
 			MATERIAL: 0,
+			RETURNORDER: 0,
 		},
 		timer: 0,
 		type: "",

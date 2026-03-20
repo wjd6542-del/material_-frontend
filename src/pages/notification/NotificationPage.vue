@@ -66,30 +66,6 @@
           />
         </div>
       </div>
-
-      <!-- 카드 -->
-      <div class="lg:col-span-2 flex flex-col gap-4">
-        <!-- 이번달 입고 -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow">
-          <!-- header -->
-          <div
-            class="flex items-center justify-between px-4 py-3 border-b bg-gray-50"
-          >
-            <div class="flex items-center gap-2 text-gray-700 font-medium">
-              <i class="fa-solid fa-boxes-stacked text-blue-500"></i>
-
-              <span>재고 총 수량</span>
-            </div>
-          </div>
-
-          <!-- body -->
-          <div class="p-4">
-            <div class="text-3xl font-semibold text-gray-800">1,245</div>
-
-            <div class="text-sm text-gray-400 mt-1">이번 달 입고 기준</div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -123,6 +99,7 @@ export default {
       typeArr: [
         { text: "입고", value: "INBOUND" },
         { text: "출고", value: "OUTBOUND" },
+        { text: "반품", value: "RETURNORDER" },
         { text: "자재", value: "MATERIAL" },
       ],
 
@@ -138,7 +115,7 @@ export default {
           key: "message",
           label: "메시지",
           sortable: true,
-          width: "280px",
+          width: "350px",
         },
         {
           key: "type",
