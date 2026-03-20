@@ -149,7 +149,7 @@ export default {
           passwordConfirm: this.passwordConfirm,
         });
 
-        this.$toast.error("회원가입 되었습니다 로그인 하시기 바랍니다");
+        this.$toast.success("회원가입 되었습니다 로그인 하시기 바랍니다");
 
         this.$router.push("/login");
       } catch (e) {

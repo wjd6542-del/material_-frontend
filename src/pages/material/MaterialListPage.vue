@@ -10,6 +10,7 @@
 
       <div class="p-4 pb-0 flex items-center gap-1">
         <button
+          v-if="auth.hasPermission('material.create')"
           @click="openModal"
           class="h-[40px] px-3 py-1.5 bg-green-500 text-white rounded-md text-sm hover:bg-green-600"
         >
@@ -17,6 +18,7 @@
         </button>
 
         <button
+          v-if="auth.hasPermission('material.create')"
           @click="batchDelete"
           class="h-[40px] px-3 py-1.5 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 flex items-center gap-1"
         >
@@ -75,6 +77,7 @@ import BaseInput from "@/components/base/BaseInput.vue";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
 import ImageModal from "@/components/base/ImageModal.vue";
+import { useAuthStore } from "@/stores/auth";
 
 import api from "@/api/api";
 
@@ -91,6 +94,7 @@ export default {
 
   data() {
     return {
+      auth: useAuthStore(),
       modal: useModalStore(),
       columns: [
         {
@@ -253,6 +257,10 @@ export default {
     onCellClick(data) {
       // 자재명 클릭시 모달 상세 오픈
       if (data.key == "name" || data.key == "code") {
+        if (!auth.hasPermission("material.update")) {
+          return;
+        }
+
         this.modal.openModal(MaterialModal, {
           id: data.row.id,
           onSaved: this.loadList,

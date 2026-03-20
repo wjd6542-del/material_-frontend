@@ -71,7 +71,10 @@ const routes = [
 		children: [
 			{
 				path: "",
-				redirect: "/dashboard",
+				redirect: () => {
+					const auth = useAuthStore();
+					return auth.user ? "/dashboard" : "/login";
+				},
 			},
 			{
 				path: "",
@@ -279,21 +282,31 @@ export const router = createRouter({
 router.beforeEach((to, from) => {
 	const auth = useAuthStore();
 
+	// 🔥 아직 유저 로딩 안됐으면 대기
+	if (!auth.isLoaded) {
+		return false;
+	}
+
+	// 🔥 로그인 페이지는 항상 통과
+	if (to.path === "/login") {
+		return true;
+	}
+
 	// 1. 로그인 체크
 	if (to.meta.auth && !auth.user) {
 		return "/login";
 	}
 
-	// 2. 권한 체크
-	if (to.meta.permission) {
+	// 2. 권한 체크 (로그인 된 경우만)
+	if (to.meta.permission && auth.user) {
 		const has = auth.hasPermission(to.meta.permission);
 
 		if (!has) {
-			return "/"; // 또는 홈으로
+			return "/dashboard"; // 🔥 루트 말고 명확한 페이지
 		}
 	}
 
-	return true; // ✅ 정상 진행
+	return true;
 });
 
 router.afterEach((to) => {
