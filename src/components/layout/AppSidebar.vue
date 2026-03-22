@@ -196,6 +196,11 @@ export default defineComponent({
           children: [
             { to: "/stock", label: "재고현황", permission: "stock.view" },
             {
+              to: "/stock/move",
+              label: "재고이동",
+              permission: "stock.move.view",
+            },
+            {
               to: "/stock/detail",
               label: "재고 변동 이력",
               permission: "stock.detail.view",

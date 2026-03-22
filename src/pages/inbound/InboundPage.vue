@@ -1,84 +1,58 @@
 ﻿<template>
-  <div class="p-4 lg:p-6">
-    <div class="grid grid-cols-1 lg:grid-cols-10 gap-6">
-      <!-- 테이블 -->
-      <div
-        class="lg:col-span-8 bg-white rounded-xl shadow border border-gray-200"
-      >
-        <div class="flex items-center justify-between px-5 py-4 border-b">
-          <h2 class="text-lg font-semibold text-gray-800">입고 목록</h2>
+  <div>
+    <!-- 테이블 -->
+    <div
+      class="lg:col-span-8 bg-white rounded-xl shadow border border-gray-200"
+    >
+      <div class="flex items-center justify-between px-5 py-4 border-b">
+        <h2 class="text-lg font-semibold text-gray-800">입고 목록</h2>
+      </div>
+
+      <div class="p-4 pb-0 flex items-center gap-1">
+        <button
+          v-if="auth.hasPermission('inbound.create')"
+          @click="openModal"
+          class="h-[40px] px-3 py-1.5 bg-green-500 text-white rounded-md text-sm hover:bg-green-600"
+        >
+          <i class="fa-solid fa-add"></i>
+        </button>
+
+        <button
+          v-if="auth.hasPermission('inbound.delete')"
+          @click="batchDelete"
+          class="h-[40px] px-3 py-1.5 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 flex items-center gap-1"
+        >
+          <i class="fa-solid fa-trash"></i>
+        </button>
+        <div class="w-[450px]">
+          <DateRangePicker
+            v-model="dateRange"
+            :minuteStep="5"
+            :showQuickButtons="true"
+            @change="loadList"
+          />
         </div>
-
-        <div class="p-4 pb-0 flex items-center gap-1">
-          <button
-            v-if="auth.hasPermission('inbound.create')"
-            @click="openModal"
-            class="h-[40px] px-3 py-1.5 bg-green-500 text-white rounded-md text-sm hover:bg-green-600"
-          >
-            <i class="fa-solid fa-add"></i>
-          </button>
-
-          <button
-            v-if="auth.hasPermission('inbound.delete')"
-            @click="batchDelete"
-            class="h-[40px] px-3 py-1.5 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 flex items-center gap-1"
-          >
-            <i class="fa-solid fa-trash"></i>
-          </button>
-          <div class="w-[450px]">
-            <DateRangePicker
-              v-model="dateRange"
-              :minuteStep="5"
-              :showQuickButtons="true"
-              @change="loadList"
-            />
-          </div>
-          <div class="w-[450px]">
-            <BaseInput
-              v-model="where.inbound_no"
-              placeholder="입고번호 입력"
-              @change="loadList"
-            />
-          </div>
-        </div>
-
-        <div class="p-4">
-          <BaseTable
-            ref="inboundTable"
-            :columns="columns"
-            :rows="rows"
-            sortable
-            selectable
-            pagination
-            :pageSize="10"
-            :pageSizeOptions="[10, 20, 50, 100]"
-            @cell-click="onCellClick"
+        <div class="w-[450px]">
+          <BaseInput
+            v-model="where.inbound_no"
+            placeholder="입고번호 입력"
+            @change="loadList"
           />
         </div>
       </div>
 
-      <!-- 카드 -->
-      <div class="lg:col-span-2 flex flex-col gap-4">
-        <!-- 이번달 입고 -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow">
-          <!-- header -->
-          <div
-            class="flex items-center justify-between px-4 py-3 border-b bg-gray-50"
-          >
-            <div class="flex items-center gap-2 text-gray-700 font-medium">
-              <i class="fa-solid fa-boxes-stacked text-blue-500"></i>
-
-              <span>이번달 입고 수량</span>
-            </div>
-          </div>
-
-          <!-- body -->
-          <div class="p-4">
-            <div class="text-3xl font-semibold text-gray-800">1,245</div>
-
-            <div class="text-sm text-gray-400 mt-1">이번 달 입고 기준</div>
-          </div>
-        </div>
+      <div class="p-4">
+        <BaseTable
+          ref="inboundTable"
+          :columns="columns"
+          :rows="rows"
+          sortable
+          selectable
+          pagination
+          :pageSize="10"
+          :pageSizeOptions="[10, 20, 50, 100]"
+          @cell-click="onCellClick"
+        />
       </div>
     </div>
   </div>

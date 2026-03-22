@@ -31,7 +31,7 @@ import StockPage from "@/pages/stock/StockPage.vue"
 import StockDetailPage from "@/pages/stock/StockDetailPage.vue"
 import StockWarehousePage from "@/pages/stock/StockWarehousePage.vue"
 import StockLoctoinPage from "@/pages/stock/StockLoctoinPage.vue"
-
+import StockMovePage from "@/pages/stock/StockMovePage.vue"
 
 
 import SatisticsInboundPage from "@/pages/statistics/SatisticsInboundPage.vue"
@@ -150,6 +150,12 @@ const routes = [
 						component: StockPage,
 						meta: { title: "재고현황", auth: true, permission: "stock.view" },
 					},
+					{
+						path: "stock/move",
+						component: StockMovePage,
+						meta: { title: "재고이동", auth: true, permission: "stock.move.view" },
+					},
+
 					{
 						path: "stock/detail",
 						component: StockDetailPage,
@@ -284,7 +290,7 @@ router.beforeEach((to, from) => {
 
 	// 🔥 아직 유저 로딩 안됐으면 대기
 	if (!auth.isLoaded) {
-		return false;
+		return true;
 	}
 
 	// 🔥 로그인 페이지는 항상 통과
@@ -302,7 +308,7 @@ router.beforeEach((to, from) => {
 		const has = auth.hasPermission(to.meta.permission);
 
 		if (!has) {
-			return "/dashboard"; // 🔥 루트 말고 명확한 페이지
+			return "/dashboard";
 		}
 	}
 
