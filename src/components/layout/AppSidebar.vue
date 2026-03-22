@@ -1,78 +1,115 @@
 ﻿<template>
   <aside
     :class="[
-      'bg-gradient-to-b from-gray-900 via-gray-950 to-black text-gray-200 flex flex-col transition-all duration-300 border-r border-gray-800/50',
-      open ? 'w-64' : 'w-16',
+      'h-screen sticky top-0 bg-[#0f1117] text-gray-300 flex flex-col transition-all duration-300 border-r border-gray-800 shrink-0 z-50',
+      open ? 'w-64' : 'w-20',
     ]"
   >
-    <!-- 🔥 Logo -->
+    <!-- 🔥 Logo Section -->
     <div
-      class="h-16 flex items-center border-b border-gray-800"
-      :class="open ? 'px-4 justify-start' : 'justify-center'"
+      class="h-16 flex items-center shrink-0 border-b border-gray-800/50 bg-[#0f1117]"
+      :class="open ? 'px-5 justify-start' : 'justify-center'"
     >
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-3">
+        <!-- 로고 아이콘 -->
         <div
-          class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow"
+          class="w-9 h-9 rounded bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shrink-0 text-base"
         >
           M
         </div>
 
-        <div v-if="open" class="flex flex-col leading-tight">
-          <span class="text-sm font-semibold tracking-wide text-white">
-            MMS PRO
+        <!-- 로고 텍스트 (Material System 삭제 및 폰트 차등 적용) -->
+        <div v-if="open" class="flex items-baseline overflow-hidden shrink-0">
+          <span
+            class="text-[25px] font-black text-white tracking-tighter uppercase"
+          >
+            MMS
           </span>
-          <span class="text-[10px] text-gray-400"> Material System </span>
+          <span
+            class="ml-1 text-[15px] font-bold text-blue-500 tracking-tight uppercase self-end mb-[2px]"
+          >
+            PRO
+          </span>
         </div>
       </div>
     </div>
 
-    <!-- 🔥 Menu -->
-    <nav class="flex-1 p-3 space-y-2">
+    <!-- 🔥 Menu Section -->
+    <nav
+      class="flex-1 p-3 space-y-1 custom-scrollbar"
+      :class="open ? 'overflow-y-auto overflow-x-hidden' : 'overflow-visible'"
+    >
       <div v-for="menu in menus" :key="menu.label" class="relative group">
-        <!-- 부모 메뉴 -->
+        <!-- [Case 1] 자식이 있는 부모 메뉴 -->
         <div
           v-if="menu.children && hasAnyChildPermission(menu)"
-          class="menu"
-          :class="{ 'active-menu': isParentActive(menu) }"
+          class="menu-item group"
+          :class="{ 'active-parent-bg': isParentActive(menu) }"
           @click.stop="toggle(menu)"
         >
-          <i class="fa-solid w-5 text-center" :class="menu.icon"></i>
-          <span v-if="open" class="flex-1">{{ menu.label }}</span>
-
+          <i
+            class="fa-solid w-6 text-center text-lg shrink-0 transition-colors"
+            :class="[
+              menu.icon,
+              isParentActive(menu)
+                ? 'text-blue-500'
+                : 'text-gray-400 group-hover:text-white',
+            ]"
+          >
+          </i>
+          <span
+            v-if="open"
+            class="flex-1 ml-2 text-[14px] font-medium truncate"
+            >{{ menu.label }}</span
+          >
           <i
             v-if="menu.children && open"
-            class="fa-solid fa-chevron-down text-xs transition-transform duration-200"
+            class="fa-solid fa-chevron-down text-[10px] transition-transform opacity-50"
             :class="{ 'rotate-180': menu.open }"
           />
         </div>
 
-        <!-- 단일 메뉴 -->
+        <!-- [Case 2] 단일 메뉴 (대시보드 포함) -->
         <RouterLink
           v-else-if="
             menu.to && (!menu.permission || hasPermission(menu.permission))
           "
           :to="menu.to"
-          class="menu"
-          :class="{ 'active-menu': isActive(menu.to) }"
+          class="menu-item group"
+          :class="{ 'active-link': isActive(menu.to) }"
         >
-          <i class="fa-solid w-5 text-center" :class="menu.icon"></i>
-          <span v-if="open">{{ menu.label }}</span>
+          <i
+            class="fa-solid w-6 text-center text-lg shrink-0 transition-colors"
+            :class="[
+              menu.icon,
+              isActive(menu.to)
+                ? 'text-white'
+                : 'text-gray-400 group-hover:text-white',
+            ]"
+          >
+          </i>
+          <span v-if="open" class="ml-2 text-[14px] font-medium truncate">{{
+            menu.label
+          }}</span>
+
+          <!-- 선택 강조 바 (왼쪽 파란 선) -->
+          <div v-if="isActive(menu.to)" class="active-bar"></div>
         </RouterLink>
 
-        <!-- 🔥 서브메뉴 -->
+        <!-- 🔥 [열림상태] 서브메뉴 -->
         <transition name="submenu">
           <div
             v-if="
               open && menu.children && menu.open && hasAnyChildPermission(menu)
             "
-            class="ml-8 mt-1 space-y-1"
+            class="mt-1 ml-4 border-l border-gray-800 space-y-0.5"
           >
             <template v-for="sub in menu.children" :key="sub.to">
               <RouterLink
                 v-if="!sub?.permission || hasPermission(sub?.permission)"
                 :to="sub.to"
-                class="submenu"
-                :class="{ 'active-submenu': isActive(sub.to) }"
+                class="sub-item"
+                :class="{ 'active-sub': isActive(sub.to) }"
               >
                 {{ sub.label }}
               </RouterLink>
@@ -80,28 +117,30 @@
           </div>
         </transition>
 
-        <!-- 🔥 닫힘 상태 hover 메뉴 -->
+        <!-- 🔥 [닫힘상태] 호버 팝업 메뉴 -->
         <div
           v-if="!open && menu.children && hasAnyChildPermission(menu)"
-          class="absolute left-12 top-0 z-50 hidden group-hover:block"
+          class="absolute left-full top-0 ml-2 z-[100] hidden group-hover:block"
         >
-          <div class="absolute left-[-12px] top-0 w-4 h-full"></div>
-
+          <div class="absolute left-[-12px] top-0 w-[12px] h-full"></div>
           <div
-            class="bg-gray-900/95 backdrop-blur border border-gray-800 rounded-2xl shadow-2xl p-2 min-w-[200px]"
+            class="bg-[#1a1d24] border border-gray-700 rounded-lg shadow-2xl min-w-[170px] py-2 overflow-hidden"
           >
             <div
-              class="px-3 py-2 text-xs text-gray-500 border-b border-gray-800 mb-1"
+              class="px-4 py-1.5 text-[10px] text-gray-500 font-bold border-b border-gray-800/50 mb-1 uppercase tracking-widest"
             >
               {{ menu.label }}
             </div>
-
             <template v-for="sub in menu.children" :key="sub.to">
               <RouterLink
                 v-if="!sub?.permission || hasPermission(sub?.permission)"
                 :to="sub.to"
-                class="block px-3 py-2 text-sm text-gray-300 hover:bg-gray-800 rounded-lg transition"
-                :class="{ 'bg-blue-600 text-white': isActive(sub.to) }"
+                class="block px-4 py-2 text-[13px] transition-colors"
+                :class="
+                  isActive(sub.to)
+                    ? 'text-blue-400 bg-blue-500/10 font-bold'
+                    : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                "
               >
                 {{ sub.label }}
               </RouterLink>
@@ -118,15 +157,12 @@ import { defineComponent } from "vue";
 import { useAuthStore } from "@/stores/auth";
 
 export default defineComponent({
-  props: {
-    open: { type: Boolean, default: true },
-  },
-
+  props: { open: { type: Boolean, default: true } },
   data() {
     return {
       menus: [
         {
-          to: "/",
+          to: "/dashboard", // 👈 기존 "/"에서 "/dashboard"로 수정 (URL 일치)
           icon: "fa-chart-line",
           label: "대시보드",
           permission: "dashboard.view",
@@ -319,47 +355,36 @@ export default defineComponent({
       ],
     };
   },
-
   methods: {
     toggle(menu: any) {
       if (this.open) menu.open = !menu.open;
     },
-
+    // 💡 개선된 isActive: "/"와 "/dashboard"를 동일하게 처리하거나 정확한 포함 관계 확인
     isActive(path: string) {
-      return this.$route.path === path;
+      const currentPath = this.$route.path;
+      if (path === "/dashboard" && currentPath === "/") return true;
+      return currentPath === path;
     },
-
     isParentActive(menu: any) {
-      if (!menu.children) return false;
-      return menu.children.some((sub: any) => this.isActive(sub.to));
+      return menu.children?.some((sub: any) => this.isActive(sub.to));
     },
-
     updateMenuOpen(path: string) {
       this.menus.forEach((menu: any) => {
-        if (menu.children) {
-          if (menu.children.some((c: any) => c.to === path)) {
-            menu.open = true;
-          }
-        }
+        if (menu.children?.some((c: any) => c.to === path)) menu.open = true;
       });
     },
-
     hasPermission(permission: string) {
       return useAuthStore().hasPermission(permission);
     },
-
     hasAnyChildPermission(menu: any) {
-      if (!menu.children) return false;
-      return menu.children.some(
+      return menu.children?.some(
         (sub: any) => !sub.permission || this.hasPermission(sub.permission),
       );
     },
   },
-
   mounted() {
     this.updateMenuOpen(this.$route.path);
   },
-
   watch: {
     "$route.path"(newPath) {
       this.updateMenuOpen(newPath);
@@ -369,43 +394,51 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.menu {
-  @apply flex items-center gap-3 px-4 py-2.5 rounded-xl
-         text-sm text-gray-400 cursor-pointer
-         transition-all duration-200
-         hover:bg-gray-800/70 hover:text-white
-         hover:translate-x-1;
+.menu-item {
+  @apply relative flex items-center px-3 py-2.5 rounded-lg cursor-pointer
+         text-gray-400 transition-all duration-150
+         hover:bg-gray-800 hover:text-white;
 }
 
-.active-menu {
-  @apply bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold shadow;
-  position: relative;
+/* 🔵 강조 선택 스타일 (확실하게 보임) */
+.active-link {
+  @apply bg-blue-600 text-white font-bold shadow-lg shadow-blue-900/40;
 }
 
-.active-menu::before {
+.active-parent-bg {
+  @apply bg-gray-800/60 text-white;
+}
+
+/* 왼쪽 강조 수직 바 */
+.active-bar {
+  @apply absolute left-[-4px] top-1/2 -translate-y-1/2 w-1.5 h-6 bg-blue-500 rounded-r-full;
+}
+
+.sub-item {
+  @apply block pl-9 py-2 text-[13px] text-gray-500 hover:text-white transition-colors relative;
+}
+
+.active-sub {
+  @apply text-blue-400 font-bold;
+}
+.active-sub::before {
   content: "";
-  position: absolute;
-  left: -6px;
-  top: 20%;
-  height: 60%;
-  width: 4px;
-  @apply bg-blue-400 rounded-full;
+  @apply absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-3.5 bg-blue-500;
 }
 
-.submenu {
-  @apply block px-4 py-2 text-sm rounded-lg
-         text-gray-500 transition-all
-         hover:text-white hover:bg-gray-800/70
-         hover:translate-x-1;
+.custom-scrollbar::-webkit-scrollbar {
+  width: 3px;
 }
-
-.active-submenu {
-  @apply text-blue-400 font-semibold bg-gray-800/50;
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 10px;
 }
 
 .submenu-enter-active,
 .submenu-leave-active {
-  transition: all 0.25s ease;
+  transition: all 0.2s ease-in-out;
+  max-height: 500px;
+  overflow: hidden;
 }
 .submenu-enter-from,
 .submenu-leave-to {

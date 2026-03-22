@@ -252,22 +252,96 @@
         </div>
 
         <!-- 미선택 화면 -->
-        <div v-else class="flex-1 flex items-center justify-center">
+        <div
+          v-else
+          class="flex-1 flex items-center justify-center relative overflow-hidden bg-gray-50/50 rounded-[40px] border border-dashed border-gray-200"
+        >
+          <!-- 배경 장식 요소 (선택 사항) -->
           <div
-            class="bg-white border rounded-[40px] shadow-sm p-12 text-center max-w-sm w-full"
+            class="absolute inset-0 opacity-[0.03] pointer-events-none"
+            :style="dotPattern"
+          ></div>
+
+          <div
+            class="relative z-10 flex flex-col items-center max-w-lg w-full px-6"
           >
-            <div
-              class="w-20 h-20 mx-auto flex items-center justify-center rounded-3xl bg-blue-50 mb-6 rotate-3"
-            >
-              <i class="fa-solid fa-user-shield text-3xl text-blue-500"></i>
+            <!-- 아이콘 애니메이션 영역 -->
+            <div class="relative mb-10">
+              <div
+                class="absolute inset-0 bg-blue-400 blur-[60px] opacity-20 animate-pulse"
+              ></div>
+              <div
+                class="relative w-28 h-28 bg-white rounded-[32px] shadow-2xl shadow-blue-100 flex items-center justify-center rotate-3 hover:rotate-0 transition-transform duration-500"
+              >
+                <i class="fa-solid fa-user-shield text-5xl text-blue-500"></i>
+              </div>
+              <!-- 보조 아이콘들 -->
+              <div
+                class="absolute -top-4 -right-4 w-12 h-12 bg-emerald-50 rounded-2xl shadow-sm flex items-center justify-center animate-bounce"
+                style="animation-duration: 3s"
+              >
+                <i class="fa-solid fa-check text-emerald-500 text-xl"></i>
+              </div>
+              <div
+                class="absolute -bottom-2 -left-6 w-10 h-10 bg-purple-50 rounded-xl shadow-sm flex items-center justify-center animate-bounce"
+                style="animation-duration: 4s"
+              >
+                <i class="fa-solid fa-lock text-purple-400 text-sm"></i>
+              </div>
             </div>
-            <h3 class="text-xl font-black text-gray-800 mb-2">
-              계정을 선택하세요
+
+            <!-- 텍스트 가이드 -->
+            <h3
+              class="text-2xl font-black text-gray-800 mb-3 tracking-tight text-center"
+            >
+              보안 계정 관리 시스템
             </h3>
-            <p class="text-sm text-gray-400 leading-relaxed mb-6">
-              보안 설정을 위해 좌측 목록에서<br />대상 계정을 먼저 선택해
-              주세요.
+            <p class="text-gray-400 text-center leading-relaxed mb-10">
+              화이트리스트 IP 설정을 위해 <br />
+              좌측 목록에서 대상 계정을 선택하여 관리를 시작하세요.
             </p>
+
+            <!-- 하단 상태 요약 (가짜 데이터/정적 가이드) -->
+            <div class="grid grid-cols-2 gap-4 w-full">
+              <div
+                class="bg-white/60 backdrop-blur-sm p-4 rounded-2xl border border-gray-100 flex items-center gap-4"
+              >
+                <div
+                  class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center shrink-0"
+                >
+                  <i class="fa-solid fa-shield-halved text-blue-500"></i>
+                </div>
+                <div>
+                  <div
+                    class="text-[10px] text-gray-400 font-bold uppercase tracking-wider"
+                  >
+                    Access Status
+                  </div>
+                  <div class="text-sm font-bold text-gray-700">
+                    보안 활성화됨
+                  </div>
+                </div>
+              </div>
+              <div
+                class="bg-white/60 backdrop-blur-sm p-4 rounded-2xl border border-gray-100 flex items-center gap-4"
+              >
+                <div
+                  class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center shrink-0"
+                >
+                  <i class="fa-solid fa-earth-asia text-orange-500"></i>
+                </div>
+                <div>
+                  <div
+                    class="text-[10px] text-gray-400 font-bold uppercase tracking-wider"
+                  >
+                    IP Filtering
+                  </div>
+                  <div class="text-sm font-bold text-gray-700">
+                    개별 IP 제어
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </transition>
@@ -317,6 +391,13 @@ export default {
         this.ipList.length > 0 &&
         this.selectedRows.length === this.ipList.length
       );
+    },
+
+    dotPattern() {
+      return {
+        backgroundImage: `radial-gradient(#3b82f6 1px, transparent 0)`,
+        backgroundSize: `24px 24px`,
+      };
     },
   },
 
@@ -456,5 +537,21 @@ export default {
 ::-webkit-scrollbar-thumb {
   background: #e2e8f0;
   border-radius: 10px;
+}
+
+/* style scoped에 추가 */
+@keyframes bounce-subtle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* 기존 animate-bounce 대신 커스텀을 쓰면 더 부드럽습니다 */
+.animate-bounce {
+  animation: bounce-subtle 3s infinite ease-in-out;
 }
 </style>
