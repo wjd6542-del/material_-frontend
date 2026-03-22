@@ -167,7 +167,7 @@ const routes = [
 						meta: { title: "재고 위치 (창고)", auth: true, permission: "stock.warehouse" },
 					},
 					{
-						path: "/stock/loctoin",
+						path: "/stock/location",
 						component: StockLoctoinPage,
 						meta: { title: "재고 위치 (선반)", auth: true, permission: "stock.location" },
 					},
@@ -247,7 +247,7 @@ const routes = [
 					{
 						path: "mypage",
 						component: UserMyPage,
-						meta: { title: "비밀번호 찾기" },
+						meta: { title: "마이페이지" },
 					},
 				],
 			},

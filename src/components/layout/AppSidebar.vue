@@ -1,33 +1,44 @@
 ﻿<template>
   <aside
     :class="[
-      'bg-gray-900 text-gray-200 flex flex-col transition-all duration-300',
+      'bg-gradient-to-b from-gray-900 via-gray-950 to-black text-gray-200 flex flex-col transition-all duration-300 border-r border-gray-800/50',
       open ? 'w-64' : 'w-16',
     ]"
   >
-    <!-- Logo -->
+    <!-- 🔥 Logo -->
     <div
       class="h-16 flex items-center border-b border-gray-800"
-      :class="open ? 'px-6 justify-start' : 'justify-center'"
+      :class="open ? 'px-4 justify-start' : 'justify-center'"
     >
-      <span class="text-lg font-semibold tracking-wide">
-        <span v-if="open">자재관리</span>
-        <span v-else>M</span>
-      </span>
+      <div class="flex items-center gap-2">
+        <div
+          class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow"
+        >
+          M
+        </div>
+
+        <div v-if="open" class="flex flex-col leading-tight">
+          <span class="text-sm font-semibold tracking-wide text-white">
+            MMS PRO
+          </span>
+          <span class="text-[10px] text-gray-400"> Material System </span>
+        </div>
+      </div>
     </div>
 
-    <!-- Menu -->
-    <nav class="flex-1 p-3 space-y-1">
+    <!-- 🔥 Menu -->
+    <nav class="flex-1 p-3 space-y-2">
       <div v-for="menu in menus" :key="menu.label" class="relative group">
-        <!-- 1. 부모 메뉴 (하위 메뉴가 있는 경우) -->
+        <!-- 부모 메뉴 -->
         <div
           v-if="menu.children && hasAnyChildPermission(menu)"
-          class="menu cursor-pointer"
+          class="menu"
           :class="{ 'active-menu': isParentActive(menu) }"
           @click.stop="toggle(menu)"
         >
-          <i class="fa-solid" :class="menu.icon"></i>
+          <i class="fa-solid w-5 text-center" :class="menu.icon"></i>
           <span v-if="open" class="flex-1">{{ menu.label }}</span>
+
           <i
             v-if="menu.children && open"
             class="fa-solid fa-chevron-down text-xs transition-transform duration-200"
@@ -35,7 +46,7 @@
           />
         </div>
 
-        <!-- 2. 단일 메뉴 (대시보드, 알림 등) -->
+        <!-- 단일 메뉴 -->
         <RouterLink
           v-else-if="
             menu.to && (!menu.permission || hasPermission(menu.permission))
@@ -44,11 +55,11 @@
           class="menu"
           :class="{ 'active-menu': isActive(menu.to) }"
         >
-          <i class="fa-solid" :class="menu.icon"></i>
+          <i class="fa-solid w-5 text-center" :class="menu.icon"></i>
           <span v-if="open">{{ menu.label }}</span>
         </RouterLink>
 
-        <!-- 사이드바 열림: 서브메뉴 리스트 (Transition 적용) -->
+        <!-- 🔥 서브메뉴 -->
         <transition name="submenu">
           <div
             v-if="
@@ -56,7 +67,6 @@
             "
             class="ml-8 mt-1 space-y-1"
           >
-            <!-- v-for와 v-if 분리: template 태그 사용 -->
             <template v-for="sub in menu.children" :key="sub.to">
               <RouterLink
                 v-if="!sub?.permission || hasPermission(sub?.permission)"
@@ -70,26 +80,27 @@
           </div>
         </transition>
 
-        <!-- 사이드바 닫힘: 호버 팝업 -->
+        <!-- 🔥 닫힘 상태 hover 메뉴 -->
         <div
           v-if="!open && menu.children && hasAnyChildPermission(menu)"
-          class="absolute left-10 top-0 z-50 group-hover:block hidden"
+          class="absolute left-12 top-0 z-50 hidden group-hover:block"
         >
-          <div class="absolute left-[-16px] top-0 w-4 h-full"></div>
+          <div class="absolute left-[-12px] top-0 w-4 h-full"></div>
+
           <div
-            class="bg-gray-900 border border-gray-800 rounded-xl shadow-xl p-2 min-w-[200px]"
+            class="bg-gray-900/95 backdrop-blur border border-gray-800 rounded-2xl shadow-2xl p-2 min-w-[200px]"
           >
             <div
               class="px-3 py-2 text-xs text-gray-500 border-b border-gray-800 mb-1"
             >
               {{ menu.label }}
             </div>
-            <!-- 팝업 내에서도 v-for와 v-if 분리 및 권한 체크 -->
+
             <template v-for="sub in menu.children" :key="sub.to">
               <RouterLink
                 v-if="!sub?.permission || hasPermission(sub?.permission)"
                 :to="sub.to"
-                class="block px-3 py-2 text-sm text-gray-300 hover:bg-gray-800 rounded-md"
+                class="block px-3 py-2 text-sm text-gray-300 hover:bg-gray-800 rounded-lg transition"
                 :class="{ 'bg-blue-600 text-white': isActive(sub.to) }"
               >
                 {{ sub.label }}
@@ -110,6 +121,7 @@ export default defineComponent({
   props: {
     open: { type: Boolean, default: true },
   },
+
   data() {
     return {
       menus: [
@@ -211,7 +223,7 @@ export default defineComponent({
               permission: "stock.warehouse",
             },
             {
-              to: "/stock/loctoin",
+              to: "/stock/location",
               label: "재고 위치 (선반)",
               permission: "stock.location",
             },
@@ -307,17 +319,21 @@ export default defineComponent({
       ],
     };
   },
+
   methods: {
     toggle(menu: any) {
       if (this.open) menu.open = !menu.open;
     },
+
     isActive(path: string) {
       return this.$route.path === path;
     },
+
     isParentActive(menu: any) {
       if (!menu.children) return false;
       return menu.children.some((sub: any) => this.isActive(sub.to));
     },
+
     updateMenuOpen(path: string) {
       this.menus.forEach((menu: any) => {
         if (menu.children) {
@@ -327,9 +343,11 @@ export default defineComponent({
         }
       });
     },
+
     hasPermission(permission: string) {
       return useAuthStore().hasPermission(permission);
     },
+
     hasAnyChildPermission(menu: any) {
       if (!menu.children) return false;
       return menu.children.some(
@@ -337,9 +355,11 @@ export default defineComponent({
       );
     },
   },
+
   mounted() {
     this.updateMenuOpen(this.$route.path);
   },
+
   watch: {
     "$route.path"(newPath) {
       this.updateMenuOpen(newPath);
@@ -350,42 +370,42 @@ export default defineComponent({
 
 <style scoped>
 .menu {
-  @apply flex items-center gap-3 px-4 py-2.5 rounded-lg
+  @apply flex items-center gap-3 px-4 py-2.5 rounded-xl
          text-sm text-gray-400 cursor-pointer
          transition-all duration-200
-         hover:bg-gray-800 hover:text-white;
+         hover:bg-gray-800/70 hover:text-white
+         hover:translate-x-1;
 }
 
 .active-menu {
-  @apply bg-gray-800 text-white font-bold;
+  @apply bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold shadow;
   position: relative;
 }
 
 .active-menu::before {
   content: "";
   position: absolute;
-  left: 0;
+  left: -6px;
   top: 20%;
   height: 60%;
   width: 4px;
-  @apply bg-blue-500 rounded-r-md;
+  @apply bg-blue-400 rounded-full;
 }
 
 .submenu {
-  @apply block px-4 py-2 text-sm rounded-md
-         text-gray-500 transition-colors
-         hover:text-white hover:bg-gray-800;
+  @apply block px-4 py-2 text-sm rounded-lg
+         text-gray-500 transition-all
+         hover:text-white hover:bg-gray-800/70
+         hover:translate-x-1;
 }
 
 .active-submenu {
-  @apply text-blue-400 font-bold bg-gray-800/50;
+  @apply text-blue-400 font-semibold bg-gray-800/50;
 }
 
 .submenu-enter-active,
 .submenu-leave-active {
-  transition: all 0.3s ease;
-  max-height: 500px; /* 충분한 높이 확보 */
-  overflow: hidden;
+  transition: all 0.25s ease;
 }
 .submenu-enter-from,
 .submenu-leave-to {

@@ -1,15 +1,5 @@
 ﻿<template>
   <div class="max-w-7xl mx-auto p-8 space-y-8 bg-gray-50/50 min-h-screen">
-    <!-- 상단 타이틀 구역 -->
-    <div class="flex justify-between items-end mb-4">
-      <div>
-        <h1 class="text-3xl font-black text-gray-900">마이페이지</h1>
-        <p class="text-gray-500 mt-2">
-          내 계정의 보안 상태와 권한 설정 현황을 확인합니다.
-        </p>
-      </div>
-    </div>
-
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- [LEFT] 1. 계정 정보 카드 -->
       <div class="lg:col-span-1 space-y-6">
@@ -66,6 +56,72 @@
               </span>
             </div>
           </div>
+        </section>
+
+        <!-- 추가된 비밀번호 변경 섹션 -->
+        <section class="bg-white rounded-[2rem] border p-6 shadow-sm">
+          <h3
+            class="text-sm font-black text-gray-800 mb-6 flex items-center gap-2"
+          >
+            <i class="fa-solid fa-key text-blue-500"></i> 비밀번호 변경
+          </h3>
+
+          <form @submit.prevent="handlePasswordChange" class="space-y-4">
+            <div>
+              <label class="text-[11px] font-bold text-gray-400 ml-1 uppercase"
+                >기존 비밀번호</label
+              >
+              <input
+                v-model="passwordForm.oldPassword"
+                type="password"
+                placeholder="기존 비밀번호"
+                class="w-full mt-1 px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              />
+            </div>
+
+            <div>
+              <label class="text-[11px] font-bold text-gray-400 ml-1 uppercase"
+                >신규 비밀번호</label
+              >
+              <input
+                v-model="passwordForm.newPassword"
+                type="password"
+                placeholder="신규 비밀번호"
+                class="w-full mt-1 px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              />
+            </div>
+
+            <div>
+              <label class="text-[11px] font-bold text-gray-400 ml-1 uppercase"
+                >신규 비밀번호 확인</label
+              >
+              <input
+                v-model="passwordForm.confirmPassword"
+                type="password"
+                placeholder="신규 비밀번호 확인"
+                :class="[
+                  'w-full mt-1 px-4 py-3 bg-gray-50 border rounded-2xl text-sm focus:outline-none transition-all',
+                  isPasswordMatch
+                    ? 'border-gray-100 focus:ring-blue-500/20 focus:border-blue-500'
+                    : 'border-red-300 focus:ring-red-500/20 focus:border-red-500',
+                ]"
+              />
+              <p
+                v-if="passwordForm.confirmPassword && !isPasswordMatch"
+                class="text-[10px] text-red-500 mt-1 ml-1 font-bold"
+              >
+                비밀번호가 일치하지 않습니다.
+              </p>
+            </div>
+
+            <button
+              type="submit"
+              :disabled="!isFormValid"
+              class="w-full py-4 bg-gray-900 text-white rounded-2xl text-sm font-bold hover:bg-blue-600 disabled:bg-gray-200 disabled:cursor-not-allowed transition-all shadow-lg shadow-gray-200 hover:shadow-blue-200 mt-2"
+            >
+              비밀번호 업데이트
+            </button>
+          </form>
         </section>
       </div>
 
@@ -236,6 +292,12 @@ export default {
     return {
       user: this.auth.user,
       ipList: [],
+      // 비밀번호 폼 데이터 추가
+      passwordForm: {
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      },
     };
   },
 
@@ -250,6 +312,23 @@ export default {
         return acc;
       }, {});
     },
+
+    // 비밀번호 일치 여부 확인
+    isPasswordMatch() {
+      if (!this.passwordForm.confirmPassword) return true;
+      return (
+        this.passwordForm.newPassword === this.passwordForm.confirmPassword
+      );
+    },
+
+    // 버튼 활성화 조건
+    isFormValid() {
+      return (
+        this.passwordForm.oldPassword &&
+        this.passwordForm.newPassword &&
+        this.passwordForm.newPassword === this.passwordForm.confirmPassword
+      );
+    },
   },
 
   methods: {
@@ -263,6 +342,30 @@ export default {
       } catch (err) {
         console.error("IP 리스트 로드 실패", err);
       }
+    },
+
+    // 비밀번호 변경 처리
+    async handlePasswordChange() {
+      const ok = await this.$confirm(
+        `비밀번호를 변경 하시겠습니까?`,
+        "비밀번호 변경 확인",
+      );
+      if (!ok) return;
+
+      try {
+        await api.post("/api/auth/changePassword", {
+          old_password: this.passwordForm.oldPassword,
+          new_password: this.passwordForm.newPassword,
+          new_confirm_password: this.passwordForm.confirmPassword,
+        });
+
+        // 폼 초기화
+        this.passwordForm = {
+          oldPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        };
+      } catch (err) {}
     },
   },
 

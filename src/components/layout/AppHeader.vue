@@ -18,6 +18,25 @@
 
     <!-- right -->
     <div class="flex items-center gap-6">
+      <!-- 자재 -->
+      <div
+        class="relative cursor-pointer group"
+        @click="openNotification('MATERIAL')"
+      >
+        <div
+          class="w-10 h-10 flex items-center justify-center rounded-xl bg-green-50 text-green-600 group-hover:bg-green-100 transition"
+        >
+          <i class="fa-solid fa-box"></i>
+        </div>
+
+        <span
+          v-if="notificationStore.counts.MATERIAL > 0"
+          class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-green-500 text-white rounded-full px-1"
+        >
+          {{ notificationStore.counts.MATERIAL }}
+        </span>
+      </div>
+
       <!-- 입고 -->
       <div
         class="relative cursor-pointer group"
@@ -75,22 +94,22 @@
         </span>
       </div>
 
-      <!-- 자재 -->
+      <!-- 재고 -->
       <div
         class="relative cursor-pointer group"
-        @click="openNotification('MATERIAL')"
+        @click="openNotification('STOCK')"
       >
         <div
-          class="w-10 h-10 flex items-center justify-center rounded-xl bg-green-50 text-green-600 group-hover:bg-green-100 transition"
+          class="w-10 h-10 flex items-center justify-center rounded-xl bg-purple-50 text-purple-600 group-hover:bg-red-100 transition"
         >
-          <i class="fa-solid fa-box"></i>
+          <i class="fa-solid fa-boxes-stacked"></i>
         </div>
 
         <span
-          v-if="notificationStore.counts.MATERIAL > 0"
-          class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-green-500 text-white rounded-full px-1"
+          v-if="notificationStore.counts.STOCK > 0"
+          class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-purple-500 text-white rounded-full px-1"
         >
-          {{ notificationStore.counts.MATERIAL }}
+          {{ notificationStore.counts.STOCK }}
         </span>
       </div>
 
@@ -145,14 +164,6 @@
               <i class="fa-solid fa-bell text-gray-500"></i>
               알림
             </button>
-
-            <button
-              class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-3"
-              @click="openModal"
-            >
-              <i class="fa-solid fa-key text-gray-500"></i>
-              비밀번호 변경
-            </button>
           </div>
 
           <!-- 🚨 로그아웃 -->
@@ -181,7 +192,6 @@ import Notification from "@/components/panel/Notification.vue";
 
 // 모달
 import { useModalStore } from "@/stores/modal";
-import UserProfileModal from "@/components/user/UserProfileModal.vue";
 
 export default {
   emits: ["toggle-sidebar"],
@@ -210,9 +220,6 @@ export default {
   },
 
   methods: {
-    openModal() {
-      this.modal.openModal(UserProfileModal, {}, "xl");
-    },
     toggleUserMenu() {
       this.userMenu = !this.userMenu;
     },

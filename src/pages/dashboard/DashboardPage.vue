@@ -1,181 +1,252 @@
 ﻿<template>
-  <div class="p-6 space-y-6">
-    <!-- KPI -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <!-- 오늘 입고 -->
-      <div class="kpi-card flex items-center justify-between">
-        <div>
-          <div class="kpi-title">오늘 입고</div>
-          <div class="kpi-value text-blue-600">
-            {{ formatNumber(summary.today_inbound) }}
-          </div>
-        </div>
-
-        <div class="kpi-icon bg-blue-100 text-blue-600">
-          <i class="fa-solid fa-truck-ramp-box"></i>
-        </div>
-      </div>
-
-      <!-- 오늘 출고 -->
-      <div class="kpi-card flex items-center justify-between">
-        <div>
-          <div class="kpi-title">오늘 출고</div>
-          <div class="kpi-value text-green-600">
-            {{ formatNumber(summary.today_outbound) }}
-          </div>
-        </div>
-
-        <div class="kpi-icon bg-green-100 text-green-600">
-          <i class="fa-solid fa-dolly"></i>
-        </div>
-      </div>
-
-      <!-- 총 재고 -->
-      <div class="kpi-card flex items-center justify-between">
-        <div>
-          <div class="kpi-title">총 재고</div>
-          <div class="kpi-value text-purple-600">
-            {{ formatNumber(summary.total_stock) }}
-          </div>
-        </div>
-
-        <div class="kpi-icon bg-purple-100 text-purple-600">
-          <i class="fa-solid fa-boxes-stacked"></i>
-        </div>
-      </div>
-
-      <!-- 오늘 매출 -->
-      <div class="kpi-card flex items-center justify-between">
-        <div>
-          <div class="kpi-title">오늘 매출</div>
-          <div class="kpi-value text-orange-600">
-            {{ formatNumber(summary.today_sales) }}
-          </div>
-        </div>
-
-        <div class="kpi-icon bg-orange-100 text-orange-600">
-          <i class="fa-solid fa-coins"></i>
-        </div>
-      </div>
-    </div>
-
-    <!-- 입출고 차트 -->
-    <div class="bg-white border rounded-xl shadow-sm p-5">
-      <div class="flex items-center gap-2 mb-4">
-        <i class="fa-solid fa-chart-line text-blue-500"></i>
-        <span class="font-semibold">입출고 추이 (최근 30일)</span>
-      </div>
-
-      <v-chart :option="inboundOutboundChart" autoresize class="h-80" />
-    </div>
-
-    <!-- 하단 -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- 재고 TOP -->
-      <div class="bg-white border rounded-xl shadow-sm p-5">
-        <div class="flex items-center gap-2 mb-4">
-          <i class="fa-solid fa-box text-blue-500"></i>
-          <span class="font-semibold">재고 TOP 10</span>
-        </div>
-
-        <v-chart :option="topStockChart" autoresize class="h-64" />
-      </div>
-
-      <!-- 부족 재고 -->
-      <div class="bg-white border rounded-xl shadow-sm p-5">
-        <div class="flex items-center gap-2 mb-4">
-          <i class="fa-solid fa-triangle-exclamation text-red-500"></i>
-          <span class="font-semibold">부족 재고</span>
-        </div>
-
-        <table class="w-full text-sm">
-          <thead class="text-gray-500 border-b">
-            <tr>
-              <th class="text-left py-2">자재</th>
-              <th class="text-right">재고</th>
-              <th class="text-right">안전재고</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr
-              v-for="item in lowStocks"
-              :key="item.material_id"
-              class="border-b"
+  <div class="p-6 space-y-6 bg-gray-50/50 min-h-screen font-sans text-gray-900">
+    <!-- 1. 상단 물류 KPI 섹션 -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div
+        v-for="(v, k) in kpiConfig"
+        :key="k"
+        class="bg-white border rounded-2xl shadow-sm p-5 hover:shadow-md transition-all border-l-4"
+        :class="v.border"
+      >
+        <div class="flex justify-between items-start">
+          <div>
+            <p
+              class="text-[11px] font-bold text-gray-400 mb-1 uppercase tracking-tight"
             >
-              <td class="py-2">
-                {{ item.material_name }}
-              </td>
-
-              <td class="text-right text-red-600 font-semibold">
-                {{ item.stock }}
-              </td>
-
-              <td class="text-right">
-                {{ item.safety_stock }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              {{ v.label }}
+            </p>
+            <h3 class="text-2xl font-black tabular-nums" :class="v.text">
+              {{ formatNumber(summary[v.key]) }}
+            </h3>
+          </div>
+          <div
+            class="w-10 h-10 flex items-center justify-center rounded-xl text-lg shadow-inner"
+            :class="[v.bg, v.iconColor]"
+          >
+            <i :class="v.icon"></i>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- 최근 로그 -->
-    <div class="bg-white border rounded-xl shadow-sm p-5">
-      <div class="flex items-center gap-2 mb-4">
-        <i class="fa-solid fa-clock-rotate-left"></i>
-        <span class="font-semibold">최근 작업</span>
+    <!-- 2. 재무 현황 카드 (수익, 지출, 순수익) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- 총 수익 -->
+      <div
+        class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 shadow-lg shadow-blue-200 text-white relative overflow-hidden"
+      >
+        <div class="relative z-10">
+          <p
+            class="text-blue-100 text-xs font-bold mb-1 uppercase tracking-widest"
+          >
+            Monthly Revenue
+          </p>
+          <p class="text-sm opacity-80 mb-2">이번달 총 수익</p>
+          <h2 class="text-3xl font-black tabular-nums font-mono">
+            ₩ {{ formatNumber(summary.monthly_revenue) }}
+          </h2>
+        </div>
+        <i
+          class="fa-solid fa-coins absolute -right-4 -bottom-4 text-8xl opacity-10 rotate-12"
+        ></i>
       </div>
 
-      <table class="w-full text-sm">
-        <thead class="border-b text-gray-500">
-          <tr>
-            <th class="text-left py-2">사용자</th>
-            <th class="text-left">행동</th>
-            <th class="text-left">대상</th>
-            <th class="text-right">시간</th>
-          </tr>
-        </thead>
+      <!-- 총 지출 -->
+      <div
+        class="bg-white border-2 border-red-50 rounded-2xl p-6 shadow-sm relative overflow-hidden"
+      >
+        <div class="relative z-10">
+          <p
+            class="text-red-400 text-xs font-bold mb-1 uppercase tracking-widest"
+          >
+            Monthly Expense
+          </p>
+          <p class="text-gray-500 text-sm mb-2">이번달 총 지출</p>
+          <h2 class="text-3xl font-black text-gray-900 tabular-nums font-mono">
+            ₩ {{ formatNumber(summary.monthly_expense) }}
+          </h2>
+        </div>
+        <div
+          class="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500"
+        >
+          <i class="fa-solid fa-receipt text-xl"></i>
+        </div>
+      </div>
 
-        <tbody>
-          <tr v-for="log in logs" :key="log.id" class="border-b">
-            <td class="py-2">
-              {{ log.user?.name }}
-            </td>
+      <!-- 순수익 (계산 로직 포함) -->
+      <div
+        class="bg-white border-2 rounded-2xl p-6 shadow-sm relative overflow-hidden"
+        :class="
+          summary.monthly_revenue - summary.monthly_expense >= 0
+            ? 'border-green-100'
+            : 'border-orange-100'
+        "
+      >
+        <div class="relative z-10">
+          <p
+            class="text-xs font-bold mb-1 uppercase tracking-widest"
+            :class="
+              summary.monthly_revenue - summary.monthly_expense >= 0
+                ? 'text-green-500'
+                : 'text-orange-500'
+            "
+          >
+            Net Profit
+          </p>
+          <p class="text-gray-500 text-sm mb-2">이번달 예상 순수익</p>
+          <h2
+            class="text-3xl font-black tabular-nums font-mono"
+            :class="
+              summary.monthly_revenue - summary.monthly_expense >= 0
+                ? 'text-green-600'
+                : 'text-orange-600'
+            "
+          >
+            ₩
+            {{
+              formatNumber(summary.monthly_revenue - summary.monthly_expense)
+            }}
+          </h2>
+        </div>
+        <div
+          class="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center"
+          :class="
+            summary.monthly_revenue - summary.monthly_expense >= 0
+              ? 'bg-green-50 text-green-500'
+              : 'bg-orange-50 text-orange-500'
+          "
+        >
+          <i class="fa-solid fa-sack-dollar text-xl"></i>
+        </div>
+      </div>
+    </div>
 
-            <td>
-              {{ log.action }}
-            </td>
+    <!-- 3. 물류 추이 분석 차트 (여백 최소화) -->
+    <div class="bg-white rounded-2xl shadow-sm border p-6">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-5 bg-blue-600 rounded-full"></div>
+          <span class="font-black text-gray-800"
+            >물류 추이 분석 (이번 달 1일 ~ 오늘)</span
+          >
+        </div>
+        <div class="flex gap-4 px-2 text-[11px] font-bold text-gray-500">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 bg-blue-500 rounded-full"></span> 입고
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 bg-green-500 rounded-full"></span> 출고
+          </div>
+        </div>
+      </div>
+      <div class="relative w-full h-80">
+        <v-chart :option="inboundOutboundChart" autoresize />
+      </div>
+    </div>
 
-            <td>
-              {{ log.target_type }}
-            </td>
+    <!-- 4. 하단 상세 데이터 섹션 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- 부족 재고 리스트 -->
+      <div
+        class="bg-white rounded-2xl shadow-sm border border-red-100 p-5 flex flex-col"
+      >
+        <div
+          class="flex items-center justify-between mb-4 font-black text-red-600 border-b border-red-50 pb-3 text-sm"
+        >
+          <span
+            ><i class="fa-solid fa-triangle-exclamation mr-1"></i> 부족 재고
+            경보</span
+          >
+          <span class="text-xs bg-red-100 px-2 py-0.5 rounded-full"
+            >{{ lowStocks.length }}건</span
+          >
+        </div>
+        <div class="flex-1 space-y-2 overflow-y-auto max-h-64 pr-1">
+          <div
+            v-for="item in lowStocks"
+            :key="item.material_id"
+            class="flex justify-between items-center p-3 bg-red-50/30 rounded-xl border border-red-50"
+          >
+            <span class="text-sm font-bold text-gray-700">{{
+              item.material_name
+            }}</span>
+            <div class="text-right">
+              <span
+                class="text-lg font-black text-red-600 tabular-nums font-mono"
+                >{{ formatNumber(item.stock) }}</span
+              >
+              <span class="ml-1 text-[10px] text-gray-400"
+                >/ {{ item.safety_stock }}</span
+              >
+            </div>
+          </div>
+          <div
+            v-if="lowStocks.length === 0"
+            class="py-10 text-center text-gray-300 text-xs font-bold uppercase tracking-widest"
+          >
+            All Stocks Safe
+          </div>
+        </div>
+      </div>
 
-            <td class="text-right text-gray-500">
+      <!-- 최근 시스템 로그 -->
+      <div
+        class="lg:col-span-2 bg-white rounded-2xl shadow-sm border p-5 flex flex-col"
+      >
+        <div
+          class="font-black text-gray-800 mb-4 border-b pb-3 flex items-center gap-2 text-sm"
+        >
+          <div class="w-1.5 h-5 bg-gray-800 rounded-full"></div>
+          최근 시스템 로그
+        </div>
+        <div class="flex-1 space-y-1 overflow-y-auto max-h-64">
+          <div
+            v-for="log in logs"
+            :key="log.id"
+            class="grid grid-cols-12 gap-2 items-center p-2.5 hover:bg-gray-50 rounded-lg text-xs border-b border-gray-50 last:border-0 transition-colors"
+          >
+            <div class="col-span-2 font-bold text-gray-600 truncate">
+              {{ log.user?.name || "시스템" }}
+            </div>
+            <div class="col-span-2 text-center">
+              <span
+                :class="getActionClass(log.action)"
+                class="px-2 py-0.5 rounded-md font-black text-[9px]"
+                >{{ log.action }}</span
+              >
+            </div>
+            <div class="col-span-5 text-gray-500 truncate">
+              {{ log.target_type }} 관련 작업 수행
+            </div>
+            <div
+              class="col-span-3 text-right text-gray-400 font-mono tracking-tighter"
+            >
               {{ formatDate(log.created_at) }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </div>
+          </div>
+          <div
+            v-if="logs.length === 0"
+            class="py-10 text-center text-gray-300 text-xs font-bold uppercase tracking-widest"
+          >
+            No Recent Logs
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import api from "@/api/api";
-
 import VueECharts from "vue-echarts";
 import * as echarts from "echarts/core";
-
 import { LineChart, BarChart } from "echarts/charts";
-
 import {
   TitleComponent,
   TooltipComponent,
   GridComponent,
   LegendComponent,
 } from "echarts/components";
-
 import { CanvasRenderer } from "echarts/renderers";
 
 echarts.use([
@@ -189,125 +260,224 @@ echarts.use([
 ]);
 
 export default {
-  components: {
-    "v-chart": VueECharts,
-  },
-
+  components: { "v-chart": VueECharts },
   data() {
     return {
-      summary: {},
-
+      summary: {
+        today_inbound: 0,
+        today_outbound: 0,
+        today_returns: 0,
+        today_transfers: 0,
+        total_stock: 0,
+        monthly_revenue: 0,
+        monthly_expense: 0,
+      },
       inboundChart: [],
       outboundChart: [],
-
-      topStocks: [],
       lowStocks: [],
-
       logs: [],
+      kpiConfig: {
+        in: {
+          label: "오늘 입고",
+          key: "today_inbound",
+          border: "border-l-blue-500",
+          text: "text-blue-600",
+          bg: "bg-blue-50",
+          iconColor: "text-blue-500",
+          icon: "fa-solid fa-arrow-down",
+        },
+        out: {
+          label: "오늘 출고",
+          key: "today_outbound",
+          border: "border-l-green-500",
+          text: "text-green-600",
+          bg: "bg-green-50",
+          iconColor: "text-green-500",
+          icon: "fa-solid fa-arrow-up",
+        },
+        ret: {
+          label: "오늘 반품",
+          key: "today_returns",
+          border: "border-l-red-500",
+          text: "text-red-600",
+          bg: "bg-red-50",
+          iconColor: "text-red-500",
+          icon: "fa-solid fa-rotate-left",
+        },
+        tra: {
+          label: "창고간 이동",
+          key: "today_transfers",
+          border: "border-l-orange-500",
+          text: "text-orange-600",
+          bg: "bg-orange-50",
+          iconColor: "text-orange-500",
+          icon: "fa-solid fa-truck-fast",
+        },
+        tot: {
+          label: "현재 총 재고",
+          key: "total_stock",
+          border: "border-l-purple-500",
+          text: "text-purple-600",
+          bg: "bg-purple-50",
+          iconColor: "text-purple-500",
+          icon: "fa-solid fa-boxes-stacked",
+        },
+      },
     };
   },
-
   computed: {
+    // 💡 날짜 메우기: 이번 달 1일부터 오늘까지 모든 날짜를 0으로 채워 배열 생성
+    filledChartData() {
+      const now = new Date();
+      const currentMonth = now.getMonth() + 1; // 현재 월 (3)
+      const todayDate = now.getDate(); // 현재 일 (23)
+
+      const labels = [];
+      const inValues = [];
+      const outValues = [];
+
+      for (let i = 1; i <= todayDate; i++) {
+        // 콘솔 데이터 형식에 맞춰 'MM-DD' 형식으로 키 생성
+        const monthStr = String(currentMonth).padStart(2, "0");
+        const dayStr = String(i).padStart(2, "0");
+        const dateKey = `${monthStr}-${dayStr}`; // 결과: "03-01", "03-02" ... "03-12"
+
+        labels.push(`${dayStr}일`);
+
+        // 형식 일치 (03-12 === 03-12)
+        const inRow = (this.inboundChart || []).find((v) => v.date === dateKey);
+        const outRow = (this.outboundChart || []).find(
+          (v) => v.date === dateKey,
+        );
+
+        inValues.push(inRow ? inRow.qty : 0);
+        outValues.push(outRow ? outRow.qty : 0);
+      }
+      return { labels, inValues, outValues };
+    },
+
     inboundOutboundChart() {
+      const { labels, inValues, outValues } = this.filledChartData;
       return {
         tooltip: {
           trigger: "axis",
+          backgroundColor: "rgba(255, 255, 255, 0.95)",
+          textStyle: { color: "#333", fontSize: 12 },
+          borderWidth: 1,
+          borderColor: "#eee",
         },
-
-        legend: {
-          data: ["입고", "출고"],
+        legend: { show: false },
+        grid: {
+          top: "5%",
+          left: "1%",
+          right: "2%",
+          bottom: "2%",
+          containLabel: true,
         },
-
         xAxis: {
           type: "category",
-          data: this.inboundChart.map((v) => v.date),
+          boundaryGap: false,
+          data: labels,
+          axisLine: { lineStyle: { color: "#f0f0f0" } },
+          axisLabel: { color: "#999", fontSize: 11, margin: 12 },
         },
-
         yAxis: {
           type: "value",
+          splitLine: { lineStyle: { type: "dashed", color: "#f5f5f5" } },
+          axisLabel: { color: "#ccc", fontSize: 10 },
         },
-
         series: [
           {
             name: "입고",
             type: "line",
-            data: this.inboundChart.map((v) => v.qty),
+            smooth: 0.4,
+            showSymbol: false,
+            lineStyle: { width: 3, color: "#3b82f6" },
+            areaStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: "rgba(59, 130, 246, 0.2)" },
+                { offset: 1, color: "rgba(59, 130, 246, 0)" },
+              ]),
+            },
+            data: inValues,
           },
           {
             name: "출고",
             type: "line",
-            data: this.outboundChart.map((v) => v.qty),
-          },
-        ],
-      };
-    },
-
-    topStockChart() {
-      return {
-        tooltip: {},
-
-        xAxis: {
-          type: "category",
-          data: this.topStocks.map((v) => v.name),
-        },
-
-        yAxis: {
-          type: "value",
-        },
-
-        series: [
-          {
-            type: "bar",
-            data: this.topStocks.map((v) => v.qty),
+            smooth: 0.4,
+            showSymbol: false,
+            lineStyle: { width: 3, color: "#22c55e" },
+            areaStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: "rgba(34, 197, 94, 0.2)" },
+                { offset: 1, color: "rgba(34, 197, 94, 0)" },
+              ]),
+            },
+            data: outValues,
           },
         ],
       };
     },
   },
-
-  mounted() {
-    this.loadData();
-  },
-
   methods: {
     async loadData() {
-      const res = await api.post("/api/dashboard/dashboard");
-      const data = res.data;
-      this.summary = data.summary;
-      this.inboundChart = data.inbound_chart;
-      this.outboundChart = data.outbound_chart;
-      this.topStocks = data.top_stock;
-      this.lowStocks = data.low_stock;
-      this.logs = data.logs;
+      try {
+        const { data } = await api.post("/api/dashboard/dashboard");
+        if (data) {
+          this.summary = { ...this.summary, ...(data.summary || {}) };
+          this.inboundChart = data.inbound_chart || [];
+          this.outboundChart = data.outbound_chart || [];
+          this.lowStocks = data.low_stock || [];
+          this.logs = data.logs || [];
+          console.log("inboundChart", data.inbound_chart);
+          console.log("outboundChart", data.outbound_chart);
+        }
+      } catch (e) {
+        console.error("Dashboard data load failed:", e);
+      }
     },
-
     formatNumber(v) {
       return new Intl.NumberFormat().format(v || 0);
     },
-
     formatDate(v) {
+      if (!v) return "-";
       const d = new Date(v);
-
-      return d.toLocaleString();
+      return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
     },
+    getActionClass(a) {
+      const m = {
+        입고: "bg-blue-100 text-blue-700",
+        출고: "bg-green-100 text-green-700",
+        반품: "bg-red-100 text-red-700",
+        이동: "bg-orange-100 text-orange-700",
+      };
+      return m[a] || "bg-gray-100 text-gray-500";
+    },
+  },
+  mounted() {
+    this.loadData();
   },
 };
 </script>
 
 <style scoped>
-.kpi-card {
-  @apply bg-white border rounded-xl shadow-sm p-4 hover:shadow-md transition;
+/* 스크롤바 커스텀: 전체적인 UI 톤앤매너에 맞춤 */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
 }
 
-.kpi-title {
-  @apply text-xs text-gray-500 mb-1;
-}
-
-.kpi-value {
-  @apply text-2xl font-bold;
-}
-
-.kpi-icon {
-  @apply w-12 h-12 flex items-center justify-center rounded-xl text-lg;
+/* KPI 카드 애니메이션 효과 */
+.kpi-card:hover {
+  transform: translateY(-2px);
 }
 </style>

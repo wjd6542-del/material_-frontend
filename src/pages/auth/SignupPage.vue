@@ -1,119 +1,198 @@
 ﻿<template>
-  <div class="min-h-screen flex">
-    <!-- 좌측 브랜드 -->
+  <div
+    class="min-h-screen flex items-center justify-center bg-[#f8fafc] p-4 relative overflow-hidden"
+  >
+    <!-- 배경 장식 요소 (로그인 페이지와 동일한 아이덴티티) -->
     <div
-      class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700 text-white items-center justify-center"
+      class="absolute -top-24 -left-24 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"
+    ></div>
+    <div
+      class="absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"
+    ></div>
+
+    <div
+      class="w-full max-w-[1000px] flex shadow-2xl rounded-3xl overflow-hidden bg-white border border-gray-100 z-10"
     >
-      <div class="max-w-md text-center px-8">
-        <h1 class="text-4xl font-bold mb-4">자재관리 시스템</h1>
-
-        <p class="text-blue-100 leading-relaxed">
-          계정을 생성하고 자재 관리 시스템을 바로 이용해보세요.
-        </p>
-      </div>
-    </div>
-
-    <!-- 회원가입 영역 -->
-    <div class="flex flex-1 items-center justify-center bg-gray-50">
-      <div class="w-full max-w-md bg-white shadow-xl rounded-xl p-8">
-        <!-- title -->
-        <div class="text-center mb-6">
-          <h2 class="text-2xl font-bold text-gray-800">회원가입</h2>
-
-          <p class="text-sm text-gray-500 mt-2">관리자 계정을 생성합니다</p>
+      <!-- 좌측: 브랜드 섹션 -->
+      <div
+        class="hidden lg:flex lg:w-1/2 bg-gradient-to-tr from-[#1e293b] via-[#334155] to-[#1e293b] text-white p-12 flex-col justify-between relative"
+      >
+        <div class="relative z-10">
+          <div
+            class="inline-flex items-center justify-center w-12 h-12 bg-blue-500 rounded-xl mb-6 shadow-lg shadow-blue-500/20"
+          >
+            <svg
+              class="w-7 h-7 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+              />
+            </svg>
+          </div>
+          <h1 class="text-4xl font-extrabold tracking-tight mb-4">
+            Join <span class="text-blue-400">MMS</span>
+          </h1>
+          <p class="text-gray-400 text-lg leading-relaxed font-light">
+            통합 자재 관리 시스템의 일원이 되어<br />
+            업무 효율을 극대화하세요.
+          </p>
         </div>
 
-        <!-- form -->
-        <form @submit.prevent="signup" class="space-y-4">
-          <!-- 이름 -->
-          <div>
-            <label class="text-sm text-gray-600">이름</label>
-            <input
-              v-model="name"
-              type="text"
-              placeholder="홍길동"
-              class="mt-1 w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-            />
+        <div class="relative z-10">
+          <div
+            class="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm"
+          >
+            <h4 class="text-sm font-semibold text-blue-400 mb-2">
+              보안 가이드라인
+            </h4>
+            <ul class="text-xs text-gray-300 space-y-2 font-light">
+              <li class="flex items-center gap-2">
+                <svg
+                  class="w-3 h-3 text-emerald-400"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  />
+                </svg>
+                최소 8자 이상의 비밀번호 권장
+              </li>
+              <li class="flex items-center gap-2">
+                <svg
+                  class="w-3 h-3 text-emerald-400"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  />
+                </svg>
+                승인된 관리자 이메일 사용
+              </li>
+            </ul>
           </div>
+        </div>
 
-          <!-- 아이디 -->
-          <div>
-            <label class="text-sm text-gray-600">아이디</label>
-            <input
-              v-model="username"
-              type="text"
-              placeholder="admin01"
-              class="mt-1 w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-            />
+        <div
+          class="absolute inset-0 opacity-10"
+          style="
+            background-image: radial-gradient(#fff 1px, transparent 1px);
+            background-size: 20px 20px;
+          "
+        ></div>
+      </div>
+
+      <!-- 우측: 회원가입 폼 섹션 -->
+      <div
+        class="w-full lg:w-1/2 p-8 md:p-12 flex flex-col justify-center bg-white overflow-y-auto max-h-[90vh]"
+      >
+        <div class="mb-8 text-center lg:text-left">
+          <h2 class="text-3xl font-bold text-gray-900 mb-2">계정 생성</h2>
+          <p class="text-gray-500">시스템 이용을 위한 정보를 입력해주세요.</p>
+        </div>
+
+        <form @submit.prevent="signup" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- 이름 -->
+            <div class="group">
+              <label
+                class="block text-sm font-semibold text-gray-700 mb-1 group-focus-within:text-blue-600 transition-colors"
+                >이름</label
+              >
+              <input
+                v-model="name"
+                type="text"
+                class="w-full px-4 py-2.5 border-gray-200 border rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                placeholder="홍길동"
+              />
+            </div>
+            <!-- 아이디 -->
+            <div class="group">
+              <label
+                class="block text-sm font-semibold text-gray-700 mb-1 group-focus-within:text-blue-600 transition-colors"
+                >아이디</label
+              >
+              <input
+                v-model="username"
+                type="text"
+                class="w-full px-4 py-2.5 border-gray-200 border rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                placeholder="admin01"
+              />
+            </div>
           </div>
 
           <!-- 이메일 -->
-          <div>
-            <label class="text-sm text-gray-600">이메일</label>
+          <div class="group">
+            <label
+              class="block text-sm font-semibold text-gray-700 mb-1 group-focus-within:text-blue-600 transition-colors"
+              >이메일</label
+            >
             <input
               v-model="email"
               type="email"
+              class="w-full px-4 py-2.5 border-gray-200 border rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
               placeholder="example@email.com"
-              class="mt-1 w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>
 
           <!-- 비밀번호 -->
-          <div>
-            <label class="text-sm text-gray-600">비밀번호</label>
+          <div class="group">
+            <label
+              class="block text-sm font-semibold text-gray-700 mb-1 group-focus-within:text-blue-600 transition-colors"
+              >비밀번호</label
+            >
             <input
               v-model="password"
               type="password"
-              @keyup.enter="signup"
-              placeholder="비밀번호 입력"
-              class="mt-1 w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              class="w-full px-4 py-2.5 border-gray-200 border rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+              placeholder="••••••••"
             />
           </div>
 
           <!-- 비밀번호 확인 -->
-          <div>
-            <label class="text-sm text-gray-600">비밀번호 확인</label>
+          <div class="group">
+            <label
+              class="block text-sm font-semibold text-gray-700 mb-1 group-focus-within:text-blue-600 transition-colors"
+              >비밀번호 확인</label
+            >
             <input
               v-model="passwordConfirm"
               type="password"
               @keyup.enter="signup"
-              placeholder="비밀번호 확인"
-              class="mt-1 w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              class="w-full px-4 py-2.5 border-gray-200 border rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+              placeholder="••••••••"
             />
           </div>
 
-          <!-- 회원가입 버튼 -->
+          <!-- 가입 버튼 -->
           <button
             :disabled="loading"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium flex items-center justify-center gap-2"
+            class="w-full bg-[#1e293b] hover:bg-black text-white py-3.5 rounded-xl font-bold shadow-lg shadow-gray-200 transition-all active:scale-[0.98] flex items-center justify-center gap-3 mt-6 disabled:opacity-70"
           >
-            <svg
+            <div
               v-if="loading"
-              class="animate-spin h-4 w-4"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="white"
-                stroke-width="4"
-                fill="none"
-                class="opacity-25"
-              />
-            </svg>
-
-            {{ loading ? "가입 중..." : "회원가입" }}
+              class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"
+            ></div>
+            <span>{{ loading ? "처리 중..." : "회원가입 완료" }}</span>
           </button>
         </form>
 
-        <!-- 로그인 링크 -->
-        <div class="text-center text-sm text-gray-500 mt-6">
-          이미 계정이 있으신가요?
-
-          <router-link to="/login" class="text-blue-600 hover:underline ml-1">
-            로그인
-          </router-link>
+        <div class="mt-8 text-center text-sm">
+          <p class="text-gray-500">
+            이미 계정이 있으신가요?
+            <router-link
+              to="/login"
+              class="text-blue-600 font-bold hover:underline ml-1"
+              >로그인하기</router-link
+            >
+          </p>
         </div>
       </div>
     </div>
@@ -122,9 +201,9 @@
 
 <script>
 import api from "@/api/api";
-import { useAuthStore } from "@/stores/auth";
 
 export default {
+  name: "SignupPage",
   data() {
     return {
       name: "테스트1",
@@ -135,13 +214,19 @@ export default {
       loading: false,
     };
   },
-
   methods: {
     async signup() {
       if (!this.name || !this.username || !this.email) return;
+
+      // 간단한 비밀번호 확인 로직 추가
+      if (this.password !== this.passwordConfirm) {
+        this.$toast.error("비밀번호가 일치하지 않습니다.");
+        return;
+      }
+
       this.loading = true;
       try {
-        const res = await api.post("/api/auth/signup", {
+        await api.post("/api/auth/signup", {
           name: this.name,
           username: this.username,
           email: this.email,
@@ -149,11 +234,10 @@ export default {
           passwordConfirm: this.passwordConfirm,
         });
 
-        this.$toast.success("회원가입 되었습니다 로그인 하시기 바랍니다");
-
+        this.$toast.success("회원가입 되었습니다. 로그인 하시기 바랍니다.");
         this.$router.push("/login");
       } catch (e) {
-        this.$toast.error(e.message);
+        if (this.$toast) this.$toast.error(e.message);
       } finally {
         this.loading = false;
       }
@@ -161,3 +245,38 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+.animate-blob {
+  animation: blob 7s infinite;
+}
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+/* 스크롤바 커스텀 (폼이 길어질 경우 대비) */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+</style>
