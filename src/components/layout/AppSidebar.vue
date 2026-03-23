@@ -302,6 +302,11 @@ export default defineComponent({
               label: "재고 통계",
               permission: "statistics.stock",
             },
+            {
+              to: "/statistics/return",
+              label: "반품 통계",
+              permission: "statistics.return",
+            },
           ],
         },
         {

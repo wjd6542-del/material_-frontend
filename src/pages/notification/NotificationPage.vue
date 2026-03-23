@@ -75,9 +75,11 @@ import BaseTable from "@/components/base/BaseTable.vue";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
 
+import { useNotificationStore } from "@/stores/notification";
+
 import api from "@/api/api";
 
-// stock
+// 알람 최신화 처리적용
 
 export default {
   name: "StockPage",
@@ -90,6 +92,8 @@ export default {
 
   data() {
     return {
+      noti: useNotificationStore(),
+
       actionArr: [
         { text: "생성", value: "CREATE" },
         { text: "수정", value: "UPDATE" },
@@ -207,6 +211,21 @@ export default {
         "일괄 처리 확인",
       );
       if (!ok) return;
+
+      let ids = [];
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        ids.push({ id: row.id });
+      }
+
+      try {
+        await api.post("/api/notification/batchRead", ids);
+        this.$toast.success("선택 항목 읽음 처리되었습니다");
+        this.loadList();
+        this.noti.loadCounts();
+      } catch (e) {
+        this.$toast.error(e.message);
+      }
     },
 
     async deleteRows() {
@@ -232,6 +251,7 @@ export default {
         await api.post("/api/notification/batchDelete", ids);
         this.$toast.success("선택 항목이 삭제되었습니다");
         this.loadList();
+        this.noti.loadCounts();
       } catch (e) {
         this.$toast.error(e.message);
       }

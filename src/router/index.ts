@@ -37,6 +37,9 @@ import StockMovePage from "@/pages/stock/StockMovePage.vue"
 import SatisticsInboundPage from "@/pages/statistics/SatisticsInboundPage.vue"
 import SatisticsOutboundPage from "@/pages/statistics/SatisticsOutboundPage.vue"
 import SatisticsStockPage from "@/pages/statistics/SatisticsStockPage.vue"
+import SatisticsReturnPage from "@/pages/statistics/SatisticsReturnPage.vue"
+
+
 
 
 import SettingPage from "@/pages/setting/SettingPage.vue"
@@ -164,12 +167,12 @@ const routes = [
 					{
 						path: "/stock/warehouse",
 						component: StockWarehousePage,
-						meta: { title: "재고 위치 (창고)", auth: true, permission: "stock.warehouse" },
+						meta: { title: "재고 위치 (창고)", auth: true, permission: "stock.warehouse.view" },
 					},
 					{
 						path: "/stock/location",
 						component: StockLoctoinPage,
-						meta: { title: "재고 위치 (선반)", auth: true, permission: "stock.location" },
+						meta: { title: "재고 위치 (선반)", auth: true, permission: "stock.location.view" },
 					},
 
 					// 통계
@@ -188,6 +191,12 @@ const routes = [
 						component: SatisticsStockPage,
 						meta: { title: "재고통계", auth: true, permission: "statistics.stock.view" },
 					},
+					{
+						path: "statistics/return",
+						component: SatisticsReturnPage,
+						meta: { title: "반품통계", auth: true, permission: "statistics.return.view" },
+					},
+
 
 					// 설정
 					{
@@ -205,17 +214,17 @@ const routes = [
 					{
 						path: "user/ip",
 						component: UserManagerIpPage,
-						meta: { title: "계정 아이피", auth: true, permission: "usermanager.ip" },
+						meta: { title: "계정 아이피", auth: true, permission: "usermanager.ip.view" },
 					},
 					{
 						path: "/permission/user",
 						component: UserManagerPermissionPage,
-						meta: { title: "계정권한", auth: true, permission: "permission.user" },
+						meta: { title: "계정권한", auth: true, permission: "permission.user.view" },
 					},
 					{
 						path: "/permission/menu",
 						component: MenuPermissionPage,
-						meta: { title: "메뉴권한", auth: true, permission: "permission.menu" },
+						meta: { title: "메뉴권한", auth: true, permission: "permission.menu.view" },
 					},
 
 					// 창고
