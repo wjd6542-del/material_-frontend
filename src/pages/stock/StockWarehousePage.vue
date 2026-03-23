@@ -88,9 +88,7 @@
                 ]"
               >
                 <i class="fa-solid fa-box-open opacity-70"></i>
-                {{
-                  (warehouseKpiMap[rack.id]?.totalQty || 0).toLocaleString()
-                }}
+                {{ (warehouseKpiMap[rack.id]?.totalQty || 0).toLocaleString() }}
                 개수
               </div>
             </div>
@@ -146,7 +144,7 @@
                 >재고 없음</span
               >
             </div>
-            <div class="flex items-center gap-1.5 ml-auto">
+            <div class="flex items-center gap-1.5">
               <span
                 class="w-3 h-3 rounded-sm bg-blue-600 ring-1 ring-blue-400 shadow-sm shadow-blue-200"
               ></span>
