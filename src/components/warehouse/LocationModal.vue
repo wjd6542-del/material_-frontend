@@ -1,79 +1,162 @@
 ﻿<template>
-  <div>
-    <h2 class="text-lg font-semibold mb-4">선반 등록</h2>
+  <div class="p-1 space-y-6">
+    <!-- 상단 헤더 섹션 -->
+    <div class="flex items-end justify-between border-b border-gray-50 pb-6">
+      <div>
+        <h2
+          class="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2"
+        >
+          <span class="w-2 h-7 bg-blue-600 rounded-full"></span>
+          선반 추가
+        </h2>
+        <p class="text-[13px] text-gray-400 mt-1 font-medium ml-4">
+          창고 내 구역별 선반(Rack) 정보를 등록합니다.
+        </p>
+      </div>
 
-    <div class="border rounded-lg">
-      <table class="w-full text-sm">
-        <thead class="bg-gray-100">
-          <tr>
-            <th class="p-2 border">창고</th>
-            <th class="p-2 border">코드</th>
-            <th class="p-2 border">이름</th>
-            <th class="p-2 border">메모</th>
-            <th class="p-2 border w-16">
-              <button
-                class="px-3 py-1.5 bg-green-500 text-white rounded"
-                @click="addRow"
-              >
-                +
-              </button>
+      <button
+        @click="addRow"
+        class="flex items-center gap-2 px-4 h-10 bg-blue-50 hover:bg-blue-100 text-blue-600 text-sm font-semibold rounded-xl transition-all active:scale-95 shadow-sm"
+      >
+        <i class="fa-solid fa-plus text-xs"></i>
+        선반 추가하기
+      </button>
+    </div>
+
+    <!-- 메인 테이블 카드 (드롭다운을 위해 overflow 제거) -->
+    <div
+      class="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-50"
+    >
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="bg-gray-50/50 border-b border-gray-100">
+            <th
+              class="px-6 py-4 text-left font-bold text-gray-500 uppercase tracking-wider w-48"
+            >
+              소속 창고
             </th>
+            <th
+              class="px-6 py-4 text-left font-bold text-gray-500 uppercase tracking-wider w-40"
+            >
+              코드
+            </th>
+            <th
+              class="px-6 py-4 text-left font-bold text-gray-500 uppercase tracking-wider"
+            >
+              선반 이름
+            </th>
+            <th
+              class="px-6 py-4 text-left font-bold text-gray-500 uppercase tracking-wider"
+            >
+              상세 메모
+            </th>
+            <th class="px-6 py-4 w-16 text-center"></th>
           </tr>
         </thead>
 
-        <tbody>
-          <tr v-for="(row, i) in rows" :key="i">
-            <td class="border p-1">
-              <SearchSelect
-                v-model="row.warehouse_id"
-                :options="warehouses"
-                labelKey="name"
-                valueKey="id"
-              />
+        <tbody class="divide-y divide-gray-50">
+          <tr
+            v-for="(row, i) in rows"
+            :key="i"
+            class="group transition-colors hover:bg-gray-50/30"
+          >
+            <!-- 창고 선택 (SearchSelect) -->
+            <td class="px-4 py-3">
+              <div class="search-select-wrapper">
+                <SearchSelect
+                  v-model="row.warehouse_id"
+                  :options="warehouses"
+                  labelKey="name"
+                  valueKey="id"
+                  class="modern-select"
+                />
+              </div>
             </td>
 
-            <td class="border p-1">
+            <!-- 선반 코드 -->
+            <td class="px-4 py-3">
               <input
                 v-model="row.code"
-                class="w-full border rounded px-2 py-1"
-                placeholder="선반 코드 입력"
+                placeholder="RACK-01"
+                class="modern-input"
               />
             </td>
 
-            <td class="border p-1">
+            <!-- 선반 이름 -->
+            <td class="px-4 py-3">
               <input
                 v-model="row.name"
-                class="w-full border rounded px-2 py-1"
-                placeholder="선반 이름 입력"
+                placeholder="A구역 1번 선반"
+                class="modern-input font-medium text-blue-600"
               />
             </td>
 
-            <td class="border p-1">
+            <!-- 상세 메모 -->
+            <td class="px-4 py-3 text-gray-500">
               <input
                 v-model="row.memo"
-                class="w-full border rounded px-2 py-1"
-                placeholder="메모 입력"
+                placeholder="비고 입력"
+                class="modern-input text-gray-400 focus:text-gray-700"
               />
             </td>
 
-            <td class="border text-center">
-              <button class="text-red-500 text-sm" @click="removeRow(i)">
-                삭제
+            <!-- 삭제 버튼 (상시 출력) -->
+            <td class="px-4 py-3 text-center">
+              <button
+                @click="removeRow(i)"
+                class="delete-btn-always group/del"
+                title="삭제"
+              >
+                <i
+                  class="fa-solid fa-trash-can group-hover/del:scale-110 transition-transform"
+                ></i>
               </button>
             </td>
           </tr>
         </tbody>
       </table>
+
+      <!-- 빈 상태 디자인 -->
+      <div
+        v-if="rows.length === 0"
+        class="py-20 flex flex-col items-center justify-center bg-gray-50/30 rounded-b-3xl"
+      >
+        <div
+          class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 text-gray-200 border border-gray-100"
+        >
+          <i class="fa-solid fa-table-cells text-3xl"></i>
+        </div>
+        <p class="text-gray-400 font-medium">현재 추가된 선반이 없습니다.</p>
+        <button
+          @click="addRow"
+          class="mt-4 text-blue-600 text-sm font-bold hover:underline underline-offset-4"
+        >
+          새로운 선반 추가
+        </button>
+      </div>
     </div>
 
-    <div class="flex justify-end gap-2 mt-6">
-      <button class="px-3 py-1.5 border rounded" @click="modal.closeModal()">
-        취소
-      </button>
+    <!-- 푸터 액션 영역 -->
+    <div class="flex items-center justify-between pt-4">
+      <div class="text-[13px] text-gray-400 italic font-medium ml-2">
+        <i class="fa-solid fa-circle-info mr-1"></i>
+        총 {{ rows.length }}개의 항목이 등록 대기 중입니다.
+      </div>
+      <div class="flex gap-3">
+        <button
+          class="px-6 h-11 rounded-xl text-sm font-bold text-gray-500 hover:bg-gray-100 transition-colors"
+          @click="modal.closeModal()"
+        >
+          취소
+        </button>
 
-      <button class="px-3 py-1.5 bg-blue-600 text-white rounded" @click="save">
-        저장
-      </button>
+        <button
+          class="px-10 h-11 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95"
+          @click="save"
+        >
+          저장 완료
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -82,7 +165,6 @@
 import { useModalStore } from "@/stores/modal";
 import BaseImage from "@/components/base/BaseImage.vue";
 import SearchSelect from "@/components/base/SearchSelect.vue";
-
 import api from "@/api/api";
 
 export default {
@@ -102,9 +184,7 @@ export default {
   data() {
     return {
       modal: useModalStore(),
-
       warehouses: [],
-
       rows: [],
     };
   },
@@ -133,47 +213,84 @@ export default {
     },
 
     mappingData(data) {
-      for (const key in this.form) {
-        const value = data[key];
-        this.form[key] = value;
+      if (Array.isArray(data)) {
+        this.rows = data;
       }
     },
 
     async loadWarehouse() {
-      const res = await api.post("/api/warehouse/list");
-      this.warehouses = res.data;
+      try {
+        const res = await api.post("/api/warehouse/list");
+        this.warehouses = res.data;
+      } catch (e) {
+        console.error("창고 목록 로드 실패", e);
+      }
     },
 
-    // 로드시 데이터 셋팅
     async loadData() {
-      const res = await api.post(`/api/warehouse/${this.id}`, { id: this.id });
-      this.mappingData(res.data);
+      try {
+        const res = await api.post(`/api/warehouse/${this.id}`, {
+          id: this.id,
+        });
+        this.mappingData(res.data);
+      } catch (e) {
+        this.$toast.error("데이터를 불러오지 못했습니다.");
+      }
     },
 
-    // 저장처리
     async save() {
       try {
+        if (this.rows.some((r) => !r.warehouse_id || !r.name)) {
+          this.$toast.warning("소속 창고와 선반 이름을 확인해 주세요.");
+          return;
+        }
+
         this.modal.closeModal();
 
         if (this.onSaved) {
           this.onSaved(this.rows);
         }
-      } catch (e) {
+      } catch (e: any) {
         this.$toast.error(e.message);
       }
     },
   },
 
-  // 로드시 셋팅
   mounted() {
-    if (this.id) {
-      this.loadData();
-      this.isEdit = true;
-      this.editId = this.id;
-    }
     this.loadWarehouse();
 
-    this.addRow();
+    if (this.id) {
+      this.loadData();
+    } else {
+      this.addRow();
+    }
   },
 };
 </script>
+
+<style scoped>
+/* 현대적인 입력창 공통 스타일 */
+.modern-input {
+  @apply w-full h-10 px-4 bg-gray-50/50 border border-transparent rounded-xl text-[14px] text-gray-700
+  placeholder:text-gray-300 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 
+  outline-none transition-all duration-300;
+}
+
+/* SearchSelect 내부 스타일 강제 적용 */
+.search-select-wrapper :deep(input) {
+  @apply w-full h-10 px-4 bg-gray-50/50 border border-transparent rounded-xl text-[14px]
+  focus:bg-white focus:border-blue-500 outline-none transition-all duration-300 !important;
+}
+
+/* 삭제 버튼 스타일 (상시 노출형) */
+.delete-btn-always {
+  @apply w-9 h-9 flex items-center justify-center text-gray-400 hover:text-red-500 
+  hover:bg-red-50 rounded-xl transition-all;
+}
+
+/* 테이블 컨테이너에 overflow를 주지 않아 드롭다운이 뚫고 나오게 함 */
+table {
+  position: relative;
+  z-index: 1;
+}
+</style>

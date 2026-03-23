@@ -1,131 +1,178 @@
 ﻿<template>
-  <div class="space-y-6">
-    <!-- KPI SUMMARY -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <!-- 총 재고 수량 -->
+  <div class="p-6 bg-[#f8fafc] min-h-screen space-y-6">
+    <!-- 1. KPI SUMMARY (상단 요약 카드) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- 최근 기준 총 재고 수량 -->
       <div
-        class="bg-white border rounded-xl p-4 shadow-sm flex items-center justify-between hover:shadow-md transition"
+        class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group"
       >
-        <div>
-          <div class="text-xs text-gray-500 mb-1">총 재고 수량</div>
-          <div class="text-2xl font-bold text-blue-600">
-            {{ formatNumber(summary?.total_qty || 0) }}
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-500 mb-1">총 재고 수량</p>
+            <div class="flex items-baseline gap-1">
+              <span class="text-3xl font-bold text-blue-600">{{
+                formatNumber(summary?.total_qty)
+              }}</span>
+              <span class="text-slate-400 text-sm font-normal">개</span>
+            </div>
           </div>
-        </div>
-
-        <div
-          class="w-12 h-12 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600"
-        >
-          <i class="fa-solid fa-box text-xl"></i>
+          <div
+            class="w-12 h-12 flex items-center justify-center rounded-xl bg-blue-50 text-blue-500 group-hover:bg-blue-600 group-hover:text-white transition-colors"
+          >
+            <i class="fa-solid fa-box-open text-xl"></i>
+          </div>
         </div>
       </div>
 
       <!-- 재고 건수 -->
       <div
-        class="bg-white border rounded-xl p-4 shadow-sm flex items-center justify-between hover:shadow-md transition"
+        class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group"
       >
-        <div>
-          <div class="text-xs text-gray-500 mb-1">재고 건수</div>
-          <div class="text-2xl font-bold text-gray-700">
-            {{ formatNumber(summary?.count || 0) }}
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-500 mb-1">
+              재고 품목 건수
+            </p>
+            <div class="flex items-baseline gap-1">
+              <span class="text-3xl font-bold text-slate-700">{{
+                formatNumber(summary?.count)
+              }}</span>
+              <span class="text-slate-400 text-sm font-normal">건</span>
+            </div>
           </div>
-        </div>
-
-        <div
-          class="w-12 h-12 flex items-center justify-center rounded-lg bg-gray-100 text-gray-700"
-        >
-          <i class="fa-solid fa-clipboard-list text-xl"></i>
+          <div
+            class="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-100 text-slate-600 group-hover:bg-slate-700 group-hover:text-white transition-colors"
+          >
+            <i class="fa-solid fa-clipboard-list text-xl"></i>
+          </div>
         </div>
       </div>
     </div>
-    <!-- MAIN -->
-    <div class="grid grid-cols-1 lg:grid-cols-10 gap-6">
-      <!-- LEFT : 검색 + 테이블 -->
-      <div class="lg:col-span-5">
-        <div class="bg-white rounded-xl border border-gray-200 shadow">
-          <!-- header -->
-          <div
-            class="flex items-center justify-between px-5 py-4 border-b bg-gray-50"
-          >
-            <div class="flex items-center gap-2 text-gray-700 font-medium">
-              <i class="fa-solid fa-truck-ramp-box text-blue-500"></i>
-              <span>재고 통계</span>
-            </div>
 
-            <span class="text-xs text-gray-400"> 자재별 재고 내역 </span>
+    <!-- 2. MAIN LAYOUT -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- LEFT : 데이터 테이블 영역 (6/12) -->
+      <div class="lg:col-span-6">
+        <div
+          class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full"
+        >
+          <!-- Table Header -->
+          <div
+            class="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white"
+          >
+            <div class="flex items-center gap-2">
+              <div class="w-1.5 h-5 bg-blue-500 rounded-full"></div>
+              <span class="font-bold text-slate-800 text-lg"
+                >재고 통계 상세</span
+              >
+            </div>
+            <span
+              class="text-xs font-medium text-slate-400 bg-slate-50 px-2 py-1 rounded"
+              >Update Real-time</span
+            >
           </div>
 
-          <!-- SEARCH -->
-          <div class="p-4 flex items-center gap-3 border-b flex-nowrap">
-            <!-- 날짜 -->
-            <div class="w-[350px]">
+          <!-- Search & Action Bar -->
+          <div
+            class="p-4 bg-slate-50/50 border-b border-slate-100 flex flex-wrap items-end gap-3"
+          >
+            <div class="flex-1 min-w-[280px]">
+              <label
+                class="text-[11px] font-bold text-slate-400 mb-1.5 block px-1 flex items-center gap-1"
+              >
+                <i class="fa-solid fa-calendar-days text-[10px]"></i> 기간 선택
+              </label>
               <DateRangePicker
                 v-model="dateRange"
                 mode="date"
                 :showQuickButtons="true"
-                :showTime="false"
                 @change="searchData"
+                class="shadow-sm"
               />
             </div>
 
-            <!-- 자재 선택 -->
-            <div class="w-[220px]">
+            <div class="w-[180px]">
+              <label
+                class="text-[11px] font-bold text-slate-400 mb-1.5 block px-1 flex items-center gap-1"
+              >
+                <i class="fa-solid fa-tag text-[10px]"></i> 자재 필터
+              </label>
               <SearchSelect
                 v-model="where.material_id"
                 :options="materials"
                 labelKey="name"
                 valueKey="id"
-                placeholder="자재 선택"
+                placeholder="전체 자재"
                 @change="searchData"
               />
             </div>
 
-            <!-- 날짜 입력 + 설정 버튼 -->
-            <div class="flex items-center w-[220px]">
+            <div
+              class="flex items-center gap-0.5 shadow-sm rounded-lg overflow-hidden border border-slate-200"
+            >
               <input
-                class="px-3 border h-[39px] rounded-s"
                 v-model="set.date"
-                placeholder="날짜 입력"
+                type="date"
+                class="px-3 h-[38px] text-sm bg-white focus:outline-none border-none w-[140px]"
               />
-
               <button
                 @click="setData"
-                class="px-3 h-[39px] flex items-center justify-center bg-blue-500 text-white rounded-r-lg hover:bg-blue-600 transition"
+                class="px-4 h-[38px] bg-slate-800 text-white hover:bg-black transition-colors flex items-center justify-center gap-2 text-sm font-medium"
               >
-                <i class="fa-solid fa-gear"></i>
+                <i class="fa-solid fa-bolt"></i> 생성
               </button>
             </div>
           </div>
 
-          <!-- TABLE -->
-          <div class="p-4">
+          <!-- Table Content -->
+          <div class="p-4 overflow-auto flex-1 max-h-[500px]">
             <BaseTable :columns="columns" :rows="rows" sortable />
           </div>
         </div>
       </div>
 
-      <!-- RIGHT : CHART -->
-      <div class="lg:col-span-5">
+      <!-- RIGHT : CHART 영역 (6/12) -->
+      <div class="lg:col-span-6">
         <div
-          class="bg-white rounded-xl border border-gray-200 shadow flex flex-col h-full"
+          class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full"
         >
-          <!-- header -->
           <div
-            class="flex items-center justify-between px-5 py-4 border-b bg-gray-50"
+            class="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white"
           >
-            <div class="flex items-center gap-2 text-gray-700 font-medium">
-              <i class="fa-solid fa-chart-column text-green-500"></i>
-              <span>재고 추이</span>
+            <div class="flex items-center gap-2">
+              <div class="w-1.5 h-5 bg-indigo-500 rounded-full"></div>
+              <span class="font-bold text-slate-800 text-lg"
+                >재고 변동 추이 (Spline)</span
+              >
             </div>
           </div>
 
-          <Chart
-            :rows="chartRows"
-            :start="dateRange.start"
-            :end="dateRange.end"
-            name="재고수량"
-            column="total_qty"
-          />
+          <div class="p-6 flex-1 max-h-[500px]">
+            <div class="w-full h-full bg-slate-50/30 rounded-xl p-4 relative">
+              <!-- 데이터 존재 시 차트 렌더링 -->
+              <Chart
+                v-if="chartRows.length > 0"
+                :rows="chartRows"
+                :start="dateRange.start"
+                :end="dateRange.end"
+                name="재고수량"
+                column="total_qty"
+                type="line"
+                :smooth="true"
+                class="w-full h-full"
+              />
+              <!-- 데이터 없을 시 가이드 -->
+              <div
+                v-else
+                class="absolute inset-0 flex flex-col items-center justify-center text-slate-300"
+              >
+                <i class="fa-solid fa-chart-line text-5xl mb-4 opacity-20"></i>
+                <p class="text-sm font-medium">
+                  조회된 차트 데이터가 없습니다.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -137,7 +184,6 @@ import BaseTable from "@/components/base/BaseTable.vue";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
 import BaseInput from "@/components/base/BaseInput.vue";
-
 import Chart from "@/components/base/chart/Chart.vue";
 import api from "@/api/api";
 
@@ -159,77 +205,62 @@ export default {
           key: "date",
           label: "날짜",
           type: "string",
-          width: "150px",
+          width: "120px",
           align: "center",
           sortable: true,
         },
         {
           key: "material_name",
-          label: "자재",
-          width: "250px",
+          label: "자재명",
+          width: "auto",
           align: "left",
           sortable: true,
         },
-
         {
           key: "warehouse_name",
-          label: "창고",
-          width: "250px",
+          label: "보관 창고",
+          width: "180px",
           align: "left",
           sortable: true,
         },
         {
           key: "quantity",
-          label: "재고 수량",
+          label: "수량",
           type: "number",
+          width: "100px",
           align: "right",
           sortable: true,
         },
       ],
-      set: { date: "" },
-
+      set: { date: new Date().toISOString().substr(0, 10) },
       chartRows: [],
-
       rows: [],
-      summary: {
-        total_cost: 0,
-        total_qty: 0,
-        count: 0,
-      },
-
+      summary: { total_qty: 0, count: 0 },
       dateRange: { start: null, end: null },
-
       where: {
         material_id: "",
         warehouse_id: "",
         startDate: null,
         endDate: null,
       },
-
       materials: [],
-      warehouses: [],
-
-      chart: null,
     };
   },
 
   methods: {
     formatNumber(val) {
-      return Number(val || 0).toLocaleString();
+      if (!val) return 0;
+      return Number(val).toLocaleString();
     },
 
-    // 데이터 셋팅
     async setData() {
-      let date = this.set.date;
-
-      if (!date) {
-        this.$toast.error("통계 저장할 날짜를 입력하세요");
+      if (!this.set.date) {
+        this.$toast.error("통계 저장할 날짜를 선택하세요");
         return;
       }
-
       try {
-        const res = await api.post("/api/stat/stock/daily", { date: date });
-        this.$toast.success(`[${date}] 재고 통계정보 생성 되었습니다`);
+        await api.post("/api/stat/stock/daily", { date: this.set.date });
+        this.$toast.success(`[${this.set.date}] 통계가 생성되었습니다`);
         this.searchData();
       } catch (e) {
         this.$toast.error(e.message);
@@ -237,51 +268,47 @@ export default {
     },
 
     setSummary(data_list = []) {
-      let total_qty = 0;
-      let total_cost = 0;
-
-      data_list.forEach((row) => {
-        total_qty += Number(row.quantity || 0);
-      });
-
+      let total_qty = data_list.reduce(
+        (acc, row) => acc + Number(row.quantity || 0),
+        0,
+      );
       this.summary = {
         total_qty,
-        total_cost,
         count: data_list.length,
       };
     },
 
-    // 차트용 데이터 출력
     async loadChartData() {
-      const where = { ...this.where };
-
-      if (this.dateRange?.start)
-        where.startDate = this.dateRange.start.toISOString();
-
-      if (this.dateRange?.end) where.endDate = this.dateRange.end.toISOString();
-
-      const res = await api.post("/api/stat/stock/daily/totalQty", where);
-      this.chartRows = res.data;
-    },
-
-    async searchData() {
-      this.loadList();
-      this.loadChartData();
+      const where = this.buildParams();
+      try {
+        const res = await api.post("/api/stat/stock/daily/totalQty", where);
+        this.chartRows = res.data;
+      } catch (e) {
+        console.error("Chart loading error:", e);
+      }
     },
 
     async loadList() {
-      const where = { ...this.where };
+      const where = this.buildParams();
+      try {
+        const res = await api.post("/api/stat/stockList", where);
+        this.rows = res.data;
+        this.setSummary(res.data);
+      } catch (e) {
+        this.$toast.error("데이터 로드 실패");
+      }
+    },
 
+    buildParams() {
+      const where = { ...this.where };
       if (this.dateRange?.start)
         where.startDate = this.dateRange.start.toISOString();
-
       if (this.dateRange?.end) where.endDate = this.dateRange.end.toISOString();
+      return where;
+    },
 
-      const res = await api.post("/api/stat/stockList", where);
-
-      this.rows = res.data;
-
-      this.setSummary(res.data);
+    async searchData() {
+      await Promise.all([this.loadList(), this.loadChartData()]);
     },
 
     async loadMaterial() {
@@ -292,21 +319,26 @@ export default {
 
   mounted() {
     const now = new Date();
-
-    // 이번달 1일
-    const start = new Date(now.getFullYear(), now.getMonth(), 1);
-
-    // 이번달 마지막날
-    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
     this.dateRange = {
-      start,
-      end,
+      start: new Date(now.getFullYear(), now.getMonth(), 1),
+      end: new Date(now.getFullYear(), now.getMonth() + 1, 0),
     };
-
     this.loadMaterial();
-    this.loadList();
-    this.loadChartData();
+    this.searchData();
   },
 };
 </script>
+
+<style scoped>
+/* 테이블 내부 폰트 조정 및 스타일 커스텀 */
+:deep(.base-table) {
+  font-size: 0.875rem;
+}
+:deep(.base-table th) {
+  @apply text-slate-500 font-semibold bg-slate-50/50;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+}
+</style>

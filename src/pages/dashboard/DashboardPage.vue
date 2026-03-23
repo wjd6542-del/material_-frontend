@@ -43,7 +43,7 @@
           </p>
           <p class="text-sm opacity-80 mb-2">이번달 총 수익</p>
           <h2 class="text-3xl font-black tabular-nums font-mono">
-            ₩ {{ formatNumber(summary.monthly_revenue) }}
+            ₩ {{ formatNumber(summary.month_sales) }}
           </h2>
         </div>
         <i
@@ -63,7 +63,7 @@
           </p>
           <p class="text-gray-500 text-sm mb-2">이번달 총 지출</p>
           <h2 class="text-3xl font-black text-gray-900 tabular-nums font-mono">
-            ₩ {{ formatNumber(summary.monthly_expense) }}
+            ₩ {{ formatNumber(summary.month_expense) }}
           </h2>
         </div>
         <div
@@ -77,7 +77,7 @@
       <div
         class="bg-white border-2 rounded-2xl p-6 shadow-sm relative overflow-hidden"
         :class="
-          summary.monthly_revenue - summary.monthly_expense >= 0
+          summary.month_sales - summary.month_expense >= 0
             ? 'border-green-100'
             : 'border-orange-100'
         "
@@ -86,7 +86,7 @@
           <p
             class="text-xs font-bold mb-1 uppercase tracking-widest"
             :class="
-              summary.monthly_revenue - summary.monthly_expense >= 0
+              summary.month_sales - summary.month_expense >= 0
                 ? 'text-green-500'
                 : 'text-orange-500'
             "
@@ -97,21 +97,19 @@
           <h2
             class="text-3xl font-black tabular-nums font-mono"
             :class="
-              summary.monthly_revenue - summary.monthly_expense >= 0
+              summary.month_sales - summary.month_expense >= 0
                 ? 'text-green-600'
                 : 'text-orange-600'
             "
           >
             ₩
-            {{
-              formatNumber(summary.monthly_revenue - summary.monthly_expense)
-            }}
+            {{ formatNumber(summary.month_sales - summary.month_expense) }}
           </h2>
         </div>
         <div
           class="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center"
           :class="
-            summary.monthly_revenue - summary.monthly_expense >= 0
+            summary.month_sales - summary.month_expense >= 0
               ? 'bg-green-50 text-green-500'
               : 'bg-orange-50 text-orange-500'
           "
@@ -269,8 +267,8 @@ export default {
         today_returns: 0,
         today_transfers: 0,
         total_stock: 0,
-        monthly_revenue: 0,
-        monthly_expense: 0,
+        month_sales: 0,
+        month_expense: 0,
       },
       inboundChart: [],
       outboundChart: [],

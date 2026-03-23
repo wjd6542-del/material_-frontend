@@ -161,6 +161,7 @@ export default {
 
       // 검색 조건
       where: {
+        id: "",
         action: "",
         type: "",
         startDate: null,
@@ -242,6 +243,10 @@ export default {
     },
   },
   mounted() {
+    const id = this.$route.query.id;
+    if (id) {
+      this.where.id = id;
+    }
     this.loadList();
   },
 };

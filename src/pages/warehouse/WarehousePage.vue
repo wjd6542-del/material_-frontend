@@ -324,7 +324,7 @@ export default {
       document.removeEventListener("mouseup", this.stopAction);
     },
     async add() {
-      this.modal.openModal(WarehouseModal, { onSaved: this.addData }, "lg");
+      this.modal.openModal(WarehouseModal, { onSaved: this.addData }, "xl");
     },
     async addData(items) {
       const newItems = items.map((item) => ({

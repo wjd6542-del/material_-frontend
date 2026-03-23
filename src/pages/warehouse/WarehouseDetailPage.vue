@@ -360,17 +360,13 @@ export default {
       this.modal.openModal(
         LocationModal,
         { warehouse_id: this.where.warehouse_id, onSaved: this.addData },
-        "lg",
+        "xl",
       );
     },
     addData(items) {
       const newItems = items.map((item) => ({
         ...item,
         tempId: Date.now() + Math.random(),
-        x: 0,
-        y: 0,
-        width: 4,
-        height: 2,
       }));
       this.racks.push(...newItems);
       this.isEditMode = true;

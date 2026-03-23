@@ -20,7 +20,7 @@
             {{ notificationStore.type }}
           </h3>
 
-          <button @click="notificationStore.closePanel()">
+          <button @click.stop="notificationStore.closePanel()">
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
@@ -76,7 +76,7 @@
             </div>
 
             <!-- 내용 -->
-            <div class="flex-1">
+            <div class="flex-1" @click="move(row)">
               <div class="text-sm font-semibold text-gray-800">
                 {{ row.title }}
               </div>
@@ -147,9 +147,20 @@ export default {
       notificationStore.closePanel();
     };
 
+    const move = (data) => {
+      router.push({
+        path: "/notification",
+        query: {
+          id: data.id,
+        },
+      });
+      notificationStore.closePanel();
+    };
+
     return {
       notificationStore,
       read,
+      move,
       goNotification,
     };
   },

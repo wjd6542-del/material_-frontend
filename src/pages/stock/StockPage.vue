@@ -241,6 +241,14 @@ export default {
       modal: useModalStore(),
       columns: [
         {
+          key: "qrcode",
+          label: "QR",
+          type: "img",
+          width: "80px",
+          align: "center",
+          sortable: true,
+        },
+        {
           key: "material_code",
           label: "자재코드",
           sortable: true,
