@@ -261,21 +261,33 @@
               class="group flex items-center justify-between bg-white border border-slate-100 rounded-xl px-4 py-3 hover:border-blue-200 hover:shadow-sm transition-all"
             >
               <div class="flex items-center gap-3 shrink-0">
+                <!-- 🔥 이미지 or 아이콘 -->
                 <div
-                  class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors"
+                  class="w-8 h-8 rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center"
                 >
-                  <i class="fa-solid fa-box text-xs"></i>
+                  <img
+                    v-if="item.image_url"
+                    :src="url + item.image_url"
+                    class="w-full h-full object-cover"
+                  />
+
+                  <i
+                    v-else
+                    class="fa-solid fa-box text-xs text-slate-400 group-hover:text-blue-500 transition-colors"
+                  ></i>
                 </div>
+
+                <!-- 텍스트 -->
                 <div class="flex flex-col">
                   <span
                     class="text-[13px] font-bold text-slate-700 truncate max-w-[120px]"
-                    >{{ item.material_name }}</span
                   >
-                  <span class="text-[10px] text-slate-400"
-                    >ID: {{ item.id }}</span
-                  >
+                    {{ item.material_name }}
+                  </span>
                 </div>
               </div>
+
+              <!-- 수량 -->
               <div
                 class="text-[14px] font-black text-slate-800 bg-slate-50 px-3 py-1 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors"
               >
@@ -328,6 +340,8 @@ export default {
       gridWidth: 0,
       gridHeight: 0,
       where: { warehouse_id: "" },
+
+      url: import.meta.env.VITE_API_URL,
     };
   },
   computed: {
@@ -430,6 +444,8 @@ export default {
       try {
         const res = await api.post("/api/stock/locationStock", this.where);
         this.racks = res.data;
+
+        console.log(this.racks);
       } catch (e) {
         console.error(e);
       }

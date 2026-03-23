@@ -190,7 +190,7 @@ export default {
     onCellClick(data) {
       // 자재명 클릭시 모달 상세 오픈
       if (data.key == "outbound_no") {
-        if (!auth.hasPermission("outbound.update")) {
+        if (!this.auth.hasPermission("outbound.update")) {
           return;
         }
         this.modal.openModal(

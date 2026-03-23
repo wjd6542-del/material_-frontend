@@ -300,6 +300,14 @@ export default {
 
         // 목록 추가
         this.materials = res.data;
+
+        // 🔥 QR / 바코드 스캔시 결과 1개면 자동 추가
+        if (where.scan_code && this.materials.length === 1) {
+          this.addItem(this.materials[0]);
+
+          // 👉 입력값 초기화 (연속 스캔용)
+          this.scanCode = "";
+        }
       } catch (e) {
         this.$toast.error(e.message);
         this.materials = [];
@@ -315,51 +323,64 @@ export default {
     },
 
     // 항목추가
-    // 항목 추가
     addItem(item) {
-      // 1. 재고 확인
+      // 1. 재고 체크
       if (item.quantity <= 0) {
         this.$toast.error(`${item.material.name} 재고가 부족합니다`);
         return;
       }
 
-      // 2. 이미 그리드에 동일한 자재/창고/선반 조합이 있는지 확인
-      let duplicateNode = null;
+      let foundNode = null;
+
       this.gridApi.forEachNode((node) => {
+        const row = node.data;
+
         if (
-          node.data.material_id === item.material_id &&
-          node.data.warehouse_id === item.warehouse_id &&
-          node.data.location_id === item.location_id
+          row.material_id === item.material_id &&
+          row.warehouse_id === item.warehouse_id &&
+          row.location_id === item.location_id
         ) {
-          duplicateNode = node;
+          foundNode = node;
         }
       });
 
-      // 3. 중복된 항목이 있으면 경고 후 중단 (또는 수량 합산 처리)
-      if (duplicateNode) {
-        this.$toast.warning("이미 목록에 추가된 자재입니다.");
+      // 🔥 있으면 수량 증가
+      if (foundNode) {
+        const newQty = (Number(foundNode.data.quantity) || 0) + 1;
 
-        // (옵션) 추가하는 대신 해당 셀로 포커스를 이동시키고 싶을 때
-        this.gridApi.ensureNodeVisible(duplicateNode);
-        return;
-      }
+        // 👉 재고 초과 방지
+        if (newQty > item.quantity) {
+          this.$toast.warning("재고 수량을 초과할 수 없습니다");
+          return;
+        }
 
-      // 4. 중복이 없으면 새로 추가
-      const newRow = {
-        id: this.tempId--, // 임시 ID 부여
-        material_id: item.material_id,
-        warehouse_id: item.warehouse_id,
-        location_id: item.location_id,
-        quantity: 1, // 기본 수량 1로 설정 (원하는 값으로 수정 가능)
-        sale_price: 0,
-        cost_price: 0,
-      };
+        foundNode.setData({
+          ...foundNode.data,
+          quantity: newQty,
+        });
 
-      const res = this.gridApi.applyTransaction({ add: [newRow], addIndex: 0 });
+        foundNode.setSelected(true);
+        this.gridApi.ensureNodeVisible(foundNode);
+      } else {
+        // 🔥 없으면 신규 추가
+        const newRow = {
+          id: this.tempId--,
+          material_id: item.material_id,
+          warehouse_id: item.warehouse_id,
+          location_id: item.location_id,
+          quantity: 1,
+          sale_price: 0,
+          cost_price: 0,
+        };
 
-      // 추가된 행 바로 선택 처리
-      if (res.add && res.add.length > 0) {
-        res.add[0].setSelected(true);
+        const res = this.gridApi.applyTransaction({
+          add: [newRow],
+          addIndex: 0,
+        });
+
+        if (res.add && res.add.length) {
+          res.add[0].setSelected(true);
+        }
       }
 
       this.updateFooter();

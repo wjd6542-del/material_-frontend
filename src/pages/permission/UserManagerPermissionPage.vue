@@ -74,7 +74,7 @@
                   : 'bg-gray-100 text-gray-500'
               "
             >
-              {{ user.role === "admin" ? "관리자" : "사용자" }}
+              {{ user.role.is_super == true ? "관리자" : "일반" }}
             </span>
 
             <!-- 화살표 -->

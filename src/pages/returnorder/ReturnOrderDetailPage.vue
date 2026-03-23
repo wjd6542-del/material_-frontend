@@ -167,14 +167,14 @@ export default {
       columns: [
         {
           key: "qrcode",
-          label: "QR CODE",
+          label: "QR",
           type: "img",
           width: "100px",
           align: "center",
           sortable: true,
         },
         {
-          key: "outbound_code",
+          key: "return_no",
           label: "반품번호",
           width: "200px",
           align: "center",
@@ -294,7 +294,7 @@ export default {
       return Number(val || 0).toLocaleString();
     },
     async loadBoadCount() {
-      const res = await api.post("/api/outbound/boardCount");
+      const res = await api.post("/api/returnorder/boardCount");
       this.total = res.data.totalCount;
       this.group = res.data.groupCount;
       this.summary = res.data.summary;
@@ -315,7 +315,7 @@ export default {
         where.endDate = this.dateRange.end.toISOString();
       }
 
-      const res = await api.post("/api/outbound/detail/list", where);
+      const res = await api.post("/api/returnorder/detail/list", where);
       console.log(res.data);
       this.rows = res.data;
     },

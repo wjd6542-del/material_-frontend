@@ -104,6 +104,15 @@ export default {
           align: "center",
           width: "100px",
         },
+
+        {
+          key: "is_active",
+          label: "활성여부",
+          type: "string",
+          align: "center",
+          width: "100px",
+        },
+
         {
           key: "created_at",
           label: "생성일",

@@ -257,7 +257,7 @@ export default {
     onCellClick(data) {
       // 자재명 클릭시 모달 상세 오픈
       if (data.key == "name" || data.key == "code") {
-        if (!auth.hasPermission("material.update")) {
+        if (!this.auth.hasPermission("material.update")) {
           return;
         }
 

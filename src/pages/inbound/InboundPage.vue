@@ -191,7 +191,7 @@ export default {
     onCellClick(data) {
       // 자재명 클릭시 모달 상세 오픈
       if (data.key == "inbound_no") {
-        if (!auth.hasPermission("inbound.update")) {
+        if (!this.auth.hasPermission("inbound.update")) {
           return;
         }
 

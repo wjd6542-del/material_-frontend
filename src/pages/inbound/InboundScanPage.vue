@@ -295,17 +295,50 @@ export default {
 
     // 항목추가
     addItem(item) {
-      const newRow = {
-        id: this.tempId--,
-        material_id: item.material_id,
-        warehouse_id: item.warehouse_id,
-        location_id: item.location_id,
-        quantity: 0,
-        cost_price: 0,
-      };
+      let foundNode = null;
 
-      const res = this.gridApi.applyTransaction({ add: [newRow], addIndex: 0 });
-      res.add[0].setSelected(true);
+      this.gridApi.forEachNode((node) => {
+        const row = node.data;
+
+        if (
+          row.material_id === item.material_id &&
+          row.warehouse_id === item.warehouse_id &&
+          row.location_id === item.location_id
+        ) {
+          foundNode = node;
+        }
+      });
+
+      // 🔥 있으면 수량 +1
+      if (foundNode) {
+        const newQty = (Number(foundNode.data.quantity) || 0) + 1;
+
+        foundNode.setData({
+          ...foundNode.data,
+          quantity: newQty,
+        });
+
+        foundNode.setSelected(true);
+      } else {
+        // 🔥 없으면 추가
+        const newRow = {
+          id: this.tempId--,
+          material_id: item.material_id,
+          warehouse_id: item.warehouse_id,
+          location_id: item.location_id,
+          quantity: 1, // ⭐ 여기만 1로
+          cost_price: 0,
+        };
+
+        const res = this.gridApi.applyTransaction({
+          add: [newRow],
+          addIndex: 0,
+        });
+
+        res.add[0].setSelected(true);
+      }
+
+      this.updateFooter();
     },
 
     // 화면 삭제처리
