@@ -29,61 +29,98 @@ interface LoginResponse {
 }
 
 export const useAuthStore = defineStore("auth", {
+
 	state: (): AuthState => ({
 		token: null,
 		user: null
 	}),
 
 	getters: {
-		isLogin: (state) => !!state.token,
 
-		hasPermission: (state) => (code?: string) => {
-			if (!state.user) return false;
-			if (state.user.is_super) return true;
-			if (!code) return true;
-			return state.user.permissions?.includes(code) ?? false;
+		isLogin: (state): boolean => {
+			return !!state.token
+		},
+
+		// 🔥 권한 체크 (슈퍼 관리자 포함)
+		hasPermission: (state) => {
+			return (code?: string) => {
+				// ❌ user 없으면 차단
+				if (!state.user) return false
+
+				// 🔥 super admin (전체 허용)
+				if (state.user.is_super) return true
+
+				// ✅ permission 없는 경우 허용
+				if (!code) return true
+
+				const permissions = state.user.permissions || []
+				return permissions.includes(code)
+			}
 		}
+
 	},
 
 	actions: {
-		// ✅ 공통 만료 체크 로직 (내부용)
-		_isExpired (token: string) {
-			try {
-				const decoded: any = jwtDecode(token);
-				return decoded.exp < (Date.now() / 1000) + 10; // 10초 여유
-			} catch {
-				return true;
-			}
-		},
 
-		// ✅ 기존 이름 유지: 외부에서 유효성 검사할 때 호출
 		checkToken () {
-			if (!this.token || this._isExpired(this.token)) {
-				this.logout();
-				return false;
+			const token = this.token
+			if (!token) return false
+
+			try {
+				const decoded: any = jwtDecode(token)
+				const now = Date.now() / 1000
+
+				if (decoded.exp < now) {
+					this.logout()
+					return false
+				}
+
+				return true
+			} catch (e) {
+				this.logout()
+				return false
 			}
-			return true;
 		},
 
 		login (data: LoginResponse) {
-			this.token = data.token;
-			this.user = data.user;
-			// persist: true 설정 시 localStorage.setItem은 플러그인이 처리합니다.
+			this.token = data.token
+			this.user = data.user
+
+			localStorage.setItem("token", data.token)
+			localStorage.setItem("user", JSON.stringify(data.user))
 		},
 
 		logout () {
-			this.token = null;
-			this.user = null;
-			// 저장소 초기화는 플러그인이 감지하여 처리
+			this.token = null
+			this.user = null
+
+			localStorage.removeItem("token")
+			localStorage.removeItem("user")
 		},
 
-		// ✅ 기존 이름 유지: 앱 시작 시(App.vue 등) 호출
 		restore () {
-			// persist 플러그인이 이미 값을 복구했으므로, 여기선 '유효성'만 체크합니다.
-			if (this.token && this._isExpired(this.token)) {
-				this.logout();
+			const token = localStorage.getItem("token")
+			const user = localStorage.getItem("user")
+
+			if (!token || !user) return
+
+			this.token = token
+			this.user = JSON.parse(user)
+
+			// 🔥 토큰 만료 체크
+			try {
+				const decoded: any = jwtDecode(token)
+				const now = Date.now() / 1000
+
+				if (decoded.exp < now) {
+					this.logout()
+				}
+			} catch (e) {
+				this.logout()
 			}
 		}
+
 	},
-	persist: true
+
+	persist: true,
 })
