@@ -280,11 +280,13 @@
 <script>
 import api from "@/api/api";
 import SearchSelect from "@/components/base/SearchSelect.vue";
+import { useNotificationStore } from "@/stores/notification";
 
 export default {
   components: { SearchSelect },
   data() {
     return {
+      noti: useNotificationStore(),
       stocks: [],
       locations: [],
       selectedStock: null,
@@ -339,7 +341,17 @@ export default {
       return (num || 0).toLocaleString();
     },
     async submit() {
+      console.log("check ", this.selectedStock);
+
+      const select = this.selectedStock;
+
       try {
+        const ok = await this.$confirm(
+          `${select.location_name} ${select.material_name} 자재 ${this.form.quantity}개 이동처리하시겠습니까? `,
+          "재고 이동 확인",
+        );
+        if (!ok) return;
+
         await api.post("/api/stock/transfer", {
           material_id: this.selectedStock.material_id,
           from_location_id: this.selectedStock.location_id,
@@ -349,6 +361,7 @@ export default {
         this.$toast.success("이동 처리가 완료되었습니다.");
         await this.loadData();
         this.selectedStock = null;
+        this.noti.loadCounts();
       } catch (e) {
         this.$toast.error(e.message);
       }

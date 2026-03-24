@@ -1,6 +1,6 @@
 ﻿import { defineStore } from "pinia"
 import api from "@/api/api"
-
+import { useAuthStore } from "@/stores/auth"
 export const useNotificationStore = defineStore("notification", {
 	state: () => ({
 		counts: {
@@ -78,11 +78,13 @@ export const useNotificationStore = defineStore("notification", {
 
 		// 상단 알림메뉴 1분마다 갱신됨
 		startAutoRefresh () {
+			const auth = useAuthStore()
+			if (!auth.token) return   // 🔥 로그인 안하면 호출 차단
+
 			const loop = async () => {
 				await this.loadCounts()
 				this.timer = setTimeout(loop, 60000)
 			}
-
 			loop()
 		}
 	},

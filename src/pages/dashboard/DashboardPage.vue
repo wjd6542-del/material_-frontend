@@ -189,6 +189,7 @@
 
       <!-- 최근 시스템 로그 -->
       <div
+        v-if="auth.hasPermission('log.view')"
         class="lg:col-span-2 bg-white rounded-2xl shadow-sm border p-5 flex flex-col"
       >
         <div
@@ -247,6 +248,8 @@ import {
 } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
 
+import { useAuthStore } from "@/stores/auth";
+
 echarts.use([
   LineChart,
   BarChart,
@@ -261,6 +264,7 @@ export default {
   components: { "v-chart": VueECharts },
   data() {
     return {
+      auth: useAuthStore(),
       summary: {
         today_inbound: 0,
         today_outbound: 0,
@@ -303,7 +307,7 @@ export default {
           icon: "fa-solid fa-rotate-left",
         },
         tra: {
-          label: "창고간 이동",
+          label: "오늘 재고 이동",
           key: "today_transfers",
           border: "border-l-orange-500",
           text: "text-orange-600",
