@@ -124,45 +124,43 @@
 
 <script lang="ts">
 import { useNotificationStore } from "@/stores/notification";
-import { useRouter } from "vue-router";
 
 export default {
-  setup() {
-    const notificationStore = useNotificationStore();
-    const router = useRouter();
+  name: "NotificationPanel",
 
-    // 읽기 처리 진행
-    const read = (row) => {
+  data() {
+    return {
+      notificationStore: useNotificationStore(),
+    };
+  },
+
+  methods: {
+    // 읽기 처리
+    read(row) {
       try {
-        notificationStore.read(row.id);
-        this.$toast.success(`알림 읽기 처리 적용 되었습니다`);
+        this.$toast.success("알림 읽기 처리 적용 되었습니다");
+        this.notificationStore.read(row.id);
       } catch (e) {
         this.$toast.error(e.message);
       }
-    };
+    },
 
-    // 이동처리 진행
-    const goNotification = () => {
-      router.push("/notification");
-      notificationStore.closePanel();
-    };
+    // 전체 알림 이동
+    goNotification() {
+      this.$router.push("/notification");
+      this.notificationStore.closePanel();
+    },
 
-    const move = (data) => {
-      router.push({
+    // 상세 이동
+    move(data) {
+      this.$router.push({
         path: "/notification",
         query: {
           id: data.id,
         },
       });
-      notificationStore.closePanel();
-    };
-
-    return {
-      notificationStore,
-      read,
-      move,
-      goNotification,
-    };
+      this.notificationStore.closePanel();
+    },
   },
 };
 </script>
