@@ -318,9 +318,20 @@ export default {
         return;
       }
       try {
-        await api.post("/api/stat/return/daily", { date: this.set.date });
-        this.$toast.success(`[${this.set.date}] 통계 데이터가 갱신되었습니다.`);
-        this.searchData();
+        const res = await api.post("/api/stat/return/daily", {
+          date: this.set.date,
+        });
+
+        if (res.data.count) {
+          this.$toast.success(
+            `[${this.set.date}] 통계 데이터가 갱신되었습니다.`,
+          );
+          this.searchData();
+        } else {
+          this.$toast.error(
+            `[${this.set.date}] 동계 데이터가 존재하지 않습니다`,
+          );
+        }
       } catch (e) {
         this.$toast.error(e.message);
       }
