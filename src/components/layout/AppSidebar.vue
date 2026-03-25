@@ -235,6 +235,11 @@ export default defineComponent({
               label: "반품 세부내역",
               permission: "returnorder.detail.view",
             },
+            {
+              to: "/returnorder/scan",
+              label: "반품 스캔",
+              permission: "returnorder.scan.view",
+            },
           ],
         },
         {

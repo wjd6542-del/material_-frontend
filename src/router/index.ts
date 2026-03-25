@@ -24,6 +24,7 @@ import OutboundScanPage from "@/pages/outbound/OutboundScanPage.vue"
 
 import ReturnOrderPage from "@/pages/returnorder/ReturnOrderPage.vue"
 import ReturnOrderDetailPage from "@/pages/returnorder/ReturnOrderDetailPage.vue"
+import ReturnOrderScanPage from "@/pages/returnorder/ReturnOrderScanPage.vue"
 
 
 
@@ -132,7 +133,7 @@ const routes = [
 					{
 						path: "outbound/scan",
 						component: OutboundScanPage,
-						meta: { title: "출고 스캔", auth: true, permission: "outbound.scan" },
+						meta: { title: "출고 스캔", auth: true, permission: "outbound.scan.view" },
 					},
 
 					// 반품
@@ -146,7 +147,11 @@ const routes = [
 						component: ReturnOrderDetailPage,
 						meta: { title: "반품 세부내역", auth: true, permission: "returnorder.detail.view" },
 					},
-
+					{
+						path: "returnorder/scan",
+						component: ReturnOrderScanPage,
+						meta: { title: "반품 스캔", auth: true, permission: "returnorder.scan.view" },
+					},
 					// 재고
 					{
 						path: "stock",
