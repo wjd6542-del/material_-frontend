@@ -422,6 +422,9 @@ export default {
         });
 
         this.$toast.success("출고 처리가 완료 되었습니다");
+
+        this.mk_out_no();
+        this.updateFooter();
       } catch (e) {
         this.$toast.error(e.message);
       }

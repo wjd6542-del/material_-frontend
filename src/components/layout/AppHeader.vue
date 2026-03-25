@@ -20,6 +20,7 @@
     <div class="flex items-center gap-6">
       <!-- 자재 -->
       <div
+        v-if="authStore.hasPermission('notification.view')"
         class="relative cursor-pointer group"
         @click="openNotification('MATERIAL')"
       >
@@ -30,15 +31,16 @@
         </div>
 
         <span
-          v-if="notificationStore.counts.MATERIAL > 0"
+          v-if="noti.counts.MATERIAL > 0"
           class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-green-500 text-white rounded-full px-1"
         >
-          {{ notificationStore.counts.MATERIAL }}
+          {{ noti.counts.MATERIAL }}
         </span>
       </div>
 
       <!-- 입고 -->
       <div
+        v-if="authStore.hasPermission('notification.view')"
         class="relative cursor-pointer group"
         @click="openNotification('INBOUND')"
       >
@@ -49,15 +51,16 @@
         </div>
 
         <span
-          v-if="notificationStore.counts.INBOUND > 0"
+          v-if="noti.counts.INBOUND > 0"
           class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-blue-500 text-white rounded-full px-1"
         >
-          {{ notificationStore.counts.INBOUND }}
+          {{ noti.counts.INBOUND }}
         </span>
       </div>
 
       <!-- 출고 -->
       <div
+        v-if="authStore.hasPermission('notification.view')"
         class="relative cursor-pointer group"
         @click="openNotification('OUTBOUND')"
       >
@@ -68,15 +71,16 @@
         </div>
 
         <span
-          v-if="notificationStore.counts.OUTBOUND > 0"
+          v-if="noti.counts.OUTBOUND > 0"
           class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-red-500 text-white rounded-full px-1"
         >
-          {{ notificationStore.counts.OUTBOUND }}
+          {{ noti.counts.OUTBOUND }}
         </span>
       </div>
 
       <!-- 반품 (Orange/Yellow) - 색상 및 아이콘 변경 -->
       <div
+        v-if="authStore.hasPermission('notification.view')"
         class="relative cursor-pointer group"
         @click="openNotification('RETURNORDER')"
       >
@@ -87,15 +91,16 @@
           <!-- 반품을 의미하는 화살표 아이콘 -->
         </div>
         <span
-          v-if="notificationStore.counts.RETURNORDER > 0"
+          v-if="noti.counts.RETURNORDER > 0"
           class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-orange-500 text-white rounded-full px-1 border-2 border-white"
         >
-          {{ notificationStore.counts.RETURNORDER }}
+          {{ noti.counts.RETURNORDER }}
         </span>
       </div>
 
       <!-- 재고 -->
       <div
+        v-if="authStore.hasPermission('notification.view')"
         class="relative cursor-pointer group"
         @click="openNotification('STOCK')"
       >
@@ -106,10 +111,10 @@
         </div>
 
         <span
-          v-if="notificationStore.counts.STOCK > 0"
+          v-if="noti.counts.STOCK > 0"
           class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-purple-500 text-white rounded-full px-1"
         >
-          {{ notificationStore.counts.STOCK }}
+          {{ noti.counts.STOCK }}
         </span>
       </div>
 
@@ -199,12 +204,12 @@ export default {
   setup() {
     const route = useRoute();
     const authStore = useAuthStore();
-    const notificationStore = useNotificationStore();
+    const noti = useNotificationStore();
 
     return {
       route,
       authStore,
-      notificationStore,
+      noti,
     };
   },
 
@@ -231,7 +236,7 @@ export default {
     },
 
     openNotification(type) {
-      this.notificationStore.openPanel(type);
+      this.noti.openPanel(type);
     },
 
     logout() {
@@ -241,7 +246,7 @@ export default {
   },
 
   mounted() {
-    this.notificationStore.loadCounts();
+    this.noti.loadCounts();
 
     // 외부 클릭 시 드롭다운 닫기
     document.addEventListener("click", this.handleOutside);
