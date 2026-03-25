@@ -167,7 +167,7 @@
 
           <!-- 반품 확정 -->
           <button
-            @click="saveOutbound"
+            @click="save"
             class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-7 py-3 rounded-xl font-semibold shadow-md text-base"
           >
             <i class="fa-solid fa-check"></i>
@@ -382,6 +382,7 @@ export default {
           quantity: 1,
           sale_price: item.sale_price,
           cost_price: item.cost_price,
+          reasonType: "단순변심", // 기본 사유 추가
         };
 
         const res = this.gridApi.applyTransaction({
@@ -415,7 +416,7 @@ export default {
     },
 
     // 저장 처리
-    async saveOutbound() {
+    async save() {
       try {
         const rows = this.gridApi.getSelectedRows();
 
@@ -425,10 +426,11 @@ export default {
         );
         if (!ok) return;
 
-        await api.post("/api/outbound/save", {
+        await api.post("/api/returnorder/save", {
           id: 0,
-          outbound_no: this.outbound_no,
+          return_no: this.outbound_no,
           memo: "pos 자동등록처리",
+          status: "COMPLETED", // 기본 상태를 즉시 완료로 설정
           items: rows,
         });
 
