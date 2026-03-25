@@ -1,7 +1,7 @@
 ﻿<template>
   <div class="p-6 flex gap-6 min-h-[calc(100vh-64px)] bg-[#f8fafc]">
     <!-- 🟢 좌측: 창고 사이드바 -->
-    <div class="w-1/4 flex flex-col gap-4">
+    <div class="w-1/6 flex flex-col gap-4">
       <div
         class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden h-full transition-all"
       >
@@ -98,7 +98,7 @@
     </div>
 
     <!-- 🔵 중앙: 맵 레이아웃 -->
-    <div class="w-1/2 flex flex-col gap-4">
+    <div class="flex-1 flex flex-col gap-4">
       <div
         class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 flex flex-col h-full overflow-hidden"
       >
@@ -269,11 +269,22 @@
               class="group flex items-center justify-between bg-white border border-slate-100 rounded-xl px-4 py-3 hover:border-blue-200 hover:shadow-sm transition-all"
             >
               <div class="flex items-center gap-3">
+                <!-- 🔥 이미지 or 아이콘 -->
                 <div
-                  class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors"
+                  class="w-8 h-8 rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center"
                 >
-                  <i class="fa-solid fa-box text-xs"></i>
+                  <img
+                    v-if="item.image_url"
+                    :src="url + item.image_url"
+                    class="w-full h-full object-cover"
+                  />
+
+                  <i
+                    v-else
+                    class="fa-solid fa-box text-xs text-slate-400 group-hover:text-blue-500 transition-colors"
+                  ></i>
                 </div>
+
                 <div class="flex flex-col">
                   <span
                     class="text-[13px] font-bold text-slate-700 truncate max-w-[120px]"
@@ -327,6 +338,7 @@ export default {
       detailSearchText: "",
       gridWidth: 0,
       gridHeight: 0,
+      url: import.meta.env.VITE_API_URL,
     };
   },
   computed: {
