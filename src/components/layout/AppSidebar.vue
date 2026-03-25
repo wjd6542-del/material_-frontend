@@ -259,6 +259,11 @@ export default defineComponent({
               permission: "stock.detail.view",
             },
             {
+              to: "/stock/change",
+              label: "재고 흐름",
+              permission: "stock.change.view",
+            },
+            {
               to: "/stock/warehouse",
               label: "재고 위치 (창고)",
               permission: "stock.warehouse",

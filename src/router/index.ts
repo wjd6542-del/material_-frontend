@@ -6,35 +6,38 @@ import MainLayout from "@/layouts/MainLayout.vue"
 import AuthLayout from "@/layouts/AuthLayout.vue"
 
 
-
+// 데시보드
 import DashboardPage from "@/pages/dashboard/DashboardPage.vue"
+
+// 자재
 import MaterialListPage from "@/pages/material/MaterialListPage.vue"
 import MaterialPrintPage from "@/pages/material/MaterialPrintPage.vue"
 
-
+// 입고
 import InboundPage from "@/pages/inbound/InboundPage.vue"
 import InboundDetailPage from "@/pages/inbound/InboundDetailPage.vue"
 import InboundScanPage from "@/pages/inbound/InboundScanPage.vue"
 
-
+// 출고
 import OutboundPage from "@/pages/outbound/OutboundPage.vue"
 import OutboundDetailPage from "@/pages/outbound/OutboundDetailPage.vue"
 import OutboundScanPage from "@/pages/outbound/OutboundScanPage.vue"
 
-
+// 반품
 import ReturnOrderPage from "@/pages/returnorder/ReturnOrderPage.vue"
 import ReturnOrderDetailPage from "@/pages/returnorder/ReturnOrderDetailPage.vue"
 import ReturnOrderScanPage from "@/pages/returnorder/ReturnOrderScanPage.vue"
 
-
-
+// 자재
 import StockPage from "@/pages/stock/StockPage.vue"
 import StockDetailPage from "@/pages/stock/StockDetailPage.vue"
 import StockWarehousePage from "@/pages/stock/StockWarehousePage.vue"
 import StockLoctoinPage from "@/pages/stock/StockLoctoinPage.vue"
 import StockMovePage from "@/pages/stock/StockMovePage.vue"
+import StockChangePage from "@/pages/stock/StockChangePage.vue"
 
 
+// 통계
 import SatisticsInboundPage from "@/pages/statistics/SatisticsInboundPage.vue"
 import SatisticsOutboundPage from "@/pages/statistics/SatisticsOutboundPage.vue"
 import SatisticsStockPage from "@/pages/statistics/SatisticsStockPage.vue"
@@ -42,7 +45,7 @@ import SatisticsReturnPage from "@/pages/statistics/SatisticsReturnPage.vue"
 
 
 
-
+// 기타
 import SettingPage from "@/pages/setting/SettingPage.vue"
 import UserManagerPage from "@/pages/user/UserManagerPage.vue"
 import UserManagerIpPage from "@/pages/user/UserManagerIpPage.vue"
@@ -163,7 +166,6 @@ const routes = [
 						component: StockMovePage,
 						meta: { title: "재고이동", auth: true, permission: "stock.move.view" },
 					},
-
 					{
 						path: "stock/detail",
 						component: StockDetailPage,
@@ -178,6 +180,11 @@ const routes = [
 						path: "/stock/location",
 						component: StockLoctoinPage,
 						meta: { title: "재고 위치 (선반)", auth: true, permission: "stock.location.view" },
+					},
+					{
+						path: "/stock/change",
+						component: StockChangePage,
+						meta: { title: "재고 흐름", auth: true, permission: "stock.change.view" },
 					},
 
 					// 통계
