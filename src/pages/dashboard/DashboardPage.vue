@@ -135,10 +135,13 @@
           <div class="flex items-center gap-1.5">
             <span class="w-2.5 h-2.5 bg-green-500 rounded-full"></span> 출고
           </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 bg-red-500 rounded-full"></span> 반품
+          </div>
         </div>
       </div>
       <div class="relative w-full h-80">
-        <v-chart :option="inboundOutboundChart" autoresize />
+        <v-chart :option="lineChart" autoresize />
       </div>
     </div>
 
@@ -276,6 +279,7 @@ export default {
       },
       inboundChart: [],
       outboundChart: [],
+      returnChart: [],
       lowStocks: [],
       logs: [],
       kpiConfig: {
@@ -337,6 +341,7 @@ export default {
       const labels = [];
       const inValues = [];
       const outValues = [];
+      const returnValues = [];
 
       for (let i = 1; i <= todayDate; i++) {
         // 콘솔 데이터 형식에 맞춰 'MM-DD' 형식으로 키 생성
@@ -351,15 +356,21 @@ export default {
         const outRow = (this.outboundChart || []).find(
           (v) => v.date === dateKey,
         );
+        const returenRow = (this.returnChart || []).find(
+          (v) => v.date === dateKey,
+        );
 
         inValues.push(inRow ? inRow.qty : 0);
         outValues.push(outRow ? outRow.qty : 0);
+        returnValues.push(returenRow ? returenRow.qty : 0);
       }
-      return { labels, inValues, outValues };
+      return { labels, inValues, outValues, returnValues };
     },
 
-    inboundOutboundChart() {
-      const { labels, inValues, outValues } = this.filledChartData;
+    lineChart() {
+      const { labels, inValues, outValues, returnValues } =
+        this.filledChartData;
+
       return {
         tooltip: {
           trigger: "axis",
@@ -367,8 +378,35 @@ export default {
           textStyle: { color: "#333", fontSize: 12 },
           borderWidth: 1,
           borderColor: "#eee",
+
+          // 🔥 핵심: 색상 맞춤
+          formatter: (params) => {
+            let html = `<div style="font-weight:600;margin-bottom:6px;">${params[0].axisValue}</div>`;
+
+            params.forEach((p) => {
+              html += `
+            <div style="display:flex;align-items:center;gap:6px;margin:2px 0;">
+              <span style="
+                display:inline-block;
+                width:8px;
+                height:8px;
+                border-radius:50%;
+                background:${p.color};
+              "></span>
+              <span>${p.seriesName}</span>
+              <span style="margin-left:auto;font-weight:600;">
+                ${p.value ?? 0}
+              </span>
+            </div>
+          `;
+            });
+
+            return html;
+          },
         },
+
         legend: { show: false },
+
         grid: {
           top: "5%",
           left: "1%",
@@ -376,6 +414,7 @@ export default {
           bottom: "2%",
           containLabel: true,
         },
+
         xAxis: {
           type: "category",
           boundaryGap: false,
@@ -383,17 +422,20 @@ export default {
           axisLine: { lineStyle: { color: "#f0f0f0" } },
           axisLabel: { color: "#999", fontSize: 11, margin: 12 },
         },
+
         yAxis: {
           type: "value",
           splitLine: { lineStyle: { type: "dashed", color: "#f5f5f5" } },
           axisLabel: { color: "#ccc", fontSize: 10 },
         },
+
         series: [
           {
             name: "입고",
             type: "line",
             smooth: 0.4,
             showSymbol: false,
+            itemStyle: { color: "#3b82f6" }, // 🔥 추가 (툴팁/포인트 색 통일)
             lineStyle: { width: 3, color: "#3b82f6" },
             areaStyle: {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -403,11 +445,13 @@ export default {
             },
             data: inValues,
           },
+
           {
             name: "출고",
             type: "line",
             smooth: 0.4,
             showSymbol: false,
+            itemStyle: { color: "#22c55e" },
             lineStyle: { width: 3, color: "#22c55e" },
             areaStyle: {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -416,6 +460,22 @@ export default {
               ]),
             },
             data: outValues,
+          },
+
+          {
+            name: "반품",
+            type: "line",
+            smooth: 0.4,
+            showSymbol: false,
+            itemStyle: { color: "#ef4444" },
+            lineStyle: { width: 3, color: "#ef4444" },
+            areaStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: "rgba(239, 68, 68, 0.2)" },
+                { offset: 1, color: "rgba(239, 68, 68, 0)" },
+              ]),
+            },
+            data: returnValues,
           },
         ],
       };
@@ -427,12 +487,13 @@ export default {
         const { data } = await api.post("/api/dashboard/dashboard");
         if (data) {
           this.summary = { ...this.summary, ...(data.summary || {}) };
+
           this.inboundChart = data.inbound_chart || [];
           this.outboundChart = data.outbound_chart || [];
+          this.returnChart = data.return_chart || [];
+
           this.lowStocks = data.low_stock || [];
           this.logs = data.logs || [];
-          console.log("inboundChart", data.inbound_chart);
-          console.log("outboundChart", data.outbound_chart);
         }
       } catch (e) {
         console.error("Dashboard data load failed:", e);

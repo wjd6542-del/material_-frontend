@@ -296,7 +296,6 @@ export default {
     // 항목추가
     addItem(item) {
       let foundNode = null;
-
       this.gridApi.forEachNode((node) => {
         const row = node.data;
 
@@ -326,8 +325,9 @@ export default {
           material_id: item.material_id,
           warehouse_id: item.warehouse_id,
           location_id: item.location_id,
+          supplier_id: item.supplier_id,
           quantity: 1, // ⭐ 여기만 1로
-          cost_price: 0,
+          unit_price: 0,
         };
 
         const res = this.gridApi.applyTransaction({
@@ -368,6 +368,8 @@ export default {
           "입고 확인",
         );
         if (!ok) return;
+
+        console.log("check > ", rows);
 
         await api.post("/api/inbound/save", {
           id: 0,
@@ -483,7 +485,7 @@ export default {
 
         {
           headerName: "원가",
-          field: "cost_price",
+          field: "unit_price",
           filter: "agNumberColumnFilter",
           flex: 0.5,
         },
@@ -495,7 +497,7 @@ export default {
           editable: false, // 수정 불가
           valueGetter: (params) => {
             const qty = params.data.quantity || 0;
-            const price = params.data.cost_price || 0;
+            const price = params.data.unit_price || 0;
             return qty * price;
           },
           valueFormatter: (params) =>

@@ -63,20 +63,19 @@
               {{ user.email }}
             </div>
           </div>
-          <span
-            class="text-[10px] font-bold px-2 py-0.5 rounded-lg text-nowrap"
-            :class="
-              user.role === 'admin'
-                ? selectedUser?.id === user.id
-                  ? 'bg-white/20 text-white'
-                  : 'bg-purple-50 text-purple-600'
-                : selectedUser?.id === user.id
-                  ? 'bg-white/10 text-white'
-                  : 'bg-gray-100 text-gray-500'
-            "
-          >
-            {{ user.role === "admin" ? "관리자" : "사용자" }}
-          </span>
+
+          <!-- 아이피 적용 토글 -->
+          <label class="relative inline-flex items-center cursor-pointer ml-2">
+            <input
+              type="checkbox"
+              :checked="user.ip_restrict"
+              @change.prevent="toggleIpEnabled(user)"
+              class="sr-only peer"
+            />
+            <div
+              class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:bg-blue-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"
+            ></div>
+          </label>
         </div>
       </div>
     </div>
@@ -444,6 +443,33 @@ export default {
         this.selectedRows = [];
       } else {
         this.selectedRows = this.ipList.map((item, index) => item.id || index);
+      }
+    },
+
+    // 아이피 활성여부
+    async toggleIpEnabled(user) {
+      try {
+        const next = !user.ip_restrict;
+
+        const ok = await this.$confirm(
+          `IP 접근 제어를 ${next ? "활성화" : "비활성화"} 하시겠습니까?`,
+          "확인",
+        );
+
+        // ❌ 취소 → 원복
+        if (!ok) {
+          return;
+        }
+
+        // 낙관적 업데이트
+        user.ip_restrict = next;
+
+        await api.post("/api/user/ip/toggle", {
+          user_id: user.id,
+          ip_restrict: next,
+        });
+      } catch (e) {
+        user.ip_restrict = !user.ip_restrict; // 롤백
       }
     },
 

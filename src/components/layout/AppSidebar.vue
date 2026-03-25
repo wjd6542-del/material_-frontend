@@ -297,15 +297,16 @@ export default defineComponent({
               label: "출고 통계",
               permission: "statistics.outbound",
             },
-            {
-              to: "/statistics/stock",
-              label: "재고 통계",
-              permission: "statistics.stock",
-            },
+
             {
               to: "/statistics/return",
               label: "반품 통계",
               permission: "statistics.return",
+            },
+            {
+              to: "/statistics/stock",
+              label: "재고 통계",
+              permission: "statistics.stock",
             },
           ],
         },
