@@ -69,7 +69,7 @@
             <input
               type="checkbox"
               :checked="user.ip_restrict"
-              @change.prevent="toggleIpEnabled(user)"
+              @click.prevent="toggleIpEnabled(user)"
               class="sr-only peer"
             />
             <div
@@ -449,27 +449,31 @@ export default {
     // 아이피 활성여부
     async toggleIpEnabled(user) {
       try {
-        const next = !user.ip_restrict;
+        // 1. 현재 상태의 반대값을 미리 계산
+        const nextStatus = !user.ip_restrict;
 
+        // 2. 사용자 확인
         const ok = await this.$confirm(
-          `IP 접근 제어를 ${next ? "활성화" : "비활성화"} 하시겠습니까?`,
+          `IP 접근 제어를 ${nextStatus ? "활성화" : "비활성화"} 하시겠습니까?`,
           "확인",
         );
 
-        // ❌ 취소 → 원복
-        if (!ok) {
-          return;
-        }
+        // 3. 취소 시 아무것도 하지 않음 (이미 .prevent로 체크박스 변화를 막았으므로 화면 유지됨)
+        if (!ok) return;
 
-        // 낙관적 업데이트
-        user.ip_restrict = next;
-
+        // 4. API 호출 및 데이터 반영
         await api.post("/api/user/ip/toggle", {
           user_id: user.id,
-          ip_restrict: next,
+          ip_restrict: nextStatus,
         });
+
+        // 5. 성공 시에만 실제 데이터 모델 업데이트 (화면 반영)
+        user.ip_restrict = nextStatus;
+        this.$toast.success(`계정 적용 처리 되었습니다`);
       } catch (e) {
-        user.ip_restrict = !user.ip_restrict; // 롤백
+        this.$toast.error("처리 중 오류가 발생했습니다.");
+        console.error(e);
+        // 통신 실패 시 user.ip_restrict는 건드리지 않았으므로 원복 로직이 필요 없음
       }
     },
 

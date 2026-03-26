@@ -97,7 +97,10 @@
     <!-- 우측 권한 설정 -->
     <div class="flex-1 ps-3">
       <transition name="page">
-        <PermissionBoard v-if="selectedUser" :user_id="selectedUser.id" />
+        <UserManagerPermissionBoard
+          v-if="selectedUser"
+          :user_id="selectedUser.id"
+        />
       </transition>
 
       <div
@@ -139,11 +142,11 @@
 </template>
 
 <script>
-import PermissionBoard from "./PermissionBoard.vue";
+import UserManagerPermissionBoard from "./UserManagerPermissionBoard.vue";
 import api from "@/api/api";
 
 export default {
-  components: { PermissionBoard },
+  components: { UserManagerPermissionBoard },
 
   data() {
     return {
