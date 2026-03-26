@@ -1,171 +1,226 @@
 ﻿<template>
-  <!-- 🔥 메인 카드 -->
-  <div class="bg-white rounded-3xl shadow border overflow-hidden">
-    <!-- 헤더 -->
+  <div class="p-1 bg-slate-50/50 rounded-3xl">
     <div
-      class="flex items-center justify-between px-6 py-4 border-b bg-gray-50"
+      class="bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden"
     >
-      <h2 class="text-xl font-semibold flex items-center gap-2">
-        <i class="fa-solid fa-user-shield text-blue-500"></i>
-        {{ user.name }} 권한 설정
-      </h2>
-
-      <button
-        @click="save"
-        class="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg shadow-sm"
+      <div
+        class="flex items-center justify-between px-8 py-5 border-b border-slate-100 bg-white"
       >
-        <i class="fa-solid fa-floppy-disk"></i>
-        저장
-      </button>
-    </div>
-
-    <!-- 컨텐츠 -->
-    <div class="p-6 bg-gray-50">
-      <div class="grid grid-cols-3 gap-6">
-        <!-- 미보유 -->
-        <div class="bg-white rounded-2xl shadow-sm border p-4">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="font-semibold text-gray-600 flex items-center gap-2">
-              <i class="fa-solid fa-circle-xmark text-gray-400"></i>
-              미보유 권한
-            </h3>
-            <span class="text-xs bg-gray-100 px-2 py-1 rounded">
-              {{ unassigned.length }}
-            </span>
+        <div class="flex items-center gap-4">
+          <div
+            class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-200"
+          >
+            <i class="fa-solid fa-shield-halved text-xl"></i>
           </div>
+          <div>
+            <h2 class="text-xl font-bold text-slate-800">
+              {{ user.name }}
+              <span class="text-slate-400 font-medium ml-1">권한 설정</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-1 flex items-center gap-1">
+              <i class="fa-solid fa-info-circle"></i>
+              사용자에게 할당할 시스템 접근 권한을 선택하세요. (최대 1개)
+            </p>
+          </div>
+        </div>
 
-          <div class="space-y-2 max-h-[400px] overflow-y-auto">
-            <!-- 리스트 -->
-            <template v-if="unassigned.length">
-              <div
-                v-for="item in unassigned"
-                :key="item.id"
-                class="group p-3 bg-gray-50 border rounded-xl flex justify-between items-center hover:shadow hover:bg-white transition"
+        <button
+          @click="save"
+          class="group flex items-center gap-2 bg-slate-900 hover:bg-blue-600 text-white px-6 py-3 rounded-xl shadow-lg shadow-slate-200 transition-all active:scale-95"
+        >
+          <i class="fa-solid fa-floppy-disk group-hover:animate-pulse"></i>
+          <span class="font-bold">설정 저장하기</span>
+        </button>
+      </div>
+
+      <div class="p-8 bg-slate-50/30">
+        <div class="grid grid-cols-[1fr,80px,1fr] gap-6 items-center">
+          <div class="flex flex-col gap-3">
+            <div class="flex items-center justify-between px-2">
+              <span
+                class="text-[12px] font-black text-slate-400 uppercase tracking-[0.1em]"
+                >Available Permissions</span
               >
-                <div class="flex items-center gap-2">
-                  <i class="fa-solid fa-lock text-gray-400 text-sm"></i>
-                  <span class="text-sm">{{ item.description }}</span>
-                </div>
-
-                <button
-                  @click="addPermission(item)"
-                  class="opacity-0 group-hover:opacity-100 transition text-blue-500 hover:text-blue-700"
-                >
-                  <i class="fa-solid fa-arrow-right"></i>
-                </button>
-              </div>
-            </template>
-
-            <!-- 🔥 EMPTY -->
-            <div
-              v-else
-              class="flex flex-col items-center justify-center py-12 text-center"
-            >
-              <div
-                class="w-14 h-14 flex items-center justify-center rounded-full bg-green-50 mb-3"
+              <span
+                class="text-xs font-bold bg-slate-200 text-slate-600 px-2.5 py-1 rounded-lg"
               >
-                <i class="fa-solid fa-circle-check text-green-500 text-xl"></i>
-              </div>
-
-              <div class="text-sm font-medium text-gray-700">
-                모든 권한이 할당되었습니다
-              </div>
-
-              <div class="text-xs text-gray-400 mt-1">
-                추가할 권한이 없습니다
-              </div>
+                {{ unassigned.length }}
+              </span>
             </div>
-          </div>
-        </div>
 
-        <!-- 중앙 -->
-        <div class="flex flex-col justify-center items-center gap-4">
-          <button
-            @click="addAll"
-            class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 text-white shadow-lg hover:scale-105 transition"
-          >
-            <i class="fa-solid fa-angles-right"></i>
-          </button>
-
-          <button
-            @click="removeAll"
-            class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-400 hover:bg-gray-500 text-white shadow-lg hover:scale-105 transition"
-          >
-            <i class="fa-solid fa-angles-left"></i>
-          </button>
-        </div>
-
-        <!-- 보유 -->
-        <div class="bg-white rounded-2xl shadow-sm border p-4">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="font-semibold text-green-600 flex items-center gap-2">
-              <i class="fa-solid fa-circle-check"></i>
-              보유 권한
-            </h3>
-            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-              {{ assigned.length }}
-            </span>
-          </div>
-
-          <div class="space-y-2 max-h-[400px] overflow-y-auto">
-            <!-- 리스트 -->
-            <template v-if="assigned.length">
-              <div
-                v-for="(item, index) in assigned"
-                :key="item.id"
-                class="group p-3 bg-green-50 border rounded-xl flex justify-between items-center hover:shadow hover:bg-white transition"
-              >
-                <div class="flex items-center gap-2">
-                  <i class="fa-solid fa-unlock text-green-500 text-sm"></i>
-                  <span class="text-sm font-medium">{{
-                    item.description
-                  }}</span>
+            <div
+              class="bg-white rounded-[24px] border border-slate-200 shadow-sm p-4 h-[500px] flex flex-col"
+            >
+              <div class="space-y-2 overflow-y-auto pr-1 custom-scroll">
+                <div
+                  v-for="item in unassigned"
+                  :key="item.id"
+                  @click="addPermission(item)"
+                  class="group p-4 bg-slate-50 border border-transparent rounded-2xl flex justify-between items-center cursor-pointer hover:border-blue-200 hover:bg-blue-50/50 transition-all hover:translate-x-1"
+                >
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-blue-500 group-hover:border-blue-200 transition-all shadow-sm"
+                    >
+                      <i class="fa-solid fa-lock-open text-xs"></i>
+                    </div>
+                    <div>
+                      <span class="text-sm font-bold text-slate-700 block">{{
+                        item.description
+                      }}</span>
+                      <span
+                        class="text-[10px] text-slate-400 uppercase font-mono"
+                        >{{ item.name || "ROLE_CODE" }}</span
+                      >
+                    </div>
+                  </div>
+                  <i
+                    class="fa-solid fa-chevron-right text-slate-300 group-hover:text-blue-400 text-xs transition-transform group-hover:translate-x-1"
+                  ></i>
                 </div>
 
                 <div
-                  class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition"
+                  v-if="unassigned.length === 0"
+                  class="flex flex-col items-center justify-center py-32 text-slate-300"
                 >
-                  <button
-                    @click="moveUp(index)"
-                    class="text-gray-400 hover:text-black"
+                  <div
+                    class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4"
                   >
-                    <i class="fa-solid fa-arrow-up"></i>
-                  </button>
-
-                  <button
-                    @click="moveDown(index)"
-                    class="text-gray-400 hover:text-black"
-                  >
-                    <i class="fa-solid fa-arrow-down"></i>
-                  </button>
-
-                  <button
-                    @click="removePermission(item)"
-                    class="text-red-400 hover:text-red-600"
-                  >
-                    <i class="fa-solid fa-arrow-left"></i>
-                  </button>
+                    <i
+                      class="fa-solid fa-circle-check text-3xl text-emerald-400"
+                    ></i>
+                  </div>
+                  <p class="text-sm font-bold text-slate-400">
+                    모든 권한이 할당됨
+                  </p>
                 </div>
               </div>
-            </template>
+            </div>
+          </div>
 
-            <!-- 🔥 EMPTY -->
-            <div
-              v-else
-              class="flex flex-col items-center justify-center py-12 text-center"
+          <div class="flex flex-col justify-center items-center gap-4">
+            <button
+              @click="addAll"
+              class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-400 hover:bg-blue-600 hover:text-white hover:border-blue-600 shadow-sm transition-all hover:-translate-y-1 active:scale-90"
             >
-              <div
-                class="w-14 h-14 flex items-center justify-center rounded-full bg-gray-100 mb-3"
+              <i class="fa-solid fa-angles-right"></i>
+            </button>
+            <button
+              @click="removeAll"
+              class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-400 hover:bg-red-500 hover:text-white hover:border-red-500 shadow-sm transition-all hover:translate-y-1 active:scale-90"
+            >
+              <i class="fa-solid fa-angles-left"></i>
+            </button>
+          </div>
+
+          <div class="flex flex-col gap-3">
+            <div class="flex items-center justify-between px-2">
+              <span
+                class="text-[12px] font-black text-blue-600 uppercase tracking-[0.1em]"
+                >Assigned Role</span
               >
-                <i class="fa-solid fa-lock text-gray-400 text-xl"></i>
-              </div>
+              <span
+                :class="[
+                  'text-xs font-bold px-2.5 py-1 rounded-lg transition-colors',
+                  assigned.length > 1
+                    ? 'bg-red-100 text-red-600'
+                    : 'bg-blue-100 text-blue-600',
+                ]"
+              >
+                {{ assigned.length }} / 1
+              </span>
+            </div>
 
-              <div class="text-sm font-medium text-gray-700">
-                권한이 없습니다
-              </div>
+            <div
+              :class="[
+                'rounded-[24px] border-2 shadow-sm p-4 h-[500px] flex flex-col transition-all',
+                assigned.length > 0
+                  ? 'bg-blue-50/30 border-blue-100 shadow-blue-100/50'
+                  : 'bg-white border-slate-200',
+              ]"
+            >
+              <div class="space-y-3 overflow-y-auto pr-1 custom-scroll">
+                <div
+                  v-for="(item, index) in assigned"
+                  :key="item.id"
+                  class="group p-4 bg-white border border-blue-200 rounded-2xl flex justify-between items-center shadow-md shadow-blue-900/5 transition-all"
+                >
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-200"
+                    >
+                      <i class="fa-solid fa-user-shield text-sm"></i>
+                    </div>
+                    <div>
+                      <span class="text-sm font-black text-slate-800 block">{{
+                        item.description
+                      }}</span>
+                      <span
+                        class="text-[10px] text-blue-500 font-bold uppercase font-mono"
+                        >ID: {{ item.id }}</span
+                      >
+                    </div>
+                  </div>
 
-              <div class="text-xs text-gray-400 mt-1">
-                좌측에서 권한을 추가하세요
+                  <div
+                    class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <button
+                      @click="moveUp(index)"
+                      class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-800 transition-colors"
+                    >
+                      <i class="fa-solid fa-arrow-up text-[10px]"></i>
+                    </button>
+                    <button
+                      @click="moveDown(index)"
+                      class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-800 transition-colors"
+                    >
+                      <i class="fa-solid fa-arrow-down text-[10px]"></i>
+                    </button>
+                    <button
+                      @click="removePermission(item)"
+                      class="w-8 h-8 flex items-center justify-center rounded-lg text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors ml-1"
+                    >
+                      <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  v-if="assigned.length === 0"
+                  class="flex flex-col items-center justify-center py-28 text-slate-300 border-2 border-dashed border-slate-100 rounded-[20px]"
+                >
+                  <div
+                    class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4"
+                  >
+                    <i class="fa-solid fa-fingerprint text-3xl"></i>
+                  </div>
+                  <p class="text-sm font-bold text-slate-400">
+                    할당된 권한 없음
+                  </p>
+                  <p class="text-[11px] mt-1 text-slate-300">
+                    왼쪽 리스트에서 선택해 주세요
+                  </p>
+                </div>
+
+                <div
+                  v-if="assigned.length > 1"
+                  class="mt-4 p-4 bg-red-50 border border-red-100 rounded-2xl flex gap-3 animate-headShake"
+                >
+                  <i
+                    class="fa-solid fa-circle-exclamation text-red-500 text-sm mt-0.5"
+                  ></i>
+                  <div>
+                    <p class="text-[12px] text-red-700 font-bold">
+                      권한 할당 오류
+                    </p>
+                    <p class="text-[11px] text-red-600 mt-0.5 leading-relaxed">
+                      현재 <b>{{ assigned.length }}개</b>의 권한이
+                      선택되었습니다. <br />계정당 <b>하나의 권한</b>만 할당
+                      가능합니다.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -183,12 +238,10 @@ export default {
 
   data() {
     return {
-      // 보유 권한
       assigned: [],
-      // 미보유 권한
       unassigned: [],
-
       all: [],
+      url: import.meta.env.VITE_API_URL,
     };
   },
 
@@ -204,8 +257,6 @@ export default {
   methods: {
     loadPermissions() {
       const all = this.all;
-
-      // 보유 권한 할당
       const assignedIds = [this.user.role_id];
 
       this.assigned = all.filter((p) => assignedIds.includes(p.id));
@@ -213,6 +264,7 @@ export default {
     },
 
     addPermission(item) {
+      // UX: 이미 하나가 있으면 추가를 막지는 않되 시각적으로 경고함 (또는 여기서 막을 수도 있음)
       this.assigned.push(item);
       this.unassigned = this.unassigned.filter((p) => p.id !== item.id);
     },
@@ -234,56 +286,96 @@ export default {
 
     moveUp(index) {
       if (index === 0) return;
-      [this.assigned[index - 1], this.assigned[index]] = [
-        this.assigned[index],
-        this.assigned[index - 1],
-      ];
+      const temp = [...this.assigned];
+      [temp[index - 1], temp[index]] = [temp[index], temp[index - 1]];
+      this.assigned = temp;
     },
 
     moveDown(index) {
       if (index === this.assigned.length - 1) return;
-      [this.assigned[index + 1], this.assigned[index]] = [
-        this.assigned[index],
-        this.assigned[index + 1],
-      ];
+      const temp = [...this.assigned];
+      [temp[index + 1], temp[index]] = [temp[index], temp[index + 1]];
+      this.assigned = temp;
     },
 
-    // 권한 적용 처리
     async save() {
-      const payload = this.assigned;
+      if (this.assigned.length === 0) {
+        this.$toast.error("최소 하나의 권한을 선택해야 합니다.");
+        return;
+      }
 
-      if (payload.length > 1) {
-        this.$toast.error("계정은하나의 권한만 가질수 있습니다");
+      if (this.assigned.length > 1) {
+        this.$toast.error("계정은 하나의 권한만 가질 수 있습니다.");
         return;
       }
 
       const ok = await this.$confirm(
-        `선택한 권한을 계정에 적용 하시겠습니까?`,
+        `[${this.assigned[0].description}] 권한을 계정에 적용하시겠습니까?`,
         "권한 적용 확인",
       );
       if (!ok) return;
 
       const body = {
         user_id: this.user.id,
-        role_id: payload[0].id,
+        role_id: this.assigned[0].id,
       };
-
-      console.log(body);
 
       try {
         await api.post("/api/user/setPermission", body);
-        this.$toast.success("계정 권한이 적용되었습니다");
+        this.$toast.success("계정 권한이 성공적으로 적용되었습니다.");
+        this.loadRoles();
       } catch (e) {
-        this.$toast.error(e.message);
+        this.$toast.error(e.message || "권한 적용 중 오류가 발생했습니다.");
       }
     },
 
-    // 계정 권한 로드
     async loadRoles() {
-      const res = await api.post("/api/role/list");
-      this.all = res.data;
-      this.loadPermissions();
+      try {
+        const res = await api.post("/api/role/list");
+        this.all = res.data;
+        this.loadPermissions();
+      } catch (e) {
+        console.error("Roles 로드 실패:", e);
+      }
     },
   },
 };
 </script>
+
+<style scoped>
+.custom-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 진동 애니메이션 (경고용) */
+@keyframes headShake {
+  0% {
+    transform: translateX(0);
+  }
+  6.5% {
+    transform: translateX(-6px) rotateY(-9deg);
+  }
+  18.5% {
+    transform: translateX(5px) rotateY(7deg);
+  }
+  31.5% {
+    transform: translateX(-3px) rotateY(-5deg);
+  }
+  43.5% {
+    transform: translateX(2px) rotateY(3deg);
+  }
+  50% {
+    transform: translateX(0);
+  }
+}
+.animate-headShake {
+  animation: headShake 0.6s ease-in-out;
+}
+</style>
