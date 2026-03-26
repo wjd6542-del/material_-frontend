@@ -1,5 +1,5 @@
 ﻿<template>
-  <div class="p-1 bg-slate-50/50 rounded-3xl">
+  <div v-if="user" class="p-1 bg-slate-50/50 rounded-3xl">
     <div
       class="bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden"
     >
@@ -228,43 +228,80 @@
       </div>
     </div>
   </div>
+
+  <div v-else class="flex items-center justify-center py-20 text-slate-400">
+    <i class="fa-solid fa-circle-notch fa-spin mr-2"></i> 사용자 정보를 불러오는
+    중...
+  </div>
 </template>
 
 <script>
 import api from "@/api/api";
 
 export default {
-  props: { user: Object },
+  props: {
+    // user 객체 대신 id를 직접 받습니다.
+    user_id: {
+      type: Number,
+      required: true,
+    },
+  },
 
   data() {
     return {
+      user: null, // 조회한 유저 정보 저장
       assigned: [],
       unassigned: [],
-      all: [],
-      url: import.meta.env.VITE_API_URL,
+      all: [], // 전체 권한(Role) 리스트
     };
   },
 
   watch: {
-    user: {
+    // 부모로부터 user_id가 바뀌면 유저 정보 재조회
+    user_id: {
       immediate: true,
-      handler() {
-        this.loadRoles();
+      async handler(newVal) {
+        if (newVal) {
+          await this.loadUser(newVal);
+          await this.loadRoles();
+        }
       },
     },
   },
 
   methods: {
-    loadPermissions() {
-      const all = this.all;
-      const assignedIds = [this.user.role_id];
+    // 1. 유저 정보 단건 조회
+    async loadUser(id) {
+      try {
+        const res = await api.post(`/api/user/${id}`, { id });
+        this.user = res.data;
+      } catch (e) {
+        this.$toast.error("사용자 정보를 불러오는데 실패했습니다.");
+        console.error("user info 로드 실패:", e);
+      }
+    },
 
-      this.assigned = all.filter((p) => assignedIds.includes(p.id));
-      this.unassigned = all.filter((p) => !assignedIds.includes(p.id));
+    // 2. 전체 권한(Role) 리스트 조회
+    async loadRoles() {
+      try {
+        const res = await api.post("/api/role/list");
+        this.all = res.data;
+        this.loadPermissions(); // 유저 정보와 룰 리스트를 기반으로 할당/미할당 분리
+      } catch (e) {
+        console.error("Roles 로드 실패:", e);
+      }
+    },
+
+    // 3. 화면 표시 데이터 필터링
+    loadPermissions() {
+      if (!this.user || !this.all.length) return;
+
+      const assignedIds = [this.user.role_id];
+      this.assigned = this.all.filter((p) => assignedIds.includes(p.id));
+      this.unassigned = this.all.filter((p) => !assignedIds.includes(p.id));
     },
 
     addPermission(item) {
-      // UX: 이미 하나가 있으면 추가를 막지는 않되 시각적으로 경고함 (또는 여기서 막을 수도 있음)
       this.assigned.push(item);
       this.unassigned = this.unassigned.filter((p) => p.id !== item.id);
     },
@@ -316,26 +353,19 @@ export default {
       if (!ok) return;
 
       const body = {
-        user_id: this.user.id,
+        user_id: this.user_id,
         role_id: this.assigned[0].id,
       };
 
       try {
         await api.post("/api/user/setPermission", body);
         this.$toast.success("계정 권한이 성공적으로 적용되었습니다.");
-        this.loadRoles();
-      } catch (e) {
-        this.$toast.error(e.message || "권한 적용 중 오류가 발생했습니다.");
-      }
-    },
 
-    async loadRoles() {
-      try {
-        const res = await api.post("/api/role/list");
-        this.all = res.data;
+        // 🔥 저장 성공 후 유저 정보를 다시 조회하여 최신 상태로 갱신
+        await this.loadUser(this.user_id);
         this.loadPermissions();
       } catch (e) {
-        console.error("Roles 로드 실패:", e);
+        this.$toast.error(e.message || "권한 적용 중 오류가 발생했습니다.");
       }
     },
   },
@@ -343,6 +373,7 @@ export default {
 </script>
 
 <style scoped>
+/* 이전과 동일한 스타일 */
 .custom-scroll::-webkit-scrollbar {
   width: 5px;
 }
@@ -354,7 +385,6 @@ export default {
   background: transparent;
 }
 
-/* 진동 애니메이션 (경고용) */
 @keyframes headShake {
   0% {
     transform: translateX(0);

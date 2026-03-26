@@ -97,7 +97,7 @@
     <!-- 우측 권한 설정 -->
     <div class="flex-1 ps-3">
       <transition name="page">
-        <PermissionBoard v-if="selectedUser" :user="selectedUser" />
+        <PermissionBoard v-if="selectedUser" :user_id="selectedUser.id" />
       </transition>
 
       <div
