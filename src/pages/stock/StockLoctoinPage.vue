@@ -12,7 +12,7 @@
             >
               <i class="fa-solid fa-warehouse text-xs"></i>
             </div>
-            창고 확인
+            창고 리스트
           </h3>
         </div>
 
@@ -22,16 +22,16 @@
             :key="wh.id"
             @click="selectWarehouse(wh)"
             :class="[
-              'group p-3 rounded-xl border transition-all cursor-pointer relative overflow-hidden',
+              'group p-4 rounded-xl border transition-all cursor-pointer relative overflow-hidden',
               selectedWarehouse?.id === wh.id
                 ? 'bg-blue-600 border-blue-600 shadow-lg shadow-blue-100 translate-x-1'
                 : 'bg-white border-slate-100 hover:border-blue-200 hover:bg-slate-50',
             ]"
           >
-            <div class="flex justify-between items-center mb-1 relative z-10">
+            <div class="flex justify-between items-start relative z-10">
               <span
                 :class="[
-                  'font-bold text-sm',
+                  'font-bold text-[15px]',
                   selectedWarehouse?.id === wh.id
                     ? 'text-white'
                     : 'text-slate-700',
@@ -41,7 +41,7 @@
               </span>
               <span
                 :class="[
-                  'text-[9px] px-1.5 py-0.5 rounded font-bold tracking-tighter',
+                  'text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-wider',
                   selectedWarehouse?.id === wh.id
                     ? 'bg-white/20 text-white'
                     : 'bg-slate-100 text-slate-500',
@@ -50,15 +50,30 @@
                 {{ wh.width }} × {{ wh.height }}
               </span>
             </div>
-            <div
-              :class="[
-                'text-[10px] font-medium',
-                selectedWarehouse?.id === wh.id
-                  ? 'text-blue-100'
-                  : 'text-slate-400',
-              ]"
-            >
-              창고 코드: {{ wh.code }}
+
+            <div class="flex gap-2 mt-3 relative z-10">
+              <div
+                :class="[
+                  'px-2.5 py-1 rounded-lg flex items-center gap-1.5 text-[11px] font-bold transition-colors',
+                  selectedWarehouse?.id === wh.id
+                    ? 'bg-white/10 text-blue-100'
+                    : 'bg-blue-50 text-blue-600',
+                ]"
+              >
+                <i class="fa-solid fa-cubes-stacked opacity-70"></i>
+                {{ getWarehouseTypes(wh.id).toLocaleString() }} 종류
+              </div>
+              <div
+                :class="[
+                  'px-2.5 py-1 rounded-lg flex items-center gap-1.5 text-[11px] font-bold transition-colors',
+                  selectedWarehouse?.id === wh.id
+                    ? 'bg-white/10 text-white'
+                    : 'bg-emerald-50 text-emerald-600',
+                ]"
+              >
+                <i class="fa-solid fa-box-open opacity-70"></i>
+                {{ getWarehouseQty(wh.id).toLocaleString() }}
+              </div>
             </div>
           </div>
         </div>
@@ -394,6 +409,21 @@ export default {
     },
   },
   methods: {
+    getWarehouseTypes(id) {
+      const wh = this.warehouses.find((w) => w.id === id);
+      if (!wh || !wh.stocks) return 0;
+
+      // material_id 기준 중복 제거
+      const unique = new Set(wh.stocks.map((s) => s.material_id));
+      return unique.size;
+    },
+
+    getWarehouseQty(id) {
+      const wh = this.warehouses.find((w) => w.id === id);
+      if (!wh || !wh.stocks) return 0;
+
+      return wh.stocks.reduce((sum, s) => sum + (s.quantity || 0), 0);
+    },
     rackStyle(rack) {
       return {
         left: rack.x * this.cellWidth + "px",
@@ -454,6 +484,7 @@ export default {
       try {
         const res = await api.post("/api/warehouse/list");
         this.warehouses = res.data;
+        console.log("정보 확인!!", res.data);
       } catch (e) {
         console.error(e);
       }

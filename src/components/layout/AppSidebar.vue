@@ -180,7 +180,7 @@ export default defineComponent({
             {
               to: "/materials/print",
               label: "자재라벨",
-              permission: "material.print",
+              permission: "material.print.view",
             },
           ],
         },
@@ -198,7 +198,7 @@ export default defineComponent({
             {
               to: "/inbound/scan",
               label: "입고 스캔",
-              permission: "inbound.scan",
+              permission: "inbound.scan.view",
             },
           ],
         },
@@ -216,7 +216,7 @@ export default defineComponent({
             {
               to: "/outbound/scan",
               label: "출고 스캔",
-              permission: "outbound.scan",
+              permission: "outbound.scan.view",
             },
           ],
         },
@@ -266,12 +266,12 @@ export default defineComponent({
             {
               to: "/stock/warehouse",
               label: "재고 위치 (창고)",
-              permission: "stock.warehouse",
+              permission: "stock.warehouse.view",
             },
             {
               to: "/stock/location",
               label: "재고 위치 (선반)",
-              permission: "stock.location",
+              permission: "stock.location.view",
             },
           ],
         },

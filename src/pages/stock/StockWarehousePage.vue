@@ -89,7 +89,6 @@
               >
                 <i class="fa-solid fa-box-open opacity-70"></i>
                 {{ (warehouseKpiMap[rack.id]?.totalQty || 0).toLocaleString() }}
-                개수
               </div>
             </div>
           </div>
@@ -433,11 +432,12 @@ export default {
       }
     },
   },
-  mounted() {
+  async mounted() {
     this.$nextTick(() => {
       this.updateGridSize();
     });
     this.loadData();
+
     window.addEventListener("resize", this.updateGridSize);
   },
   beforeUnmount() {

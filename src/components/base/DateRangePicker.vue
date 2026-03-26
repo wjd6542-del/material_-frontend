@@ -11,27 +11,39 @@
 
       <div
         v-show="openQuick"
-        class="absolute left-0 mt-2 w-28 bg-white border rounded shadow-md z-50"
+        class="absolute left-0 mt-2 w-36 bg-white border rounded shadow-md z-50"
       >
         <button
-          class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+          class="flex items-center gap-2 w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
           @click="setQuick('yesterday')"
         >
+          <i class="fa-regular fa-clock text-gray-400"></i>
           어제
         </button>
 
         <button
-          class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+          class="flex items-center gap-2 w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
           @click="setQuick('today')"
         >
+          <i class="fa-regular fa-calendar-check text-blue-500"></i>
           오늘
         </button>
 
         <button
-          class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+          class="flex items-center gap-2 w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
           @click="setQuick('week')"
         >
+          <i class="fa-solid fa-calendar-week text-green-500"></i>
           일주일
+        </button>
+
+        <!-- ✅ 이번달 추가 -->
+        <button
+          class="flex items-center gap-2 w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+          @click="setQuick('month')"
+        >
+          <i class="fa-solid fa-calendar-days text-purple-500"></i>
+          이번달
         </button>
       </div>
     </div>
@@ -242,6 +254,15 @@ export default {
       if (type === "week") {
         start.setDate(start.getDate() - 7);
         start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+      }
+
+      // ✅ 이번달
+      if (type === "month") {
+        start = new Date(now.getFullYear(), now.getMonth(), 1);
+        start.setHours(0, 0, 0, 0);
+
+        end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
         end.setHours(23, 59, 59, 999);
       }
 

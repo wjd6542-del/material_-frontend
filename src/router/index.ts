@@ -102,7 +102,7 @@ const routes = [
 					{
 						path: "materials/print",
 						component: MaterialPrintPage,
-						meta: { title: "자재라벨", auth: true, permission: "material.print" },
+						meta: { title: "자재라벨", auth: true, permission: "material.print.view" },
 					},
 
 					// 입고
@@ -119,7 +119,7 @@ const routes = [
 					{
 						path: "inbound/scan",
 						component: InboundScanPage,
-						meta: { title: "입고 스캔", auth: true, permission: "inbound.scan" },
+						meta: { title: "입고 스캔", auth: true, permission: "inbound.scan.view" },
 					},
 
 					// 출고

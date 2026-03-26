@@ -69,12 +69,12 @@
             <span
               class="text-[10px] px-2 py-0.5 rounded-full"
               :class="
-                role.name === 'admin'
+                role.is_super
                   ? 'bg-purple-100 text-purple-600'
                   : 'bg-gray-100 text-gray-500'
               "
             >
-              {{ role.name === "admin" ? "관리자" : "일반" }}
+              {{ role.is_super ? "관리자" : "일반" }}
             </span>
 
             <i
