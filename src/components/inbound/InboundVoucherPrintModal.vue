@@ -204,8 +204,6 @@ export default {
     async loadData() {
       const res = await api.post(`/api/inbound/${this.id}`, { id: this.id });
       this.data = res.data;
-      console.log(res.data);
-
       this.totalAmount(res.data);
     },
   },

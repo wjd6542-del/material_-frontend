@@ -50,7 +50,7 @@
       <div class="bg-gray-50 border rounded-xl p-4 space-y-3 flex flex-col">
         <div class="flex items-center gap-2 text-sm font-medium text-gray-700">
           <i class="fa-solid fa-boxes-stacked text-blue-500"></i>
-          반품 목록
+          출고 목록
         </div>
 
         <div

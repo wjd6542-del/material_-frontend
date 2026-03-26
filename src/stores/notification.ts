@@ -53,15 +53,26 @@ export const useNotificationStore = defineStore("notification", {
 
 		// 읽기
 		async read (id) {
-			await api.post("/api/notification/read", { id })
+			try {
+				await api.post("/api/notification/read", { id })
 
-			const item = this.list.find((v) => v.id === id)
+				const item = this.list.find((v) => v.id === id)
 
-			if (item) {
-				item.is_read = true
+				// 이미 읽은 상태라면 카운트를 중복으로 뺄 필요 없음
+				if (item && !item.is_read) {
+					item.is_read = true
+
+					// 서버 응답을 기다리지 않고 화면에서 먼저 숫자 차감 (선택 사항)
+					if (this.counts[item.type] > 0) {
+						this.counts[item.type]--
+					}
+				}
+
+				// 그 다음 서버와 동기화
+				await this.loadCounts()
+			} catch (error) {
+				console.error("읽기 처리 실패:", error)
 			}
-
-			await this.loadCounts()
 		},
 
 		// 전체 읽기
