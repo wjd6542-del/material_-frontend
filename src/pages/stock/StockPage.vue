@@ -9,38 +9,45 @@
           <h2 class="text-lg font-semibold text-gray-800">재고현황</h2>
         </div>
 
-        <div class="p-4 pb-0 flex items-center gap-1">
-          <DateRangePicker
-            v-model="dateRange"
-            :minuteStep="5"
-            :showQuickButtons="true"
-            @change="loadList"
-          />
-
-          <SearchSelect
-            v-model="where.material_id"
-            :options="materials"
-            labelKey="name"
-            valueKey="id"
-            placeholder="자재 선택"
-            @change="loadList"
-          />
-          <SearchSelect
-            v-model="where.warehouse_id"
-            :options="warehouses"
-            labelKey="name"
-            valueKey="id"
-            placeholder="창고 선택"
-            @change="loadList"
-          />
-          <SearchSelect
-            v-model="where.location_id"
-            :options="locations"
-            labelKey="name"
-            valueKey="id"
-            placeholder="선반 위치 선택"
-            @change="loadList"
-          />
+        <div class="p-4 pb-0 flex flex-wrap items-center gap-2">
+          <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[240px] sm:max-w-[400px]">
+            <DateRangePicker
+              v-model="dateRange"
+              :minuteStep="5"
+              :showQuickButtons="true"
+              @change="loadList"
+            />
+          </div>
+          <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[160px] sm:max-w-[260px]">
+            <SearchSelect
+              v-model="where.material_id"
+              :options="materials"
+              labelKey="name"
+              valueKey="id"
+              placeholder="자재 선택"
+              @change="loadList"
+            />
+          </div>
+          <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[140px] sm:max-w-[220px]">
+            <SearchSelect
+              v-model="where.warehouse_id"
+              :options="warehouses"
+              labelKey="name"
+              valueKey="id"
+              placeholder="창고 선택"
+              @change="loadList"
+            />
+          </div>
+          <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[140px] sm:max-w-[220px]">
+            <SearchSelect
+              v-model="where.location_id"
+              :options="locations"
+              labelKey="name"
+              valueKey="id"
+              placeholder="선반 위치 선택"
+              @change="loadList"
+            />
+          </div>
         </div>
 
         <div class="p-4 pb-0 flex items-center gap-1">
@@ -67,7 +74,7 @@
       </div>
 
       <!-- 카드 영역 -->
-      <div class="lg:col-span-2 flex flex-col gap-4">
+      <div class="lg:col-span-2 flex flex-col sm:flex-row lg:flex-col gap-4">
         <!-- 총 재고 -->
         <div
           class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition"
@@ -95,63 +102,6 @@
 
             <!-- 우측 강조 아이콘 -->
             <i class="fa-solid fa-boxes-stacked text-4xl text-gray-200"></i>
-          </div>
-        </div>
-
-        <!-- 안전재고 미만 -->
-        <div
-          class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition"
-        >
-          <div
-            class="flex items-center justify-between px-4 py-3 border-b bg-gray-50"
-          >
-            <div class="flex items-center gap-3">
-              <div
-                class="w-9 h-9 flex items-center justify-center rounded-lg bg-red-100"
-              >
-                <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
-              </div>
-              <span class="text-gray-700 font-medium">안전재고 미만</span>
-            </div>
-
-            <button class="text-xs text-blue-500 hover:underline">
-              최대 10개
-            </button>
-          </div>
-
-          <div class="p-3 max-h-[200px] overflow-y-auto">
-            <div
-              v-for="row in lowStockList"
-              :key="row.id"
-              class="flex justify-between items-center px-3 py-2 text-sm border-b last:border-0 hover:bg-gray-50 rounded"
-            >
-              <div class="flex items-center gap-2">
-                <i
-                  class="fa-solid fa-circle-exclamation text-red-400 text-xs"
-                ></i>
-
-                <div class="flex flex-col">
-                  <span class="font-medium text-gray-700">
-                    {{ row.name }}
-                  </span>
-                  <span class="text-xs text-gray-400">
-                    최소 {{ row.safe_qty }}
-                  </span>
-                </div>
-              </div>
-
-              <div class="text-red-600 font-semibold">
-                {{ formatNumber(row.qty) }}
-              </div>
-            </div>
-
-            <div
-              v-if="!lowStockList.length"
-              class="text-center text-gray-400 py-4"
-            >
-              <i class="fa-regular fa-face-meh mb-1"></i><br />
-              데이터 없음
-            </div>
           </div>
         </div>
 

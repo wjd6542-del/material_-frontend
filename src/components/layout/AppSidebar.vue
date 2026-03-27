@@ -1,24 +1,27 @@
-﻿<template>
+<template>
   <aside
     :class="[
-      'h-screen sticky top-0 bg-[#0f1117] text-gray-300 flex flex-col transition-all duration-300 border-r border-gray-800 shrink-0 z-50',
-      open ? 'w-64' : 'w-20',
+      'h-screen bg-[#0f1117] text-gray-300 flex flex-col transition-all duration-300 border-r border-gray-800 shrink-0 z-50',
+      isMobile
+        ? 'fixed top-0 left-0'
+        : 'sticky top-0',
+      isMobile
+        ? (open ? 'w-64 translate-x-0' : 'w-64 -translate-x-full')
+        : (open ? 'w-64' : 'w-20'),
     ]"
   >
-    <!-- 🔥 Logo Section -->
+    <!-- Logo Section -->
     <div
       class="h-16 flex items-center shrink-0 border-b border-gray-800/50 bg-[#0f1117]"
-      :class="open ? 'px-5 justify-start' : 'justify-center'"
+      :class="open ? 'px-5 justify-between' : 'justify-center'"
     >
       <div class="flex items-center gap-3">
-        <!-- 로고 아이콘 -->
         <div
           class="w-9 h-9 rounded bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shrink-0 text-base"
         >
           M
         </div>
 
-        <!-- 로고 텍스트 (Material System 삭제 및 폰트 차등 적용) -->
         <div v-if="open" class="flex items-baseline overflow-hidden shrink-0">
           <span
             class="text-[25px] font-black text-white tracking-tighter uppercase"
@@ -32,9 +35,18 @@
           </span>
         </div>
       </div>
+
+      <!-- 모바일: 사이드바 닫기 버튼 -->
+      <button
+        v-if="isMobile && open"
+        class="text-gray-400 hover:text-white p-1"
+        @click="$emit('close')"
+      >
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
     </div>
 
-    <!-- 🔥 Menu Section -->
+    <!-- Menu Section -->
     <nav
       class="flex-1 p-3 space-y-1 custom-scrollbar"
       :class="open ? 'overflow-y-auto overflow-x-hidden' : 'overflow-visible'"
@@ -69,7 +81,7 @@
           />
         </div>
 
-        <!-- [Case 2] 단일 메뉴 (대시보드 포함) -->
+        <!-- [Case 2] 단일 메뉴 -->
         <RouterLink
           v-else-if="
             menu.to && (!menu.permission || hasPermission(menu.permission))
@@ -77,6 +89,7 @@
           :to="menu.to"
           class="menu-item group"
           :class="{ 'active-link': isActive(menu.to) }"
+          @click="isMobile && $emit('close')"
         >
           <i
             class="fa-solid w-6 text-center text-lg shrink-0 transition-colors"
@@ -92,7 +105,6 @@
             menu.label
           }}</span>
 
-          <!-- 선택 강조 바 (왼쪽 파란 선) -->
           <div v-if="isActive(menu.to)" class="active-bar"></div>
         </RouterLink>
 
@@ -110,6 +122,7 @@
                 :to="sub.to"
                 class="sub-item"
                 :class="{ 'active-sub': isActive(sub.to) }"
+                @click="isMobile && $emit('close')"
               >
                 {{ sub.label }}
               </RouterLink>
@@ -117,9 +130,9 @@
           </div>
         </transition>
 
-        <!-- 🔥 [닫힘상태] 호버 팝업 메뉴 -->
+        <!-- 🔥 [닫힘상태] 호버 팝업 메뉴 (데스크탑 전용) -->
         <div
-          v-if="!open && menu.children && hasAnyChildPermission(menu)"
+          v-if="!open && !isMobile && menu.children && hasAnyChildPermission(menu)"
           class="absolute left-full top-0 ml-2 z-[100] hidden group-hover:block"
         >
           <div class="absolute left-[-12px] top-0 w-[12px] h-full"></div>
@@ -157,12 +170,18 @@ import { defineComponent } from "vue";
 import { useAuthStore } from "@/stores/auth";
 
 export default defineComponent({
-  props: { open: { type: Boolean, default: true } },
+  props: {
+    open: { type: Boolean, default: true },
+    isMobile: { type: Boolean, default: false },
+  },
+
+  emits: ["close"],
+
   data() {
     return {
       menus: [
         {
-          to: "/dashboard", // 👈 기존 "/"에서 "/dashboard"로 수정 (URL 일치)
+          to: "/dashboard",
           icon: "fa-chart-line",
           label: "대시보드",
           permission: "dashboard.view",
@@ -307,7 +326,6 @@ export default defineComponent({
               label: "출고 통계",
               permission: "statistics.outbound",
             },
-
             {
               to: "/statistics/return",
               label: "반품 통계",
@@ -375,7 +393,6 @@ export default defineComponent({
     toggle(menu: any) {
       if (this.open) menu.open = !menu.open;
     },
-    // 💡 개선된 isActive: "/"와 "/dashboard"를 동일하게 처리하거나 정확한 포함 관계 확인
     isActive(path: string) {
       const currentPath = this.$route.path;
       if (path === "/dashboard" && currentPath === "/") return true;
@@ -416,7 +433,6 @@ export default defineComponent({
          hover:bg-gray-800 hover:text-white;
 }
 
-/* 🔵 강조 선택 스타일 (확실하게 보임) */
 .active-link {
   @apply bg-blue-600 text-white font-bold shadow-lg shadow-blue-900/40;
 }
@@ -425,7 +441,6 @@ export default defineComponent({
   @apply bg-gray-800/60 text-white;
 }
 
-/* 왼쪽 강조 수직 바 */
 .active-bar {
   @apply absolute left-[-4px] top-1/2 -translate-y-1/2 w-1.5 h-6 bg-blue-500 rounded-r-full;
 }

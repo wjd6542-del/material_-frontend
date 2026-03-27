@@ -1,7 +1,7 @@
 ﻿<template>
   <div class="p-6 space-y-6 bg-gray-50/50 min-h-screen font-sans text-gray-900">
     <!-- 1. 상단 물류 KPI 섹션 -->
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
       <div
         v-for="(v, k) in kpiConfig"
         :key="k"

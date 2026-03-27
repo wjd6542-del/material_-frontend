@@ -1,6 +1,6 @@
 ﻿<template>
-  <div class="p-6 flex gap-6 bg-gray-50 min-h-screen">
-    <div class="w-1/4 max-w-[320px] flex flex-col gap-5">
+  <div class="p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 bg-gray-50 min-h-screen">
+    <div class="w-full lg:w-1/4 lg:max-w-[320px] lg:shrink-0 flex flex-col gap-5">
       <div
         class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 space-y-3"
       >
@@ -64,7 +64,7 @@
         </div>
 
         <div
-          class="p-2 overflow-y-auto max-h-[calc(100vh-350px)] custom-scrollbar"
+          class="p-2 overflow-y-auto max-h-[30vh] lg:max-h-[calc(100vh-350px)] custom-scrollbar"
         >
           <div
             v-if="racks.length === 0"

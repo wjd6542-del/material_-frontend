@@ -4,6 +4,7 @@ import { jwtDecode } from "jwt-decode"
 interface AuthState {
 	token: string | null
 	user: User | null
+	isLoaded: boolean
 }
 
 interface User {
@@ -32,7 +33,8 @@ export const useAuthStore = defineStore("auth", {
 
 	state: (): AuthState => ({
 		token: null,
-		user: null
+		user: null,
+		isLoaded: false
 	}),
 
 	getters: {
@@ -85,6 +87,7 @@ export const useAuthStore = defineStore("auth", {
 		login (data: LoginResponse) {
 			this.token = data.token
 			this.user = data.user
+			this.isLoaded = true
 
 			localStorage.setItem("token", data.token)
 			localStorage.setItem("user", JSON.stringify(data.user))
@@ -93,6 +96,7 @@ export const useAuthStore = defineStore("auth", {
 		logout () {
 			this.token = null
 			this.user = null
+			this.isLoaded = true
 
 			localStorage.removeItem("token")
 			localStorage.removeItem("user")
@@ -102,7 +106,10 @@ export const useAuthStore = defineStore("auth", {
 			const token = localStorage.getItem("token")
 			const user = localStorage.getItem("user")
 
-			if (!token || !user) return
+			if (!token || !user) {
+				this.isLoaded = true
+				return
+			}
 
 			this.token = token
 			this.user = JSON.parse(user)
@@ -114,10 +121,14 @@ export const useAuthStore = defineStore("auth", {
 
 				if (decoded.exp < now) {
 					this.logout()
+					return
 				}
 			} catch (e) {
 				this.logout()
+				return
 			}
+
+			this.isLoaded = true
 		}
 
 	},

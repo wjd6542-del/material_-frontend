@@ -1,8 +1,8 @@
 ﻿<template>
-  <div class="p-6 h-[calc(100vh-80px)] flex gap-6 bg-gray-50/50 font-sans">
+  <div class="p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 bg-gray-50/50 font-sans min-h-0">
     <!-- 📦 좌측: 재고 리스트 -->
     <div
-      class="w-[340px] bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden"
+      class="w-full lg:w-[340px] lg:shrink-0 bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden max-h-[50vh] lg:max-h-none lg:h-auto"
     >
       <div
         class="p-5 border-b bg-white font-bold flex items-center justify-between shrink-0"
@@ -149,7 +149,7 @@
         </div>
 
         <div
-          class="grid grid-cols-[1fr_auto_1fr] items-center gap-4 bg-gray-50 p-6 rounded-3xl border border-gray-100"
+          class="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-4 bg-gray-50 p-4 sm:p-6 rounded-3xl border border-gray-100"
         >
           <div
             class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 text-center"
@@ -192,7 +192,7 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-8 pt-4 overflow-visible">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 pt-4 overflow-visible">
           <div class="space-y-3">
             <label
               class="block text-sm font-black text-gray-700 uppercase tracking-tight"

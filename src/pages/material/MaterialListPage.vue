@@ -8,11 +8,11 @@
         <h2 class="text-lg font-semibold text-gray-800">자재 목록</h2>
       </div>
 
-      <div class="p-4 pb-0 flex items-center gap-1">
+      <div class="p-4 pb-0 flex flex-wrap items-center gap-2">
         <button
           v-if="auth.hasPermission('material.create')"
           @click="openModal"
-          class="h-[40px] px-3 py-1.5 bg-green-500 text-white rounded-md text-sm hover:bg-green-600"
+          class="h-[40px] px-3 py-1.5 bg-green-500 text-white rounded-md text-sm hover:bg-green-600 shrink-0"
         >
           <i class="fa-solid fa-add"></i>
         </button>
@@ -20,11 +20,11 @@
         <button
           v-if="auth.hasPermission('material.create')"
           @click="batchDelete"
-          class="h-[40px] px-3 py-1.5 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 flex items-center gap-1"
+          class="h-[40px] px-3 py-1.5 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 flex items-center gap-1 shrink-0"
         >
           <i class="fa-solid fa-trash"></i>
         </button>
-        <div class="w-[450px]">
+        <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[280px] sm:max-w-[450px]">
           <DateRangePicker
             v-model="dateRange"
             :minuteStep="5"
@@ -32,7 +32,7 @@
             @change="loadList"
           />
         </div>
-        <div class="w-[350px]">
+        <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[200px] sm:max-w-[350px]">
           <SearchSelect
             v-model="where.category_id"
             :options="categorys"
@@ -42,7 +42,7 @@
             @change="loadList"
           />
         </div>
-        <div class="w-[350px]">
+        <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[200px] sm:max-w-[350px]">
           <BaseInput
             v-model="where.keyword"
             placeholder="자재명 / 메모 검색"

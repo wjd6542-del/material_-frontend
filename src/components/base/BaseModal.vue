@@ -5,7 +5,7 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
     >
       <div
-        class="bg-white rounded-xl shadow-xl p-6 min-w-[400px] w-full"
+        class="bg-white rounded-xl shadow-xl p-4 md:p-6 w-full mx-4"
         :class="sizeClass"
       >
         <!-- 동적 모달 컴포넌트 -->

@@ -142,12 +142,10 @@
               :colspan="columns.length + (selectable ? 1 : 0)"
               class="border-t px-4 py-3 bg-gray-50"
             >
-              <div class="flex justify-between items-center">
+              <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                 <!-- page size -->
-
                 <div class="flex items-center gap-2 text-sm">
-                  <span>페이지당</span>
-
+                  <span class="whitespace-nowrap">페이지당</span>
                   <select
                     v-model.number="localPageSize"
                     @change="changePageSize"
@@ -164,35 +162,31 @@
                 </div>
 
                 <!-- pagination -->
-
-                <div class="flex items-center gap-3">
-                  <div class="flex border rounded overflow-hidden">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <div class="flex border rounded overflow-hidden text-sm">
                     <button
-                      class="px-3 py-1 border-r bg-white hover:bg-gray-100"
+                      class="px-2 py-1 border-r bg-white hover:bg-gray-100 disabled:opacity-40"
                       :disabled="page === 1"
                       @click="changePage(1)"
                     >
                       처음
                     </button>
-
                     <button
-                      class="px-3 py-1 border-r bg-white hover:bg-gray-100"
+                      class="px-2 py-1 border-r bg-white hover:bg-gray-100 disabled:opacity-40"
                       :disabled="page === 1"
                       @click="changePage(page - 1)"
                     >
                       이전
                     </button>
-
                     <button
-                      class="px-3 py-1 border-r bg-white hover:bg-gray-100"
+                      class="px-2 py-1 border-r bg-white hover:bg-gray-100 disabled:opacity-40"
                       :disabled="page >= totalPages"
                       @click="changePage(page + 1)"
                     >
                       다음
                     </button>
-
                     <button
-                      class="px-3 py-1 bg-white hover:bg-gray-100"
+                      class="px-2 py-1 bg-white hover:bg-gray-100 disabled:opacity-40"
                       :disabled="page >= totalPages"
                       @click="changePage(totalPages)"
                     >
@@ -200,18 +194,17 @@
                     </button>
                   </div>
 
-                  <div class="flex items-center gap-1">
+                  <div class="flex items-center gap-1 text-sm">
                     <input
                       type="number"
                       v-model.number="inputPage"
-                      class="w-16 text-center border rounded px-2 py-1"
+                      class="w-14 text-center border rounded px-2 py-1"
                       :min="1"
                       :max="totalPages"
                       @keyup.enter="applyPage"
                       @blur="applyPage"
                     />
-
-                    <span class="text-sm text-gray-500">
+                    <span class="text-gray-500 whitespace-nowrap">
                       / {{ totalPages }}
                     </span>
                   </div>
