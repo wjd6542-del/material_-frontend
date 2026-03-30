@@ -8,7 +8,7 @@
 
       <div class="control-grid">
         <div class="panel-card">
-          <div class="label">제품검색</div>
+          <div class="label">제품 검색</div>
           <MultiCheck
             v-model="search.material_ids"
             :items="searchArr"
@@ -26,6 +26,32 @@
             </option>
           </select>
         </div>
+
+        <div class="panel-card">
+          <div class="label">출력 옵션</div>
+          <div class="option-item">
+            <span>시작 위치 (1부터)</span>
+            <input
+              type="number"
+              v-model.number="printOptions.startPos"
+              min="1"
+              :max="format.cols * format.rows"
+              class="input-mini"
+            />
+          </div>
+          <div class="option-item">
+            <span>항목당 출력 개수</span>
+            <input
+              type="number"
+              v-model.number="printOptions.copyCount"
+              min="1"
+              class="input-mini"
+            />
+          </div>
+          <div class="option-tip">
+            * 이미 사용한 라벨지의 경우 시작 위치를 조절하세요.
+          </div>
+        </div>
       </div>
 
       <div class="buttons">
@@ -42,8 +68,9 @@
 
     <div class="preview-container">
       <div class="preview-info no-print">
-        <i class="fa-solid fa-circle-info"></i> 모바일에서는 화면 크기에 맞춰
-        미리보기가 축소됩니다.
+        <i class="fa-solid fa-circle-info"></i>
+        총 {{ totalLabelsCount }}개의 라벨이 {{ pages.length }}페이지에
+        출력됩니다.
       </div>
 
       <div class="print-area" ref="printArea">
@@ -53,7 +80,7 @@
           class="print-page"
         >
           <div class="page-header">
-            <div class="title">자재 QR 라벨</div>
+            <div class="title">자재 QR 라벨 ({{ format.name }})</div>
             <div class="page-number">
               Page {{ pageIndex + 1 }} / {{ pages.length }}
             </div>
@@ -69,8 +96,11 @@
           >
             <div
               v-for="(item, idx) in page"
-              :key="item ? item.id : 'empty-' + pageIndex + '-' + idx"
+              :key="
+                item ? item.id + '-' + idx : 'empty-' + pageIndex + '-' + idx
+              "
               class="label-item"
+              :class="{ 'is-empty': !item }"
               :style="{ padding: format.padding + 'px' }"
             >
               <template v-if="item">
@@ -111,6 +141,10 @@ export default {
       searchArr: [],
       search: { material_ids: [] },
       labelFormat: "A4_20",
+      printOptions: {
+        startPos: 1, // 시작 위치 (첫 번째 칸부터)
+        copyCount: 1, // 각 항목당 출력 매수
+      },
       labelFormats: {
         A4_9: {
           name: "A4 9칸 (3x3)",
@@ -169,17 +203,42 @@ export default {
     format() {
       return this.labelFormats[this.labelFormat];
     },
+    // 옵션에 따라 실제로 그려질 데이터 배열 생성
+    displayItems() {
+      if (this.materials.length === 0) return [];
+
+      // 1. 반복 횟수 적용된 리스트 생성
+      let repeated = [];
+      this.materials.forEach((m) => {
+        for (let i = 0; i < Math.max(1, this.printOptions.copyCount); i++) {
+          repeated.push({ ...m });
+        }
+      });
+
+      // 2. 시작 위치 이전을 null로 채움 (빈 칸 처리)
+      const startOffset = Math.max(0, this.printOptions.startPos - 1);
+      const blanks = Array(startOffset).fill(null);
+
+      return [...blanks, ...repeated];
+    },
+    // 페이지 단위로 슬라이싱
     pages() {
       const pageSize = this.format.cols * this.format.rows;
       const pages = [];
-      for (let i = 0; i < this.materials.length; i += pageSize) {
-        const slice = this.materials.slice(i, i + pageSize);
+      const allItems = this.displayItems;
+
+      for (let i = 0; i < allItems.length; i += pageSize) {
+        const slice = allItems.slice(i, i + pageSize);
+        // 마지막 페이지 빈 칸 채우기 (그리드 형태 유지용)
         while (slice.length < pageSize) {
           slice.push(null);
         }
         pages.push(slice);
       }
       return pages.length ? pages : [Array(pageSize).fill(null)];
+    },
+    totalLabelsCount() {
+      return this.materials.length * this.printOptions.copyCount;
     },
   },
   methods: {
@@ -206,7 +265,7 @@ export default {
       const element = this.$refs.printArea;
       const opt = {
         margin: 0,
-        filename: "material_qr_labels.pdf",
+        filename: `material_labels_${new Date().getTime()}.pdf`,
         image: { type: "jpeg", quality: 1 },
         html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
@@ -222,7 +281,6 @@ export default {
 </script>
 
 <style scoped>
-/* 기본 레이아웃: 데스크톱 기준 */
 .layout {
   display: flex;
   height: 100vh;
@@ -231,7 +289,7 @@ export default {
 }
 
 .control-panel {
-  width: 300px;
+  width: 320px;
   background: white;
   border-right: 1px solid #e5e7eb;
   padding: 24px;
@@ -239,6 +297,7 @@ export default {
   flex-direction: column;
   flex-shrink: 0;
   z-index: 20;
+  overflow-y: auto;
 }
 
 .panel-title {
@@ -254,7 +313,7 @@ export default {
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
-  padding: 14px;
+  padding: 16px;
   margin-bottom: 16px;
 }
 
@@ -262,7 +321,29 @@ export default {
   font-size: 13px;
   font-weight: 600;
   color: #4b5563;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.option-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.option-tip {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 5px;
+}
+
+.input-mini {
+  width: 70px;
+  padding: 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  text-align: center;
 }
 
 .select {
@@ -279,6 +360,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding-top: 20px;
 }
 
 .btn {
@@ -319,16 +401,18 @@ export default {
 
 .preview-info {
   margin-bottom: 20px;
-  padding: 8px 16px;
-  background: #e0f2fe;
-  color: #0369a1;
-  border-radius: 20px;
+  padding: 8px 20px;
+  background: #eff6ff;
+  color: #1e40af;
+  border-radius: 30px;
   font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #dbeafe;
 }
 
 .print-area {
   display: inline-block;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
 }
 
 .print-page {
@@ -336,7 +420,7 @@ export default {
   height: 297mm;
   background: white;
   padding: 10mm;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
   box-sizing: border-box;
   page-break-after: always;
   position: relative;
@@ -345,33 +429,37 @@ export default {
 .page-header {
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 5mm;
-  margin-bottom: 5mm;
+  border-bottom: 1px solid #f3f4f6;
+  padding-bottom: 4mm;
+  margin-bottom: 6mm;
 }
 
 .title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
-  color: #333;
+  color: #6b7280;
 }
 .page-number {
   font-size: 14px;
-  color: #999;
+  color: #9ca3af;
 }
 
 .grid {
   display: grid;
-  height: calc(100% - 20mm);
+  height: calc(100% - 25mm);
 }
 
 .label-item {
-  border: 1px solid #f0f0f0;
+  border: 0.1mm solid #f3f4f6; /* 출력시 가이드 라인 */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
+}
+
+.label-item.is-empty {
+  background-color: #fafafa;
 }
 
 .qr {
@@ -380,45 +468,34 @@ export default {
 .name {
   font-weight: 700;
   margin-bottom: 2px;
+  line-height: 1.2;
 }
 .code {
-  color: #666;
+  color: #6b7280;
 }
 
-/* --- 모바일/태블릿 대응 --- */
+/* 모바일 대응 스케일링 */
 @media (max-width: 1024px) {
   .layout {
     flex-direction: column;
   }
-
   .control-panel {
     width: 100%;
-    height: auto;
     border-right: none;
     border-bottom: 1px solid #e5e7eb;
-    padding: 16px;
   }
-
   .control-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
-
-  .buttons {
-    flex-direction: row;
-    margin-top: 16px;
-  }
-
   .preview-container {
-    padding: 20px 10px;
+    padding: 20px 0;
   }
-
-  /* 중요: 화면 너비에 맞게 A4 페이지 축소 */
   .print-area {
     transform: scale(0.4);
     transform-origin: top center;
-    margin-bottom: -160mm; /* 축소된만큼 공간 회수 */
+    margin-bottom: -160mm;
   }
 }
 
@@ -426,20 +503,24 @@ export default {
   .control-grid {
     grid-template-columns: 1fr;
   }
-
   .print-area {
     transform: scale(0.3);
     margin-bottom: -200mm;
   }
-
   .buttons {
     display: grid;
     grid-template-columns: 1fr 1fr;
   }
 }
 
-/* 프린트 최적화 */
 @media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  body {
+    margin: 0;
+  }
   .no-print {
     display: none !important;
   }

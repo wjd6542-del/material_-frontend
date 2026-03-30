@@ -173,7 +173,7 @@
                 v-model="code"
                 type="text"
                 class="w-full px-4 py-3 border-gray-200 border rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all tracking-widest text-center font-bold text-lg"
-                placeholder="000000 (13자리)"
+                placeholder="000000 (6자리)"
               />
             </div>
 
