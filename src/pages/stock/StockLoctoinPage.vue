@@ -295,10 +295,14 @@
                 <!-- 텍스트 -->
                 <div class="flex flex-col">
                   <span
-                    class="text-[13px] font-bold text-slate-700 truncate max-w-[120px]"
+                    class="text-[13px] font-bold text-slate-700 truncate max-w-[300px]"
                   >
                     {{ item.material_name }}
                   </span>
+
+                  <span class="text-[10px] text-slate-400"
+                    >CODE: {{ item.material_code }}</span
+                  >
                 </div>
               </div>
 
