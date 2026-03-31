@@ -183,9 +183,34 @@
           </div>
           <div
             v-if="lowStocks.length === 0"
-            class="py-10 text-center text-gray-300 text-xs font-bold uppercase tracking-widest"
+            class="flex flex-col items-center justify-center py-12 px-4 text-center group"
           >
-            All Stocks Safe
+            <div class="mb-4 relative">
+              <div
+                class="absolute inset-0 bg-green-100 rounded-full scale-110 blur-sm opacity-50 group-hover:scale-125 transition-transform duration-500"
+              ></div>
+              <div
+                class="relative bg-white border-2 border-green-400 w-16 h-16 rounded-full flex items-center justify-center shadow-sm"
+              >
+                <i
+                  class="fa-solid fa-check-double text-green-500 text-2xl animate-bounce"
+                ></i>
+              </div>
+            </div>
+
+            <h4 class="text-sm font-black text-gray-800 mb-1">
+              모든 재고가 충분합니다
+            </h4>
+            <p class="text-[11px] text-gray-400 font-medium leading-relaxed">
+              현재 안전 재고 이하로 떨어진 품목이 없습니다.<br />
+              현황이 완벽하게 유지되고 있네요!
+            </p>
+
+            <div class="mt-4 flex gap-1">
+              <span class="w-1 h-1 rounded-full bg-green-200"></span>
+              <span class="w-3 h-1 rounded-full bg-green-400"></span>
+              <span class="w-1 h-1 rounded-full bg-green-200"></span>
+            </div>
           </div>
         </div>
       </div>

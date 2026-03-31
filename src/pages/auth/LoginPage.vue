@@ -59,8 +59,7 @@
         class="w-full lg:w-1/2 p-8 md:p-16 flex flex-col justify-center bg-white"
       >
         <div class="mb-10 text-center lg:text-left">
-          <h2 class="text-3xl font-bold text-gray-900 mb-2">반갑습니다! 👋</h2>
-          <p class="text-gray-500">계정에 로그인하여 자재 현황을 확인하세요.</p>
+          <p class="text-gray-500">로그인하여 자재 현황을 확인하세요.</p>
         </div>
 
         <form @submit.prevent="login" class="space-y-6">
@@ -195,7 +194,7 @@
         <div
           class="mt-auto pt-10 text-center text-[10px] text-gray-300 uppercase tracking-widest font-semibold"
         >
-          Secure Access Area • Terminal 01
+          2026 - MMS pro system
         </div>
       </div>
     </div>
