@@ -1,9 +1,10 @@
 ﻿<template>
   <div>
-    <h2 class="text-lg font-semibold mb-4">자재</h2>
+    <h2 class="text-lg font-semibold mb-4">
+      자재 {{ isEdit ? "수정" : "등록" }}
+    </h2>
 
     <div class="space-y-3">
-      <!-- 자재명 -->
       <div>
         <label class="text-sm text-gray-600">자재명</label>
         <input
@@ -13,7 +14,6 @@
         />
       </div>
 
-      <!-- 카테고리 -->
       <div>
         <label class="text-sm text-gray-600">카테고리</label>
         <SearchSelect
@@ -25,7 +25,6 @@
         />
       </div>
 
-      <!-- 코드 -->
       <div>
         <label class="text-sm text-gray-600">자재코드</label>
         <input
@@ -35,7 +34,6 @@
         />
       </div>
 
-      <!-- 규격 -->
       <div>
         <label class="text-sm text-gray-600">규격</label>
         <input
@@ -44,7 +42,6 @@
         />
       </div>
 
-      <!-- 단위 -->
       <div>
         <label class="text-sm text-gray-600">단위</label>
         <SearchSelect
@@ -55,16 +52,15 @@
         />
       </div>
 
-      <!-- 안전재고 -->
       <div>
         <label class="text-sm text-gray-600">안전재고</label>
         <input
           v-model="form.safety_stock"
+          type="number"
           class="mt-1 w-full border rounded px-3 py-2"
         />
       </div>
 
-      <!-- 메모 -->
       <div>
         <label class="text-sm text-gray-600">메모</label>
         <textarea
@@ -73,24 +69,25 @@
         ></textarea>
       </div>
 
-      <!-- 이미지 업로드 -->
       <div>
         <label class="text-sm text-gray-600">이미지</label>
         <BaseImage :multiple="false" @change="handleFiles" />
 
-        <!-- 🔥 이미지 프리뷰 -->
         <div class="flex gap-2 flex-wrap mt-2">
           <div
             v-for="img in form.images"
             :key="img.id"
-            class="relative w-24 h-24 border rounded overflow-hidden"
+            class="relative w-24 h-24 border rounded overflow-hidden bg-gray-50"
           >
-            <img :src="url + img.file_url" class="w-full h-full object-cover" />
+            <img
+              :src="img.isNew ? img.preview : url + img.file_url"
+              class="w-full h-full object-cover"
+              @error="(e) => (e.target.src = '/img/no-image.png')"
+            />
 
-            <!-- 삭제 -->
             <button
               @click="removeImage(img)"
-              class="absolute top-1 right-1 bg-black/60 text-white text-xs px-1 rounded"
+              class="absolute top-1 right-1 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded-md hover:bg-red-600 transition-colors"
             >
               ✕
             </button>
@@ -99,14 +96,19 @@
       </div>
     </div>
 
-    <!-- 버튼 -->
     <div class="flex justify-end gap-2 mt-6">
-      <button class="px-3 py-1.5 border rounded" @click="modal.closeModal()">
+      <button
+        class="px-3 py-1.5 border rounded hover:bg-gray-50"
+        @click="modal.closeModal()"
+      >
         취소
       </button>
 
-      <button class="px-3 py-1.5 bg-blue-600 text-white rounded" @click="save">
-        저장
+      <button
+        class="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700"
+        @click="save"
+      >
+        {{ isEdit ? "수정하기" : "저장하기" }}
       </button>
     </div>
   </div>
@@ -167,26 +169,22 @@ export default {
   },
 
   methods: {
-    /* =========================
-     데이터 매핑
-    ========================== */
     mappingData(data) {
       for (const key in this.form) {
+        if (key === "images") continue; // 이미지는 별도 처리
         this.form[key] = data[key];
       }
 
-      // 🔥 이미지 매핑
+      // 🔥 기존 서버 이미지 매핑
       this.form.images = (data.images || []).map((img) => ({
         id: img.id,
         file_url: img.file_url,
-        isNew: false,
+        isNew: false, // 서버에서 가져온 데이터임을 명시
       }));
     },
 
     async loadData() {
-      const res = await api.post(`/api/material/${this.id}`, {
-        id: this.id,
-      });
+      const res = await api.post(`/api/material/${this.id}`, { id: this.id });
       this.mappingData(res.data);
     },
 
@@ -195,81 +193,74 @@ export default {
       this.categorys = res.data;
     },
 
-    /* =========================
-     코드 자동 생성
-    ========================== */
     changeCode() {
-      // 수정 상태이면 자동 코드생성 비활성
-      if (this.isEdit) {
-        return;
-      }
-
+      if (this.isEdit) return;
       const category = this.categorys.find(
         (row) => row.id == this.form.category_id,
       );
-
       if (!category?.code) return;
-
       this.form.code = `${category.code.toUpperCase()}-${Date.now()}`;
     },
 
     /* =========================
-     이미지 선택
+     이미지 선택 (핵심 수정)
     ========================== */
     handleFiles(e) {
-      if (!e?.target?.files) return;
+      if (!e?.target?.files || e.target.files.length === 0) return;
 
       const file = e.target.files[0];
 
-      // 1장 정책
-      this.form.images = [];
-      this.newFiles = [file];
+      // 1장 정책: 기존에 새로 추가하려던 파일이 있었다면 메모리 해제
+      this.form.images.forEach((img) => {
+        if (img.isNew) URL.revokeObjectURL(img.preview);
+      });
 
-      const preview = URL.createObjectURL(file);
+      // 프리뷰 리스트 초기화 (1장만 허용할 경우)
+      // 만약 기존 서버 이미지는 유지하고 새로 선택한 것만 교체하고 싶다면 필터링 로직 조정 필요
+      this.form.images = this.form.images.filter((img) => !img.isNew);
+
+      const previewUrl = URL.createObjectURL(file);
 
       this.form.images.push({
         id: Date.now(),
-        preview,
-        isNew: true,
+        preview: previewUrl,
+        isNew: true, // 신규 파일임을 명시
       });
 
-      e.target.value = "";
+      this.newFiles = [file];
+      e.target.value = ""; // 동일 파일 재선택 가능하도록 초기화
     },
 
-    /* =========================
-     이미지 삭제
-    ========================== */
     removeImage(img) {
-      // 기존 이미지
       if (!img.isNew) {
         this.deleteImageIds.push(img.id);
-      }
-
-      // 신규 이미지
-      if (img.isNew) {
+      } else {
+        // 메모리 해제
+        URL.revokeObjectURL(img.preview);
         this.newFiles = [];
       }
-
       this.form.images = this.form.images.filter((item) => item.id !== img.id);
     },
 
-    /* =========================
-     저장
-    ========================== */
     async save() {
       try {
         const formData = new FormData();
+        // 기본 필드 추가
+        const fields = [
+          "name",
+          "code",
+          "spec",
+          "unit",
+          "memo",
+          "category_id",
+          "is_active",
+          "safety_stock",
+        ];
+        fields.forEach((field) => {
+          formData.append(field, String(this.form[field]));
+        });
 
-        formData.append("name", this.form.name);
-        formData.append("code", this.form.code);
-        formData.append("spec", this.form.spec);
-        formData.append("unit", this.form.unit);
-        formData.append("memo", this.form.memo);
-        formData.append("category_id", String(this.form.category_id));
-        formData.append("is_active", String(this.form.is_active));
-        formData.append("safety_stock", String(this.form.safety_stock));
-
-        if (this.isEdit && this.editId) {
+        if (this.isEdit) {
           formData.append("id", String(this.editId));
           formData.append(
             "deleteImageIds",
@@ -277,34 +268,39 @@ export default {
           );
         }
 
+        // 신규 파일 추가
         this.newFiles.forEach((file) => {
           formData.append("images", file);
         });
 
-        if (this.isEdit) {
-          await api.post("/api/material/update", formData);
-          this.$toast.success("수정 완료");
-        } else {
-          await api.post("/api/material/save", formData);
-          this.$toast.success("등록 완료");
-        }
+        const endpoint = this.isEdit
+          ? "/api/material/update"
+          : "/api/material/save";
+        await api.post(endpoint, formData);
 
+        this.$toast.success(this.isEdit ? "수정 완료" : "등록 완료");
         this.modal.closeModal();
-        this.onSaved && this.onSaved();
+        if (this.onSaved) this.onSaved();
       } catch (e) {
-        this.$toast.error(e.message);
+        this.$toast.error(e.response?.data?.message || e.message);
       }
     },
   },
 
   mounted() {
     this.loadCategory();
-
     if (this.id) {
-      this.loadData();
       this.isEdit = true;
       this.editId = this.id;
+      this.loadData();
     }
+  },
+
+  // 컴포넌트 파괴 시 메모리 누수 방지
+  beforeUnmount() {
+    this.form.images.forEach((img) => {
+      if (img.isNew && img.preview) URL.revokeObjectURL(img.preview);
+    });
   },
 };
 </script>

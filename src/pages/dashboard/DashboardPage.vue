@@ -528,9 +528,17 @@ export default {
       return new Intl.NumberFormat().format(v || 0);
     },
     formatDate(v) {
-      if (!v) return "-";
       const d = new Date(v);
-      return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mi = String(d.getMinutes()).padStart(2, "0");
+      const ss = String(d.getSeconds()).padStart(2, "0");
+
+      return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
     },
     getActionClass(a) {
       const m = {
