@@ -3,7 +3,7 @@
     <div class="control-panel no-print">
       <h2 class="panel-title">
         <i class="fa-solid fa-qrcode"></i>
-        자재 라벨 설정
+        라벨 출력 설정
       </h2>
 
       <div class="control-grid">
@@ -19,7 +19,27 @@
         </div>
 
         <div class="panel-card">
-          <div class="label">라벨 포맷</div>
+          <div class="label">출력 레이아웃</div>
+          <div class="layout-selector">
+            <label class="layout-option">
+              <input type="radio" v-model="labelLayout" value="v" />
+              <div class="opt-box">
+                <i class="fa-solid fa-grip-lines-vertical"></i>
+                <span>세로형</span>
+              </div>
+            </label>
+            <label class="layout-option">
+              <input type="radio" v-model="labelLayout" value="h" />
+              <div class="opt-box">
+                <i class="fa-solid fa-grip-lines"></i>
+                <span>가로형</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="label">라벨지 규격</div>
           <select v-model="labelFormat" class="select">
             <option v-for="(row, key) in labelFormats" :key="key" :value="key">
               {{ row.name }}
@@ -28,19 +48,9 @@
         </div>
 
         <div class="panel-card">
-          <div class="label">출력 옵션</div>
+          <div class="label">출력 세부 설정</div>
           <div class="option-item">
-            <span>시작 위치 (1부터)</span>
-            <input
-              type="number"
-              v-model.number="printOptions.startPos"
-              min="1"
-              :max="format.cols * format.rows"
-              class="input-mini"
-            />
-          </div>
-          <div class="option-item">
-            <span>항목당 출력 개수</span>
+            <span>라벨별 수량</span>
             <input
               type="number"
               v-model.number="printOptions.copyCount"
@@ -48,20 +58,16 @@
               class="input-mini"
             />
           </div>
-          <div class="option-tip">
-            * 이미 사용한 라벨지의 경우 시작 위치를 조절하세요.
-          </div>
+          <div class="option-tip">* 라벨별 출력갯수를 설정하세요</div>
         </div>
       </div>
 
       <div class="buttons">
         <button class="btn print" @click="printPage">
-          <i class="fa-solid fa-print"></i>
-          프린트
+          <i class="fa-solid fa-print"></i> 프린트 출력
         </button>
         <button class="btn pdf" @click="downloadPDF">
-          <i class="fa-solid fa-file-pdf"></i>
-          PDF 저장
+          <i class="fa-solid fa-file-pdf"></i> PDF로 저장
         </button>
       </div>
     </div>
@@ -69,8 +75,9 @@
     <div class="preview-container">
       <div class="preview-info no-print">
         <i class="fa-solid fa-circle-info"></i>
-        총 {{ totalLabelsCount }}개의 라벨이 {{ pages.length }}페이지에
-        출력됩니다.
+        총 <strong>{{ totalLabelsCount }}</strong
+        >개의 라벨이 <strong>{{ pages.length }}</strong
+        >페이지에 생성되었습니다.
       </div>
 
       <div class="print-area" ref="printArea">
@@ -100,23 +107,31 @@
                 item ? item.id + '-' + idx : 'empty-' + pageIndex + '-' + idx
               "
               class="label-item"
-              :class="{ 'is-empty': !item }"
+              :class="[
+                { 'is-empty': !item },
+                labelLayout === 'h' ? 'layout-h' : 'layout-v',
+              ]"
               :style="{ padding: format.padding + 'px' }"
             >
               <template v-if="item">
                 <img
                   :src="item.qrcode"
-                  class="qr"
-                  :style="{
-                    width: format.qr + 'px',
-                    height: format.qr + 'px',
-                  }"
+                  class="qr-image"
+                  :style="{ width: format.qr + 'px', height: format.qr + 'px' }"
                 />
-                <div class="name" :style="{ fontSize: format.fontName + 'px' }">
-                  {{ item.name }}
-                </div>
-                <div class="code" :style="{ fontSize: format.fontCode + 'px' }">
-                  {{ item.code }}
+                <div class="info-group">
+                  <div
+                    class="item-name"
+                    :style="{ fontSize: format.fontName + 'px' }"
+                  >
+                    {{ item.name }}
+                  </div>
+                  <div
+                    class="item-code"
+                    :style="{ fontSize: format.fontCode + 'px' }"
+                  >
+                    {{ item.code }}
+                  </div>
                 </div>
               </template>
             </div>
@@ -141,15 +156,26 @@ export default {
       searchArr: [],
       search: { material_ids: [] },
       labelFormat: "A4_20",
+      labelLayout: "v", // 'v': 세로형(Default), 'h': 가로형
       printOptions: {
-        startPos: 1, // 시작 위치 (첫 번째 칸부터)
-        copyCount: 1, // 각 항목당 출력 매수
+        startPos: 1,
+        copyCount: 1,
       },
       labelFormats: {
         A4_9: {
           name: "A4 9칸 (3x3)",
           cols: 3,
           rows: 3,
+          qr: 75,
+          fontName: 12,
+          fontCode: 11,
+          gap: 6,
+          padding: 6,
+        },
+        A4_15: {
+          name: "A4 9칸 (3x5)",
+          cols: 3,
+          rows: 5,
           qr: 75,
           fontName: 12,
           fontCode: 11,
@@ -203,36 +229,25 @@ export default {
     format() {
       return this.labelFormats[this.labelFormat];
     },
-    // 옵션에 따라 실제로 그려질 데이터 배열 생성
     displayItems() {
       if (this.materials.length === 0) return [];
-
-      // 1. 반복 횟수 적용된 리스트 생성
       let repeated = [];
       this.materials.forEach((m) => {
         for (let i = 0; i < Math.max(1, this.printOptions.copyCount); i++) {
           repeated.push({ ...m });
         }
       });
-
-      // 2. 시작 위치 이전을 null로 채움 (빈 칸 처리)
       const startOffset = Math.max(0, this.printOptions.startPos - 1);
       const blanks = Array(startOffset).fill(null);
-
       return [...blanks, ...repeated];
     },
-    // 페이지 단위로 슬라이싱
     pages() {
       const pageSize = this.format.cols * this.format.rows;
       const pages = [];
       const allItems = this.displayItems;
-
       for (let i = 0; i < allItems.length; i += pageSize) {
         const slice = allItems.slice(i, i + pageSize);
-        // 마지막 페이지 빈 칸 채우기 (그리드 형태 유지용)
-        while (slice.length < pageSize) {
-          slice.push(null);
-        }
+        while (slice.length < pageSize) slice.push(null);
         pages.push(slice);
       }
       return pages.length ? pages : [Array(pageSize).fill(null)];
@@ -281,6 +296,7 @@ export default {
 </script>
 
 <style scoped>
+/* 기본 레이아웃 */
 .layout {
   display: flex;
   height: 100vh;
@@ -288,6 +304,7 @@ export default {
   overflow: hidden;
 }
 
+/* 컨트롤 패널 */
 .control-panel {
   width: 320px;
   background: white;
@@ -324,18 +341,42 @@ export default {
   margin-bottom: 12px;
 }
 
+/* 레이아웃 선택기 스타일 */
+.layout-selector {
+  display: flex;
+  gap: 8px;
+}
+.layout-option {
+  flex: 1;
+  cursor: pointer;
+}
+.layout-option input {
+  display: none;
+}
+.opt-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+.layout-option input:checked + .opt-box {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
 .option-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
   font-size: 13px;
-}
-
-.option-tip {
-  font-size: 11px;
-  color: #9ca3af;
-  margin-top: 5px;
 }
 
 .input-mini {
@@ -352,17 +393,63 @@ export default {
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 14px;
-  background-color: white;
 }
 
+/* 라벨 디자인 */
+.label-item {
+  border: 0.1mm solid #eee;
+  display: flex;
+  box-sizing: border-box;
+  background: white;
+}
+
+/* --- 가로형 레이아웃 (H) --- */
+.label-item.layout-h {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+}
+.label-item.layout-h .qr-image {
+  margin-right: 12px;
+}
+.label-item.layout-h .info-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  overflow: hidden;
+}
+
+/* --- 세로형 레이아웃 (V) --- */
+.label-item.layout-v {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.label-item.layout-v .qr-image {
+  margin-bottom: 8px;
+}
+
+.item-name {
+  font-weight: 700;
+  line-height: 1.2;
+  word-break: break-all;
+}
+.item-code {
+  color: #6b7280;
+  word-break: break-all;
+}
+
+/* 버튼 및 공통 */
 .buttons {
-  margin-top: auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-top: auto;
   padding-top: 20px;
 }
-
 .btn {
   width: 100%;
   height: 46px;
@@ -374,11 +461,6 @@ export default {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: all 0.2s;
-}
-
-.btn:active {
-  transform: scale(0.98);
 }
 .print {
   background: #2563eb;
@@ -389,7 +471,7 @@ export default {
   color: white;
 }
 
-/* 프리뷰 영역 */
+/* 프리뷰 컨테이너 */
 .preview-container {
   flex: 1;
   overflow: auto;
@@ -398,23 +480,10 @@ export default {
   flex-direction: column;
   align-items: center;
 }
-
-.preview-info {
-  margin-bottom: 20px;
-  padding: 8px 20px;
-  background: #eff6ff;
-  color: #1e40af;
-  border-radius: 30px;
-  font-size: 13px;
-  font-weight: 500;
-  border: 1px solid #dbeafe;
-}
-
 .print-area {
   display: inline-block;
   box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
 }
-
 .print-page {
   width: 210mm;
   height: 297mm;
@@ -423,9 +492,7 @@ export default {
   margin-bottom: 40px;
   box-sizing: border-box;
   page-break-after: always;
-  position: relative;
 }
-
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -433,92 +500,14 @@ export default {
   padding-bottom: 4mm;
   margin-bottom: 6mm;
 }
-
-.title {
-  font-size: 16px;
-  font-weight: bold;
-  color: #6b7280;
-}
-.page-number {
-  font-size: 14px;
-  color: #9ca3af;
-}
-
 .grid {
   display: grid;
   height: calc(100% - 25mm);
 }
 
-.label-item {
-  border: 0.1mm solid #f3f4f6; /* 출력시 가이드 라인 */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-.label-item.is-empty {
-  background-color: #fafafa;
-}
-
-.qr {
-  margin-bottom: 8px;
-}
-.name {
-  font-weight: 700;
-  margin-bottom: 2px;
-  line-height: 1.2;
-}
-.code {
-  color: #6b7280;
-}
-
-/* 모바일 대응 스케일링 */
-@media (max-width: 1024px) {
-  .layout {
-    flex-direction: column;
-  }
-  .control-panel {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid #e5e7eb;
-  }
-  .control-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  .preview-container {
-    padding: 20px 0;
-  }
-  .print-area {
-    transform: scale(0.4);
-    transform-origin: top center;
-    margin-bottom: -160mm;
-  }
-}
-
-@media (max-width: 640px) {
-  .control-grid {
-    grid-template-columns: 1fr;
-  }
-  .print-area {
-    transform: scale(0.3);
-    margin-bottom: -200mm;
-  }
-  .buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
 @media print {
   @page {
     size: A4;
-    margin: 0;
-  }
-  body {
     margin: 0;
   }
   .no-print {
@@ -530,11 +519,8 @@ export default {
   }
   .preview-container {
     padding: 0;
-    overflow: visible;
   }
   .print-area {
-    transform: none !important;
-    margin: 0 !important;
     box-shadow: none;
   }
   .print-page {

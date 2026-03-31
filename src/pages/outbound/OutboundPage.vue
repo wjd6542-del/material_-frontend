@@ -24,7 +24,9 @@
         >
           <i class="fa-solid fa-trash"></i>
         </button>
-        <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[280px] sm:max-w-[450px]">
+        <div
+          class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[280px] sm:max-w-[450px]"
+        >
           <DateRangePicker
             v-model="dateRange"
             :minuteStep="5"
@@ -32,7 +34,9 @@
             @change="loadList"
           />
         </div>
-        <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[200px] sm:max-w-[450px]">
+        <div
+          class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[200px] sm:max-w-[450px]"
+        >
           <BaseInput
             v-model="where.outbound_no"
             placeholder="출고번호 입력"
