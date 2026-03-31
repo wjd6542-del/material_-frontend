@@ -1,120 +1,141 @@
 ﻿<template>
   <teleport to="body">
-    <!-- overlay -->
-    <div
-      v-show="notificationStore.panelOpen"
-      class="fixed inset-0 bg-black/20 z-[90] transition-opacity duration-200"
-      @click="notificationStore.closePanel()"
-    ></div>
+    <transition name="fade">
+      <div
+        v-show="notificationStore.panelOpen"
+        class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[90]"
+        @click="notificationStore.closePanel()"
+      ></div>
+    </transition>
 
-    <!-- panel -->
     <transition name="slide">
       <div
         v-if="notificationStore.panelOpen"
-        class="fixed top-16 right-0 h-[calc(100vh-64px)] w-full sm:w-[380px] bg-white shadow-2xl z-[100] flex flex-col border-l"
+        class="fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white shadow-[-20px_0_50px_-10px_rgba(0,0,0,0.1)] z-[100] flex flex-col"
       >
-        <!-- header -->
-        <div class="p-4 border-b flex justify-between items-center">
-          <h3 class="font-semibold text-lg">
-            <i class="fa-regular fa-bell"></i> 알림 -
-            {{ notificationStore.type }}
-          </h3>
+        <div class="px-6 py-5 border-b border-slate-100 flex flex-col gap-1">
+          <div class="flex justify-between items-center">
+            <h3
+              class="font-bold text-xl text-slate-800 flex items-center gap-2.5"
+            >
+              <span class="p-2 bg-blue-50 rounded-xl">
+                <i class="fa-regular fa-bell text-blue-600"></i>
+              </span>
+              알림 센터
+            </h3>
 
-          <button @click.stop="notificationStore.closePanel()">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
+            <button
+              @click.stop="notificationStore.closePanel()"
+              class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+            >
+              <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+          </div>
+          <p class="text-xs text-slate-400 ml-1">
+            <span class="text-blue-500 font-semibold">{{
+              notificationStore.type
+            }}</span>
+            관련 최신 소식입니다.
+          </p>
         </div>
 
-        <!-- list -->
-        <div class="flex-1 overflow-y-auto">
-          <!-- empty -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar">
           <div
             v-if="notificationStore.list.length === 0"
-            class="h-full flex flex-col items-center justify-center text-gray-400 gap-3"
+            class="h-full flex flex-col items-center justify-center text-slate-400 p-8"
           >
             <div
-              class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center text-gray-400"
+              class="w-20 h-20 rounded-3xl bg-slate-50 flex items-center justify-center mb-4 border border-slate-100"
             >
-              <i class="fa-regular fa-bell text-xl"></i>
+              <i class="fa-regular fa-bell-slash text-3xl text-slate-200"></i>
             </div>
-
-            <div class="text-sm font-medium text-gray-500">
-              등록된 알림이 없습니다
-            </div>
-
-            <div class="text-xs text-gray-400">
-              새로운 알림이 도착하면 여기에 표시됩니다
-            </div>
+            <p class="text-slate-500 font-medium">새로운 알림이 없습니다</p>
+            <p class="text-xs text-slate-400 mt-1">
+              도착하는 알림은 여기에 표시됩니다.
+            </p>
           </div>
 
-          <div
-            v-for="row in notificationStore.list"
-            :key="row.id"
-            :class="[
-              'px-4 py-3 border-b flex gap-3 items-start transition cursor-pointer',
-              row.is_read
-                ? 'hover:bg-gray-50'
-                : 'bg-blue-50/60 hover:bg-blue-100',
-            ]"
-          >
-            <!-- 아이콘 -->
+          <div class="divide-y divide-slate-50">
             <div
-              class="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm"
-              :class="{
-                'bg-blue-500': row.type === 'INBOUND',
-                'bg-red-500': row.type === 'OUTBOUND',
-                'bg-green-500': row.type === 'MATERIAL',
-              }"
+              v-for="row in notificationStore.list"
+              :key="row.id"
+              :class="[
+                'group relative px-6 py-4 flex gap-4 transition-all cursor-pointer',
+                row.is_read
+                  ? 'opacity-70 hover:bg-slate-50'
+                  : 'bg-blue-50/30 hover:bg-blue-50/60',
+              ]"
+              @click="move(row)"
             >
-              <i
+              <div
+                class="w-11 h-11 shrink-0 rounded-2xl flex items-center justify-center text-white text-base shadow-sm group-hover:scale-110 transition-transform"
                 :class="{
-                  'fa-solid fa-truck-ramp-box': row.type === 'INBOUND',
-                  'fa-solid fa-dolly': row.type === 'OUTBOUND',
-                  'fa-solid fa-box': row.type === 'MATERIAL',
+                  'bg-blue-500 shadow-indigo-100': row.type === 'INBOUND',
+                  'bg-rose-500 shadow-rose-100': row.type === 'OUTBOUND',
+                  'bg-emerald-500 shadow-emerald-100': row.type === 'MATERIAL',
+                  'bg-orange-500 shadow-emerald-100':
+                    row.type === 'RETURNORDER',
+                  'bg-purple-500 shadow-emerald-100': row.type === 'STOCK',
                 }"
-              ></i>
-            </div>
-
-            <!-- 내용 -->
-            <div class="flex-1" @click="move(row)">
-              <div class="text-sm font-semibold text-gray-800">
-                {{ row.title }}
-              </div>
-
-              <div class="text-xs text-gray-500 mt-0.5">
-                {{ row.message }}
-              </div>
-
-              <div class="text-[11px] text-gray-400 mt-1">
-                {{ row.created_at }}
-              </div>
-            </div>
-
-            <!-- 액션 -->
-            <div class="flex items-center gap-2">
-              <span
-                v-if="!row.is_read"
-                class="w-2 h-2 rounded-full bg-blue-500"
-              ></span>
-
-              <button
-                v-if="!row.is_read"
-                class="text-xs text-blue-500 hover:text-blue-700"
-                @click="read(row)"
               >
-                읽기
-              </button>
+                <i
+                  :class="{
+                    'fa-solid fa-arrow-down': row.type === 'INBOUND',
+                    'fa-solid fa-arrow-up': row.type === 'OUTBOUND',
+                    'fa-solid fa-box': row.type === 'MATERIAL',
+                    'fa-solid fa-rotate-left': row.type === 'RETURNORDER',
+                    'fa-solid fa-boxes-stacked': row.type === 'STOCK',
+                  }"
+                ></i>
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-start gap-2">
+                  <div
+                    class="text-[14px] font-bold text-slate-700 truncate leading-tight"
+                  >
+                    {{ row.title }}
+                  </div>
+                  <span
+                    v-if="!row.is_read"
+                    class="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500 mt-1.5 animate-pulse"
+                  ></span>
+                </div>
+
+                <div
+                  class="text-[13px] text-slate-500 mt-1 line-clamp-2 leading-relaxed"
+                >
+                  {{ row.message }}
+                </div>
+
+                <div class="flex items-center justify-between mt-2.5">
+                  <span
+                    class="text-[11px] text-slate-400 flex items-center gap-1"
+                  >
+                    <i class="fa-regular fa-clock opacity-70"></i>
+                    {{ row.created_at }}
+                  </span>
+
+                  <button
+                    v-if="!row.is_read"
+                    class="text-[11px] font-bold text-blue-600 hover:underline px-2 py-0.5 rounded bg-blue-50"
+                    @click.stop="read(row)"
+                  >
+                    읽음 표시
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- footer -->
-        <div class="border-t p-3">
+        <div class="p-4 border-t border-slate-100 bg-white">
           <button
-            class="w-full text-sm text-blue-600 hover:bg-gray-50 py-2 rounded"
+            class="w-full flex items-center justify-center gap-2 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 py-3 rounded-xl transition-all active:scale-[0.98]"
             @click="goNotification"
           >
-            전체 알림 보기
+            전체 알림 확인하기
+            <i class="fa-solid fa-chevron-right text-[10px]"></i>
           </button>
         </div>
       </div>
@@ -138,10 +159,10 @@ export default {
     // 읽기 처리
     read(row) {
       try {
-        this.$toast.success("알림 읽기 처리 적용 되었습니다");
         this.notificationStore.read(row.id);
+        if (this.$toast) this.$toast.success("알림을 읽음 처리했습니다.");
       } catch (e) {
-        this.$toast.error(e.message);
+        if (this.$toast) this.$toast.error(e.message);
       }
     },
 
@@ -155,9 +176,7 @@ export default {
     move(data) {
       this.$router.push({
         path: "/notification",
-        query: {
-          id: data.id,
-        },
+        query: { id: data.id },
       });
       this.notificationStore.closePanel();
     },
@@ -165,19 +184,52 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+/* 슬라이드 애니메이션 */
 .slide-enter-active,
 .slide-leave-active {
-  transition: transform 0.25s ease;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
 .slide-enter-from,
 .slide-leave-to {
   transform: translateX(100%);
 }
 
-.slide-enter-to,
-.slide-leave-from {
-  transform: translateX(0);
+/* 페이드 애니메이션 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* 스크롤바 커스텀 */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
+
+/* 한 줄/두 줄 생략 처리 */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 </style>

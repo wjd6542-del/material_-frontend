@@ -110,6 +110,18 @@
           </span>
         </div>
 
+        <!-- 북마크 -->
+        <div
+          class="hidden md:flex relative cursor-pointer group"
+          @click="openBookmark"
+        >
+          <div
+            class="w-10 h-10 flex items-center justify-center rounded-xl bg-purple-50 text-gray-600 group-hover:bg-red-100 transition"
+          >
+            <i class="fa-solid fa-bookmark"></i>
+          </div>
+        </div>
+
         <!-- 모바일: 알림 통합 버튼 -->
         <button
           class="md:hidden relative w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-600 hover:bg-gray-100 transition"
@@ -120,7 +132,7 @@
             v-if="totalNotifications > 0"
             class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-red-500 text-white rounded-full px-1"
           >
-            {{ totalNotifications > 99 ? '99+' : totalNotifications }}
+            {{ totalNotifications > 99 ? "99+" : totalNotifications }}
           </span>
         </button>
       </template>
@@ -195,13 +207,17 @@
   </div>
 
   <Notification />
+  <Bookmark />
 </template>
 
 <script lang="ts">
 import { useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { useNotificationStore } from "@/stores/notification";
+import { useBookmarkStore } from "@/stores/bookmark";
+
 import Notification from "@/components/panel/Notification.vue";
+import Bookmark from "@/components/panel/Bookmark.vue";
 
 import { useModalStore } from "@/stores/modal";
 
@@ -212,16 +228,19 @@ export default {
     const route = useRoute();
     const authStore = useAuthStore();
     const noti = useNotificationStore();
+    const bookmark = useBookmarkStore();
 
     return {
       route,
       authStore,
       noti,
+      bookmark,
     };
   },
 
   components: {
     Notification,
+    Bookmark,
   },
 
   data() {
@@ -234,7 +253,13 @@ export default {
   computed: {
     totalNotifications() {
       const c = this.noti.counts;
-      return (c.MATERIAL || 0) + (c.INBOUND || 0) + (c.OUTBOUND || 0) + (c.RETURNORDER || 0) + (c.STOCK || 0);
+      return (
+        (c.MATERIAL || 0) +
+        (c.INBOUND || 0) +
+        (c.OUTBOUND || 0) +
+        (c.RETURNORDER || 0) +
+        (c.STOCK || 0)
+      );
     },
   },
 
@@ -256,6 +281,11 @@ export default {
     logout() {
       this.authStore.logout();
       this.$router.push("/login");
+    },
+
+    // 북마크 열기
+    openBookmark() {
+      this.bookmark.openPanel();
     },
   },
 

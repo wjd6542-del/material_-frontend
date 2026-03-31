@@ -31,6 +31,10 @@ export const useNotificationStore = defineStore("notification", {
 		// 타입별 카운트
 		async loadCounts () {
 			const res = await api.post("/api/notification/countByType")
+
+
+			console.log("카운트 확인!!", res.data)
+
 			this.counts = {
 				...this.counts,
 				...res.data,
