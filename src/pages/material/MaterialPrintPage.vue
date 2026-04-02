@@ -69,6 +69,10 @@
         <button class="btn pdf" @click="downloadPDF">
           <i class="fa-solid fa-file-pdf"></i> PDF로 저장
         </button>
+
+        <button class="btn labelbtn" @click="downloadLabel">
+          <i class="fa-solid fa-tags"></i> 라벨파일 다운
+        </button>
       </div>
     </div>
 
@@ -104,7 +108,9 @@
             <div
               v-for="(item, idx) in page"
               :key="
-                item ? item.id + '-' + idx : 'empty-' + pageIndex + '-' + idx
+                item
+                  ? `${item.id}-${item.copy_no || 0}-${idx}`
+                  : `empty-${pageIndex}-${idx}`
               "
               class="label-item"
               :class="[
@@ -150,17 +156,21 @@ import MultiCheck from "@/components/base/MultiCheck.vue";
 export default {
   name: "MaterialQrPrint",
   components: { MultiCheck },
+
   data() {
     return {
       materials: [],
       searchArr: [],
       search: { material_ids: [] },
+
       labelFormat: "A4_20",
-      labelLayout: "v", // 'v': 세로형(Default), 'h': 가로형
+      labelLayout: "v",
+
       printOptions: {
         startPos: 1,
         copyCount: 1,
       },
+
       labelFormats: {
         A4_9: {
           name: "A4 9칸 (3x3)",
@@ -173,7 +183,7 @@ export default {
           padding: 6,
         },
         A4_15: {
-          name: "A4 9칸 (3x5)",
+          name: "A4 15칸 (3x5)",
           cols: 3,
           rows: 5,
           qr: 75,
@@ -225,59 +235,93 @@ export default {
       },
     };
   },
+
   computed: {
     format() {
       return this.labelFormats[this.labelFormat];
     },
+
     displayItems() {
-      if (this.materials.length === 0) return [];
-      let repeated = [];
-      this.materials.forEach((m) => {
-        for (let i = 0; i < Math.max(1, this.printOptions.copyCount); i++) {
-          repeated.push({ ...m });
+      if (!this.materials.length) return [];
+
+      const copyCount = Math.max(1, Number(this.printOptions.copyCount) || 1);
+      const repeated = [];
+
+      this.materials.forEach((item) => {
+        for (let i = 0; i < copyCount; i++) {
+          repeated.push({
+            ...item,
+            copy_no: i + 1,
+          });
         }
       });
-      const startOffset = Math.max(0, this.printOptions.startPos - 1);
+
+      const startOffset = Math.max(
+        0,
+        Number(this.printOptions.startPos || 1) - 1,
+      );
       const blanks = Array(startOffset).fill(null);
+
       return [...blanks, ...repeated];
     },
+
     pages() {
       const pageSize = this.format.cols * this.format.rows;
-      const pages = [];
       const allItems = this.displayItems;
+      const result = [];
+
       for (let i = 0; i < allItems.length; i += pageSize) {
         const slice = allItems.slice(i, i + pageSize);
-        while (slice.length < pageSize) slice.push(null);
-        pages.push(slice);
+        while (slice.length < pageSize) {
+          slice.push(null);
+        }
+        result.push(slice);
       }
-      return pages.length ? pages : [Array(pageSize).fill(null)];
+
+      return result.length ? result : [Array(pageSize).fill(null)];
     },
+
     totalLabelsCount() {
-      return this.materials.length * this.printOptions.copyCount;
+      const copyCount = Math.max(1, Number(this.printOptions.copyCount) || 1);
+      return this.materials.length * copyCount;
     },
   },
+
   methods: {
     async loadData() {
       try {
-        const res = await api.post("/api/material/list", this.search);
-        this.materials = res.data;
+        const payload = {
+          ...this.search,
+          material_ids: Array.isArray(this.search.material_ids)
+            ? this.search.material_ids
+            : [],
+        };
+
+        const res = await api.post("/api/material/list", payload);
+        this.materials = Array.isArray(res.data) ? res.data : [];
       } catch (e) {
         console.error(e);
+        this.materials = [];
       }
     },
+
     async loadMaterial() {
       try {
         const res = await api.post("/api/material/list");
-        this.searchArr = res.data;
+        this.searchArr = Array.isArray(res.data) ? res.data : [];
       } catch (e) {
         console.error(e);
+        this.searchArr = [];
       }
     },
+
     printPage() {
       window.print();
     },
+
     downloadPDF() {
       const element = this.$refs.printArea;
+
       const opt = {
         margin: 0,
         filename: `material_labels_${new Date().getTime()}.pdf`,
@@ -285,9 +329,107 @@ export default {
         html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       };
+
       html2pdf().set(opt).from(element).save();
     },
+
+    normalizeLabelValue(value) {
+      if (value === null || value === undefined) return "";
+      return String(value).trim();
+    },
+
+    escapeCsv(value) {
+      const str = this.normalizeLabelValue(value).replace(/"/g, '""');
+      return `"${str}"`;
+    },
+
+    buildLabelRows() {
+      if (!this.materials.length) return [];
+
+      const copyCount = Math.max(1, Number(this.printOptions.copyCount) || 1);
+      const rows = [];
+
+      this.materials.forEach((item) => {
+        for (let i = 0; i < copyCount; i++) {
+          rows.push({
+            material_id: item.id ?? "",
+            material_name: item.name ?? "",
+            material_code: item.code ?? "",
+            qr: item.code ?? "",
+            qrcode: item.qrcode ?? "",
+            layout: this.labelLayout,
+            format: this.labelFormat,
+            format_name: this.format?.name ?? "",
+            copy_no: i + 1,
+          });
+        }
+      });
+
+      return rows;
+    },
+
+    buildLabelCsv(rows) {
+      const headers = ["material_id", "material_name", "material_code", "qr"];
+
+      return [
+        headers.join(","),
+        ...rows.map((row) =>
+          headers.map((key) => this.escapeCsv(row[key])).join(","),
+        ),
+      ].join("\n");
+    },
+
+    downloadBlobFile(blob, fileName) {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      window.URL.revokeObjectURL(url);
+    },
+
+    getDownloadFileName(prefix = "material_label", ext = "csv") {
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+
+      const ts = [
+        now.getFullYear(),
+        pad(now.getMonth() + 1),
+        pad(now.getDate()),
+        "_",
+        pad(now.getHours()),
+        pad(now.getMinutes()),
+        pad(now.getSeconds()),
+      ].join("");
+
+      return `${prefix}_${ts}.${ext}`;
+    },
+
+    downloadLabel() {
+      const rows = this.buildLabelRows();
+
+      if (!rows.length) {
+        alert("다운로드할 라벨 데이터가 없습니다.");
+        return;
+      }
+
+      const csv = this.buildLabelCsv(rows);
+      const bom = "\uFEFF";
+      const blob = new Blob([bom + csv], {
+        type: "text/csv;charset=utf-8;",
+      });
+
+      this.downloadBlobFile(
+        blob,
+        this.getDownloadFileName("material_label", "csv"),
+      );
+    },
   },
+
   created() {
     this.loadData();
     this.loadMaterial();
@@ -296,7 +438,6 @@ export default {
 </script>
 
 <style scoped>
-/* 기본 레이아웃 */
 .layout {
   display: flex;
   height: 100vh;
@@ -304,7 +445,6 @@ export default {
   overflow: hidden;
 }
 
-/* 컨트롤 패널 */
 .control-panel {
   width: 320px;
   background: white;
@@ -341,18 +481,20 @@ export default {
   margin-bottom: 12px;
 }
 
-/* 레이아웃 선택기 스타일 */
 .layout-selector {
   display: flex;
   gap: 8px;
 }
+
 .layout-option {
   flex: 1;
   cursor: pointer;
 }
+
 .layout-option input {
   display: none;
 }
+
 .opt-box {
   display: flex;
   flex-direction: column;
@@ -365,6 +507,7 @@ export default {
   font-size: 12px;
   transition: all 0.2s;
 }
+
 .layout-option input:checked + .opt-box {
   background: #2563eb;
   color: white;
@@ -395,7 +538,6 @@ export default {
   font-size: 14px;
 }
 
-/* 라벨 디자인 */
 .label-item {
   border: 0.1mm solid #eee;
   display: flex;
@@ -403,16 +545,17 @@ export default {
   background: white;
 }
 
-/* --- 가로형 레이아웃 (H) --- */
 .label-item.layout-h {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
   text-align: left;
 }
+
 .label-item.layout-h .qr-image {
   margin-right: 12px;
 }
+
 .label-item.layout-h .info-group {
   display: flex;
   flex-direction: column;
@@ -421,13 +564,13 @@ export default {
   overflow: hidden;
 }
 
-/* --- 세로형 레이아웃 (V) --- */
 .label-item.layout-v {
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
 }
+
 .label-item.layout-v .qr-image {
   margin-bottom: 8px;
 }
@@ -437,19 +580,19 @@ export default {
   line-height: 1.2;
   word-break: break-all;
 }
+
 .item-code {
   color: #6b7280;
   word-break: break-all;
 }
 
-/* 버튼 및 공통 */
 .buttons {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: auto;
   padding-top: 20px;
 }
+
 .btn {
   width: 100%;
   height: 46px;
@@ -462,16 +605,22 @@ export default {
   justify-content: center;
   gap: 8px;
 }
+
 .print {
   background: #2563eb;
   color: white;
 }
+
 .pdf {
   background: #dc2626;
   color: white;
 }
 
-/* 프리뷰 컨테이너 */
+.labelbtn {
+  background: #111;
+  color: white;
+}
+
 .preview-container {
   flex: 1;
   overflow: auto;
@@ -480,10 +629,12 @@ export default {
   flex-direction: column;
   align-items: center;
 }
+
 .print-area {
   display: inline-block;
   box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
 }
+
 .print-page {
   width: 210mm;
   height: 297mm;
@@ -493,6 +644,7 @@ export default {
   box-sizing: border-box;
   page-break-after: always;
 }
+
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -500,6 +652,7 @@ export default {
   padding-bottom: 4mm;
   margin-bottom: 6mm;
 }
+
 .grid {
   display: grid;
   height: calc(100% - 25mm);
@@ -510,19 +663,24 @@ export default {
     size: A4;
     margin: 0;
   }
+
   .no-print {
     display: none !important;
   }
+
   .layout {
     display: block;
     height: auto;
   }
+
   .preview-container {
     padding: 0;
   }
+
   .print-area {
     box-shadow: none;
   }
+
   .print-page {
     margin: 0;
     border: none;

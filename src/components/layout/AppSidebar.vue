@@ -2,12 +2,14 @@
   <aside
     :class="[
       'h-screen bg-[#0f1117] text-gray-300 flex flex-col transition-all duration-300 border-r border-gray-800 shrink-0 z-50',
+      isMobile ? 'fixed top-0 left-0' : 'sticky top-0',
       isMobile
-        ? 'fixed top-0 left-0'
-        : 'sticky top-0',
-      isMobile
-        ? (open ? 'w-64 translate-x-0' : 'w-64 -translate-x-full')
-        : (open ? 'w-64' : 'w-20'),
+        ? open
+          ? 'w-64 translate-x-0'
+          : 'w-64 -translate-x-full'
+        : open
+          ? 'w-64'
+          : 'w-20',
     ]"
   >
     <!-- Logo Section -->
@@ -132,7 +134,9 @@
 
         <!-- 🔥 [닫힘상태] 호버 팝업 메뉴 (데스크탑 전용) -->
         <div
-          v-if="!open && !isMobile && menu.children && hasAnyChildPermission(menu)"
+          v-if="
+            !open && !isMobile && menu.children && hasAnyChildPermission(menu)
+          "
           class="absolute left-full top-0 ml-2 z-[100] hidden group-hover:block"
         >
           <div class="absolute left-[-12px] top-0 w-[12px] h-full"></div>
@@ -200,6 +204,11 @@ export default defineComponent({
               to: "/materials/print",
               label: "자재라벨",
               permission: "material.print.view",
+            },
+            {
+              to: "/materials/category",
+              label: "자재 카테고리",
+              permission: "material.category.view",
             },
           ],
         },
@@ -305,9 +314,14 @@ export default defineComponent({
               permission: "warehouse.view",
             },
             {
-              to: "/warehouse/rack",
+              to: "/warehouse/location",
+              label: "위치관리",
+              permission: "warehouse.location.view",
+            },
+            {
+              to: "/warehouse/shelf",
               label: "선반관리",
-              permission: "warehouse.rack",
+              permission: "warehouse.shelf",
             },
           ],
         },

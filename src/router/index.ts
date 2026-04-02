@@ -12,6 +12,8 @@ import DashboardPage from "@/pages/dashboard/DashboardPage.vue"
 // 자재
 import MaterialListPage from "@/pages/material/MaterialListPage.vue"
 import MaterialPrintPage from "@/pages/material/MaterialPrintPage.vue"
+import MaterialCategoryPage from "@/pages/material/MaterialCategoryPage.vue"
+
 
 // 입고
 import InboundPage from "@/pages/inbound/InboundPage.vue"
@@ -56,7 +58,9 @@ import NotificationPage from "@/pages/notification/NotificationPage.vue"
 
 
 import WarehousePage from "@/pages/warehouse/WarehousePage.vue"
-import WarehouseDetailPage from "@/pages/warehouse/WarehouseDetailPage.vue"
+import LocationPage from "@/pages/warehouse/LocationPage.vue"
+import ShelfPage from "@/pages/warehouse/ShelfPage.vue"
+
 
 import LogPage from "@/pages/log/LogPage.vue"
 import UserMyPage from "@/pages/user/UserMyPage.vue"
@@ -103,6 +107,11 @@ const routes = [
 						path: "materials/print",
 						component: MaterialPrintPage,
 						meta: { title: "자재라벨", auth: true, permission: "material.print.view" },
+					},
+					{
+						path: "materials/category",
+						component: MaterialCategoryPage,
+						meta: { title: "자재 카테고리", auth: true, permission: "material.category.view" },
 					},
 
 					// 입고
@@ -246,9 +255,14 @@ const routes = [
 						meta: { title: "창고관리", auth: true, permission: "warehouse.house.view" },
 					},
 					{
-						path: "warehouse/rack",
-						component: WarehouseDetailPage,
-						meta: { title: "선반관리", auth: true, permission: "warehouse.location.view" },
+						path: "warehouse/location",
+						component: LocationPage,
+						meta: { title: "위치관리", auth: true, permission: "warehouse.location.view" },
+					},
+					{
+						path: "warehouse/shelf",
+						component: ShelfPage,
+						meta: { title: "선반관리", auth: true, permission: "warehouse.shelf.view" },
 					},
 
 					// 로그

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div
     class="flex h-screen bg-slate-50 font-sans text-slate-900 select-none overflow-hidden"
   >
@@ -7,7 +7,7 @@
     >
       <div class="p-6 border-b border-slate-100">
         <h2 class="text-xl font-black tracking-tight text-indigo-600 uppercase">
-          Warehouse Management
+          Location Management
         </h2>
         <p
           class="text-[10px] text-slate-400 font-bold tracking-widest mt-1 text-center bg-slate-100 py-1 rounded"
@@ -16,21 +16,47 @@
         </p>
       </div>
 
+      <!-- 창고 선택 -->
+      <div class="p-4 border-b border-slate-100">
+        <label
+          class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
+        >
+          창고 선택
+        </label>
+
+        <SearchSelect
+          v-model="selectedWarehouseId"
+          :options="warehouses"
+          labelKey="name"
+          valueKey="id"
+          placeholder="창고 검색"
+          @change="onWarehouseChange"
+        />
+      </div>
+
       <div class="p-4 space-y-2">
         <button
           @click="isEditMode = !isEditMode"
+          :disabled="!selectedWarehouseId"
           :class="[
             'w-full py-3 px-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 border-2 text-sm',
             isEditMode
               ? 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-100'
               : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50',
+            !selectedWarehouseId ? 'opacity-40 cursor-not-allowed' : '',
           ]"
         >
           {{ isEditMode ? "정점 편집 활성화" : "구획 이동/회전 모드" }}
         </button>
         <button
           @click="addShape"
-          class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 px-4 rounded-xl font-bold shadow-md transition-transform active:scale-95 text-sm"
+          :disabled="!selectedWarehouseId"
+          :class="[
+            'w-full py-3 px-4 rounded-xl font-bold shadow-md transition-transform active:scale-95 text-sm text-white',
+            selectedWarehouseId
+              ? 'bg-slate-900 hover:bg-slate-800'
+              : 'bg-slate-400 cursor-not-allowed',
+          ]"
         >
           + 새 구획 추가
         </button>
@@ -39,7 +65,7 @@
       <div class="p-4 border-t border-slate-100">
         <button
           @click="saveAll"
-          :disabled="isSaving"
+          :disabled="isSaving || !selectedWarehouseId"
           class="w-full py-3 px-4 rounded-xl font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
         >
           {{ isSaving ? "저장 중..." : "💾 저장" }}
@@ -66,40 +92,27 @@
             <div class="group">
               <label
                 class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
-                >Warehouse Name</label
+                >Location Name</label
               >
               <input
                 v-model="selectedShape.name"
                 type="text"
                 class="edit-input"
-                placeholder="창고 이름 입력"
+                placeholder="위치 이름 입력 (선택)"
               />
             </div>
 
             <div class="group">
               <label
                 class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
-                >Zone Code</label
+                >Location Code</label
               >
               <input
                 v-model="selectedShape.code"
                 type="text"
                 class="edit-input font-mono"
-                placeholder="Z-001"
+                placeholder="L-001"
               />
-            </div>
-
-            <div class="group">
-              <label
-                class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
-                >Description / Memo</label
-              >
-              <textarea
-                v-model="selectedShape.memo"
-                rows="4"
-                class="edit-input resize-none"
-                placeholder="보관 품목 등 상세 정보"
-              ></textarea>
             </div>
 
             <div class="group">
@@ -130,7 +143,11 @@
           <p
             class="text-xs font-bold text-slate-500 uppercase tracking-tighter"
           >
-            Select a shape to edit data
+            {{
+              selectedWarehouseId
+                ? "Select a shape to edit data"
+                : "창고를 먼저 선택하세요"
+            }}
           </p>
         </div>
       </div>
@@ -140,7 +157,18 @@
       <div
         class="w-full h-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-300"
       >
+        <!-- 창고 미선택 안내 -->
+        <div
+          v-if="!selectedWarehouseId"
+          class="w-full h-full flex items-center justify-center"
+        >
+          <p class="text-slate-400 font-bold text-sm">
+            창고를 선택하면 위치 구획을 편집할 수 있습니다.
+          </p>
+        </div>
+
         <svg
+          v-else
           ref="svgCanvas"
           viewBox="0 0 1000 1000"
           preserveAspectRatio="xMidYMid meet"
@@ -214,7 +242,7 @@
               text-anchor="middle"
               dominant-baseline="middle"
             >
-              {{ shape.name }}
+              {{ shape.name || shape.code }}
             </text>
 
             <template v-if="isEditMode && isSelected(shape)">
@@ -258,12 +286,19 @@
 </template>
 
 <script>
+import SearchSelect from "@/components/base/SearchSelect.vue";
 import api from "@/api/api";
 
 export default {
+  components: {
+    SearchSelect,
+  },
+
   data() {
     return {
-      // 로컬 shape 객체: { _localId, id, name, code, memo, sort, points, rotation, color }
+      warehouses: [],
+      selectedWarehouseId: "",
+      // 로컬 shape 객체: { _localId, id, warehouse_id, name, code, sort, points, rotation, color }
       shapes: [],
       selected: [],
       isEditMode: false,
@@ -280,17 +315,20 @@ export default {
       },
       selectionBox: null,
       selectionStart: { x: 0, y: 0 },
+      selectedWarehouse: {},
     };
   },
 
   async mounted() {
-    await this.loadData();
+    await this.loadWarehouses();
   },
+
   computed: {
     selectedShape() {
       return this.selected[this.selected.length - 1] || null;
     },
   },
+
   methods: {
     /* 🛠 좌표 변환 핵심: 화면 픽셀 -> SVG viewBox(1000) 좌표 */
     getSVGPoint(e) {
@@ -298,7 +336,6 @@ export default {
       const pt = svg.createSVGPoint();
       pt.x = e.clientX;
       pt.y = e.clientY;
-      // 화면 좌표를 SVG의 CTM(좌표 변환 행렬)을 이용해 역계산
       const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
       return { x: svgP.x, y: svgP.y };
     },
@@ -439,7 +476,6 @@ export default {
           return c.x > b.x && c.x < b.x + b.w && c.y > b.y && c.y < b.y + b.h;
         });
       }
-      // 최종 스냅 보정
       if (["move", "rotate", "vertex"].includes(this.dragState.type)) {
         if (this.selectedShape) {
           this.selected.forEach(
@@ -457,45 +493,67 @@ export default {
 
     /* 💾 데이터 관리 */
 
-    // API에서 창고 목록 로드
-    // 응답 예시: [{ id, code, name, memo, sort, points, rotation, color }]
-    async loadData() {
+    async loadWarehouses() {
       try {
         const res = await api.post("/api/warehouse/list");
+        this.warehouses = res.data || [];
+      } catch (err) {
+        console.error("창고 목록 로드 실패", err);
+      }
+    },
 
-        const shapes = res.data;
+    async onWarehouseChange() {
+      this.shapes = [];
+      this.selected = [];
+      this.isEditMode = false;
+      if (this.selectedWarehouseId) {
+        await this.loadData();
+        // 선택항목 저장
+        this.selectedWarehouse = this.warehouses.find(
+          (row) => row.id == this.selectedWarehouseId,
+        );
 
-        if (!shapes) {
-          return;
-        }
+        console.log(this.selectedWarehouse);
+      }
+    },
 
-        this.shapes = shapes.map((w) => ({
-          _localId: String(w.id),
-          id: w.id,
-          name: w.name,
-          code: w.code,
-          memo: w.memo || "",
-          points: w.points ?? [],
-          rotation: w.rotation ?? 0,
-          color: w.color || "#334155",
+    async loadData() {
+      try {
+        const res = await api.post("/api/location/list", {
+          warehouse_id: this.selectedWarehouseId,
+        });
+
+        const locations = res.data;
+
+        if (!locations) return;
+
+        this.shapes = locations.map((l) => ({
+          _localId: String(l.id),
+          id: l.id,
+          warehouse_id: l.warehouse_id,
+          name: l.name || "",
+          code: l.code,
+          sort: l.sort ?? 0,
+          points: l.points ?? [],
+          rotation: l.rotation ?? 0,
+          color: l.color || "#334155",
         }));
       } catch (err) {
-        console.error("창고 데이터 로드 실패", err);
+        console.error("위치 데이터 로드 실패", err);
       }
     },
 
     async saveAll() {
+      if (!this.selectedWarehouseId) return;
       this.isSaving = true;
       try {
         for (let i = 0; i < this.shapes.length; i++) {
           const s = this.shapes[i];
 
-          console.log("check > >> ", s);
-
           const payload = {
-            name: s.name,
+            warehouse_id: this.selectedWarehouseId,
+            name: s.name || null,
             code: s.code,
-            memo: s.memo,
             sort: i,
             points: s.points,
             rotation: s.rotation ?? 0,
@@ -504,9 +562,9 @@ export default {
 
           if (s.id) {
             payload.id = s.id;
-            await api.post(`/api/warehouse/save`, payload);
+            await api.post(`/api/location/save`, payload);
           } else {
-            const res = await api.post("/api/warehouse/save", payload);
+            const res = await api.post("/api/location/save", payload);
             s.id = res.data.id;
             s._localId = String(s.id);
           }
@@ -520,12 +578,14 @@ export default {
     },
 
     addShape() {
+      if (!this.selectedWarehouseId) return;
       const newShape = {
         _localId: `new-${Date.now()}`,
         id: null,
-        name: `창고-${this.shapes.length + 1}`,
-        code: `W-${Date.now().toString().slice(-4)}`,
-        memo: "",
+        warehouse_id: this.selectedWarehouseId,
+        name: `${this.selectedWarehouse.name}-${this.shapes.length + 1}구역`,
+        code: `${this.selectedWarehouse.code}-L-${this.shapes.length + 1}`,
+        sort: this.shapes.length,
         points: [
           { x: 400, y: 400 },
           { x: 600, y: 400 },
@@ -544,7 +604,7 @@ export default {
       const target = this.selectedShape;
       if (target.id) {
         try {
-          await api.post(`/api/warehouse/delete/${target.id}`);
+          await api.post(`/api/location/delete/${target.id}`);
         } catch (err) {
           alert("삭제 실패: " + (err?.message || "서버 오류"));
           return;

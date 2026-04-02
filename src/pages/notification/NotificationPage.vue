@@ -1,70 +1,68 @@
 ﻿<template>
-  <div class="p-4 lg:p-6">
-    <div class="grid grid-cols-1 lg:grid-cols-10 gap-6">
-      <!-- 테이블 -->
-      <div
-        class="lg:col-span-8 bg-white rounded-xl shadow border border-gray-200"
-      >
-        <div class="flex items-center justify-between px-5 py-4 border-b">
-          <h2 class="text-lg font-semibold text-gray-800">알림 리스트</h2>
-        </div>
+  <div>
+    <!-- 테이블 -->
+    <div
+      class="lg:col-span-8 bg-white rounded-xl shadow border border-gray-200"
+    >
+      <div class="flex items-center justify-between px-5 py-4 border-b">
+        <h2 class="text-lg font-semibold text-gray-800">알림 리스트</h2>
+      </div>
 
-        <div class="p-4 pb-0 flex items-center gap-1">
-          <DateRangePicker
-            v-model="dateRange"
-            :minuteStep="5"
-            :showQuickButtons="true"
-            @change="loadList"
-          />
-          <SearchSelect
-            v-model="where.type"
-            :options="typeArr"
-            labelKey="text"
-            valueKey="value"
-            placeholder="타입 선택"
-            @change="loadList"
-          />
-          <SearchSelect
-            v-model="where.action"
-            :options="actionArr"
-            labelKey="text"
-            valueKey="value"
-            placeholder="액션 선택"
-            @change="loadList"
-          />
-        </div>
+      <div class="p-4 pb-0 flex items-center gap-1">
+        <DateRangePicker
+          v-model="dateRange"
+          :minuteStep="5"
+          :showQuickButtons="true"
+          @change="loadList"
+        />
+        <SearchSelect
+          v-model="where.type"
+          :options="typeArr"
+          labelKey="text"
+          valueKey="value"
+          placeholder="타입 선택"
+          @change="loadList"
+        />
+        <SearchSelect
+          v-model="where.action"
+          :options="actionArr"
+          labelKey="text"
+          valueKey="value"
+          placeholder="액션 선택"
+          @change="loadList"
+        />
+      </div>
 
-        <!-- 버튼 영역 -->
-        <div class="px-5 py-3 border-b flex gap-2 bg-white">
-          <button
-            @click="readRows"
-            class="px-4 py-2 text-sm rounded-lg bg-green-500 text-white hover:bg-green-600 shadow-sm transition flex items-center gap-2"
-          >
-            <i class="fa-solid fa-save"></i>
-            읽기 처리
-          </button>
+      <!-- 버튼 영역 -->
+      <div class="px-5 py-3 border-b flex gap-2 bg-white">
+        <button
+          @click="readRows"
+          class="px-4 py-2 text-sm rounded-lg bg-green-500 text-white hover:bg-green-600 shadow-sm transition flex items-center gap-2"
+        >
+          <i class="fa-solid fa-save"></i>
+          읽기 처리
+        </button>
 
-          <button
-            @click="deleteRows"
-            class="px-4 py-2 text-sm rounded-lg bg-red-500 text-white hover:bg-red-600 shadow-sm transition flex items-center gap-2"
-          >
-            <i class="fa-solid fa-trash"></i>
-            삭제
-          </button>
-        </div>
+        <button
+          @click="deleteRows"
+          class="px-4 py-2 text-sm rounded-lg bg-red-500 text-white hover:bg-red-600 shadow-sm transition flex items-center gap-2"
+        >
+          <i class="fa-solid fa-trash"></i>
+          삭제
+        </button>
+      </div>
 
-        <div class="p-4">
-          <BaseTable
-            ref="notificationTable"
-            :columns="columns"
-            :rows="rows"
-            sortable
-            selectable
-            pagination
-            :pageSize="10"
-            :pageSizeOptions="[10, 20, 50, 100]"
-          />
-        </div>
+      <div class="p-4">
+        <BaseTable
+          ref="notificationTable"
+          :columns="columns"
+          :rows="rows"
+          sortable
+          selectable
+          pagination
+          :pageSize="10"
+          :pageSizeOptions="[10, 20, 50, 100]"
+        />
       </div>
     </div>
   </div>

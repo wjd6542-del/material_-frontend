@@ -209,7 +209,7 @@ export default {
   name: "LoginPage",
   data() {
     return {
-      username: "test1",
+      username: "master",
       password: "1q1q2w2w",
       loading: false,
       showPassword: false, // 비밀번호 토글 상태 추가

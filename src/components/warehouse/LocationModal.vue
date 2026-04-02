@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="p-1 space-y-6">
     <!-- 상단 헤더 섹션 -->
     <div class="flex items-end justify-between border-b border-gray-50 pb-6">
@@ -10,7 +10,7 @@
           선반 추가
         </h2>
         <p class="text-[13px] text-gray-400 mt-1 font-medium ml-4">
-          창고 내 구역별 선반(Rack) 정보를 등록합니다.
+          위치 내 선반(Shelf) 정보를 등록합니다.
         </p>
       </div>
 
@@ -23,18 +23,13 @@
       </button>
     </div>
 
-    <!-- 메인 테이블 카드 (드롭다운을 위해 overflow 제거) -->
+    <!-- 메인 테이블 카드 -->
     <div
       class="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-50"
     >
       <table class="w-full text-sm border-collapse">
         <thead>
           <tr class="bg-gray-50/50 border-b border-gray-100">
-            <th
-              class="px-6 py-4 text-left font-bold text-gray-500 uppercase tracking-wider w-48"
-            >
-              소속 창고
-            </th>
             <th
               class="px-6 py-4 text-left font-bold text-gray-500 uppercase tracking-wider w-40"
             >
@@ -44,11 +39,6 @@
               class="px-6 py-4 text-left font-bold text-gray-500 uppercase tracking-wider"
             >
               선반 이름
-            </th>
-            <th
-              class="px-6 py-4 text-left font-bold text-gray-500 uppercase tracking-wider"
-            >
-              상세 메모
             </th>
             <th class="px-6 py-4 w-16 text-center"></th>
           </tr>
@@ -60,24 +50,11 @@
             :key="i"
             class="group transition-colors hover:bg-gray-50/30"
           >
-            <!-- 창고 선택 (SearchSelect) -->
-            <td class="px-4 py-3">
-              <div class="search-select-wrapper">
-                <SearchSelect
-                  v-model="row.warehouse_id"
-                  :options="warehouses"
-                  labelKey="name"
-                  valueKey="id"
-                  class="modern-select"
-                />
-              </div>
-            </td>
-
             <!-- 선반 코드 -->
             <td class="px-4 py-3">
               <input
                 v-model="row.code"
-                placeholder="RACK-01"
+                placeholder="SHELF-01"
                 class="modern-input"
               />
             </td>
@@ -91,16 +68,7 @@
               />
             </td>
 
-            <!-- 상세 메모 -->
-            <td class="px-4 py-3 text-gray-500">
-              <input
-                v-model="row.memo"
-                placeholder="비고 입력"
-                class="modern-input text-gray-400 focus:text-gray-700"
-              />
-            </td>
-
-            <!-- 삭제 버튼 (상시 출력) -->
+            <!-- 삭제 버튼 -->
             <td class="px-4 py-3 text-center">
               <button
                 @click="removeRow(i)"
@@ -116,7 +84,7 @@
         </tbody>
       </table>
 
-      <!-- 빈 상태 디자인 -->
+      <!-- 빈 상태 -->
       <div
         v-if="rows.length === 0"
         class="py-20 flex flex-col items-center justify-center bg-gray-50/30 rounded-b-3xl"
@@ -163,29 +131,19 @@
 
 <script lang="ts">
 import { useModalStore } from "@/stores/modal";
-import BaseImage from "@/components/base/BaseImage.vue";
-import SearchSelect from "@/components/base/SearchSelect.vue";
-import api from "@/api/api";
 
 export default {
-  name: "MaterialModal",
-
-  components: {
-    BaseImage,
-    SearchSelect,
-  },
+  name: "LocationModal",
 
   props: {
-    id: { type: Number, default: 0 },
-    warehouse_id: { type: Number, default: 0 },
+    location_id: { type: Number, default: 0 },
     onSaved: Function,
   },
 
   data() {
     return {
       modal: useModalStore(),
-      warehouses: [],
-      rows: [],
+      rows: [] as any[],
     };
   },
 
@@ -193,14 +151,14 @@ export default {
     newRow() {
       return {
         id: 0,
-        warehouse_id: this.warehouse_id,
+        location_id: this.location_id,
         code: "",
         name: "",
-        memo: "",
         x: 15,
         y: 15,
         width: 3,
         height: 3,
+        sort: 0,
       };
     },
 
@@ -208,89 +166,39 @@ export default {
       this.rows.push(this.newRow());
     },
 
-    removeRow(i) {
+    removeRow(i: number) {
       this.rows.splice(i, 1);
     },
 
-    mappingData(data) {
-      if (Array.isArray(data)) {
-        this.rows = data;
-      }
-    },
-
-    async loadWarehouse() {
-      try {
-        const res = await api.post("/api/warehouse/list");
-        this.warehouses = res.data;
-      } catch (e) {
-        console.error("창고 목록 로드 실패", e);
-      }
-    },
-
-    async loadData() {
-      try {
-        const res = await api.post(`/api/warehouse/${this.id}`, {
-          id: this.id,
-        });
-        this.mappingData(res.data);
-      } catch (e) {
-        this.$toast.error("데이터를 불러오지 못했습니다.");
-      }
-    },
-
     async save() {
-      try {
-        if (this.rows.some((r) => !r.warehouse_id || !r.name)) {
-          this.$toast.warning("소속 창고와 선반 이름을 확인해 주세요.");
-          return;
-        }
+      if (this.rows.some((r) => !r.code)) {
+        (this as any).$toast.warning("선반 코드를 입력해 주세요.");
+        return;
+      }
 
-        this.modal.closeModal();
+      this.modal.closeModal();
 
-        if (this.onSaved) {
-          this.onSaved(this.rows);
-        }
-      } catch (e: any) {
-        this.$toast.error(e.message);
+      if (this.onSaved) {
+        this.onSaved(this.rows);
       }
     },
   },
 
   mounted() {
-    this.loadWarehouse();
-
-    if (this.id) {
-      this.loadData();
-    } else {
-      this.addRow();
-    }
+    this.addRow();
   },
 };
 </script>
 
 <style scoped>
-/* 현대적인 입력창 공통 스타일 */
 .modern-input {
   @apply w-full h-10 px-4 bg-gray-50/50 border border-transparent rounded-xl text-[14px] text-gray-700
-  placeholder:text-gray-300 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 
+  placeholder:text-gray-300 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5
   outline-none transition-all duration-300;
 }
 
-/* SearchSelect 내부 스타일 강제 적용 */
-.search-select-wrapper :deep(input) {
-  @apply w-full h-10 px-4 bg-gray-50/50 border border-transparent rounded-xl text-[14px]
-  focus:bg-white focus:border-blue-500 outline-none transition-all duration-300 !important;
-}
-
-/* 삭제 버튼 스타일 (상시 노출형) */
 .delete-btn-always {
-  @apply w-9 h-9 flex items-center justify-center text-gray-400 hover:text-red-500 
+  @apply w-9 h-9 flex items-center justify-center text-gray-400 hover:text-red-500
   hover:bg-red-50 rounded-xl transition-all;
-}
-
-/* 테이블 컨테이너에 overflow를 주지 않아 드롭다운이 뚫고 나오게 함 */
-table {
-  position: relative;
-  z-index: 1;
 }
 </style>
