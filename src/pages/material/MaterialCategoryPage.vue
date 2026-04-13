@@ -21,7 +21,9 @@
           >
             <i class="fa-solid fa-circle-xmark"></i>
           </button>
-          <i class="fa-solid fa-chevron-down absolute right-3.5 top-3.5 text-slate-400 pointer-events-none text-xs"></i>
+          <i
+            class="fa-solid fa-chevron-down absolute right-3.5 top-3.5 text-slate-400 pointer-events-none text-xs"
+          ></i>
         </div>
         <ul v-if="isMobileDropdownOpen" class="mobile-dropdown">
           <li
@@ -32,9 +34,15 @@
             :class="{ active: selectedCategoryId === cat.id }"
           >
             <span>{{ cat.prefix }}{{ cat.name }}</span>
-            <i v-if="selectedCategoryId === cat.id" class="fa-solid fa-check text-xs"></i>
+            <i
+              v-if="selectedCategoryId === cat.id"
+              class="fa-solid fa-check text-xs"
+            ></i>
           </li>
-          <li v-if="searchedMobileCategories.length === 0" class="p-4 text-center text-slate-400 text-sm">
+          <li
+            v-if="searchedMobileCategories.length === 0"
+            class="p-4 text-center text-slate-400 text-sm"
+          >
             결과가 없습니다.
           </li>
         </ul>
@@ -47,7 +55,11 @@
     </div>
 
     <!-- 사이드바 -->
-    <aside class="sidebar" v-if="!isMobile">
+    <aside
+      class="sidebar"
+      v-if="!isMobile"
+      :style="{ width: sidebarWidth + 'px' }"
+    >
       <div class="sidebar-header">
         <div class="sidebar-title">
           <div class="sidebar-title-icon">
@@ -66,10 +78,25 @@
 
       <div class="tree-toolbar">
         <button @click="toggleAll" class="toolbar-btn">
-          <i class="fa-solid" :class="allExpanded ? 'fa-compress' : 'fa-expand'"></i>
-          {{ allExpanded ? "접기" : "펼치기" }}
+          <i
+            class="fa-solid"
+            :class="allExpanded ? 'fa-compress' : 'fa-expand'"
+          ></i>
+          {{ allExpanded ? "전체 닫기" : "전체 열기" }}
         </button>
         <div class="toolbar-divider"></div>
+        <button
+          @click="toggleDragEnabled"
+          class="toolbar-btn"
+          :class="dragConfig.enabled ? 'drag-on' : 'drag-off'"
+          :title="dragConfig.enabled ? '이동 모드 켜짐 (클릭하여 잠금)' : '이동 모드 꺼짐 (클릭하여 활성화)'"
+        >
+          <i
+            class="fa-solid"
+            :class="dragConfig.enabled ? 'fa-arrows-up-down-left-right' : 'fa-lock'"
+          ></i>
+          {{ dragConfig.enabled ? "이동 ON" : "이동 OFF" }}
+        </button>
         <button @click="openAddRootModal" class="toolbar-btn accent">
           <i class="fa-solid fa-plus"></i> 추가
         </button>
@@ -96,6 +123,22 @@
             <i class="fa-solid fa-plus mr-1.5"></i> 첫 카테고리 만들기
           </button>
         </div>
+        <div
+          v-else-if="searchQuery && filteredTree.length === 0"
+          class="tree-no-result"
+        >
+          <div class="tree-no-result-icon">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+          <p class="tree-no-result-title">검색 결과 없음</p>
+          <p class="tree-no-result-desc">
+            '<strong>{{ searchQuery }}</strong
+            >' 에 대한<br />일치하는 카테고리가 없습니다.
+          </p>
+          <button @click="searchQuery = ''" class="tree-no-result-btn">
+            <i class="fa-solid fa-arrow-rotate-left mr-1"></i> 검색 초기화
+          </button>
+        </div>
         <ul v-else class="tree-root">
           <CategoryItem
             v-for="cat in filteredTree"
@@ -112,19 +155,40 @@
       </div>
     </aside>
 
+    <!-- 리사이즈 핸들 -->
+    <div v-if="!isMobile" class="resize-handle" @mousedown="startResize">
+      <div class="resize-handle-bar">
+        <i class="fa-solid fa-grip-lines-vertical"></i>
+      </div>
+    </div>
+
     <!-- 카테고리 등록/수정 모달 -->
     <teleport to="body">
       <transition name="modal-fade">
-        <div v-if="catModalOpen" class="modal-overlay" @click.self="closeCatModal">
+        <div
+          v-if="catModalOpen"
+          class="modal-overlay"
+          @click.self="closeCatModal"
+        >
           <div class="modal-container">
             <div class="modal-header">
-              <div class="modal-header-icon" :class="catModalEditMode ? 'edit' : 'add'">
-                <i class="fa-solid" :class="catModalEditMode ? 'fa-pen-to-square' : 'fa-folder-plus'"></i>
+              <div
+                class="modal-header-icon"
+                :class="catModalEditMode ? 'edit' : 'add'"
+              >
+                <i
+                  class="fa-solid"
+                  :class="
+                    catModalEditMode ? 'fa-pen-to-square' : 'fa-folder-plus'
+                  "
+                ></i>
               </div>
               <div>
                 <h3 class="modal-title">{{ catModalTitle }}</h3>
                 <p v-if="catForm.parentName" class="modal-subtitle">
-                  <i class="fa-solid fa-turn-up fa-rotate-90 mr-1 text-slate-300"></i>
+                  <i
+                    class="fa-solid fa-turn-up fa-rotate-90 mr-1 text-slate-300"
+                  ></i>
                   {{ catForm.parentName }}
                 </p>
               </div>
@@ -142,17 +206,11 @@
                   @keyup.enter="saveCatModal"
                 />
               </div>
-              <div class="modal-form-group">
-                <label>분류 코드</label>
-                <input
-                  v-model="catForm.code"
-                  placeholder="예: MTL-001"
-                  @keyup.enter="saveCatModal"
-                />
-              </div>
             </div>
             <div class="modal-footer">
-              <button @click="closeCatModal" class="modal-btn cancel">취소</button>
+              <button @click="closeCatModal" class="modal-btn cancel">
+                취소
+              </button>
               <button @click="saveCatModal" class="modal-btn confirm">
                 <i class="fa-solid fa-check mr-1"></i>
                 {{ catModalEditMode ? "수정" : "등록" }}
@@ -170,50 +228,29 @@
           <div>
             <div class="breadcrumb-row">
               <i class="fa-solid fa-sitemap text-slate-300 mr-1.5"></i>
-              <span v-for="(node, idx) in categoryPath" :key="node.id" class="breadcrumb-item">
+              <span
+                v-for="(node, idx) in categoryPath"
+                :key="node.id"
+                class="breadcrumb-item"
+              >
                 <span
                   class="breadcrumb-link"
                   :class="{ current: idx === categoryPath.length - 1 }"
                   @click="selectCategory(node.id)"
-                >{{ node.name }}</span>
-                <i v-if="idx < categoryPath.length - 1" class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+                  >{{ node.name }}</span
+                >
+                <i
+                  v-if="idx < categoryPath.length - 1"
+                  class="fa-solid fa-chevron-right breadcrumb-sep"
+                ></i>
               </span>
             </div>
             <h1 class="current-cat-title">{{ selectedCategoryName }}</h1>
           </div>
-          <button @click="openForm = true" class="btn-add-main">
+          <button @click="openMaterialModal()" class="btn-add-main">
             <i class="fa-solid fa-plus mr-1.5"></i> 자재 등록
           </button>
         </div>
-
-        <transition name="fade">
-          <div v-if="openForm" class="form-section">
-            <div class="form-section-header">
-              <i class="fa-solid fa-pen-to-square text-blue-400"></i>
-              <span>{{ editMode ? "자재 정보 수정" : "신규 자재 등록" }}</span>
-            </div>
-            <div class="grid-form">
-              <div class="input-group">
-                <label>자재명</label>
-                <input v-model="matForm.name" placeholder="예: 알루미늄 판재" />
-              </div>
-              <div class="input-group">
-                <label>자재코드</label>
-                <input v-model="matForm.code" placeholder="예: MAT-AL-001" />
-              </div>
-              <div class="input-group">
-                <label>규격/사양</label>
-                <input v-model="matForm.spec" placeholder="예: 10T * 100 * 100" />
-              </div>
-            </div>
-            <div class="form-actions">
-              <button @click="closeForm" class="form-btn cancel">취소</button>
-              <button @click="saveMaterial" class="form-btn save">
-                <i class="fa-solid fa-check mr-1"></i> 저장
-              </button>
-            </div>
-          </div>
-        </transition>
 
         <div class="table-wrap">
           <table class="styled-table">
@@ -222,17 +259,28 @@
                 <th>코드</th>
                 <th>자재명</th>
                 <th>규격</th>
+                <th>단위</th>
+                <th>안전재고</th>
+                <th>메모</th>
                 <th style="width: 130px" class="text-center">액션</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="m in currentMaterials" :key="m.id">
-                <td><span class="code-cell">{{ m.code }}</span></td>
+                <td>
+                  <span class="code-cell">{{ m.code }}</span>
+                </td>
                 <td class="font-semibold text-slate-800">{{ m.name }}</td>
                 <td class="text-slate-500">{{ m.spec }}</td>
+                <td class="text-slate-500">{{ m.unit }}</td>
+                <td class="text-slate-500 text-right">{{ m.safety_stock }}</td>
+                <td class="text-slate-400 text-sm">{{ m.memo }}</td>
                 <td>
                   <div class="table-actions">
-                    <button @click="startEditMaterial(m)" class="tbl-btn edit">
+                    <button
+                      @click="openMaterialModal(m.id)"
+                      class="tbl-btn edit"
+                    >
                       <i class="fa-solid fa-pencil"></i> 수정
                     </button>
                     <button @click="removeMaterial(m.id)" class="tbl-btn del">
@@ -242,7 +290,7 @@
                 </td>
               </tr>
               <tr v-if="currentMaterials.length === 0">
-                <td colspan="4" class="table-empty">
+                <td colspan="7" class="table-empty">
                   <div class="table-empty-inner">
                     <i class="fa-solid fa-inbox"></i>
                     <p>등록된 자재가 없습니다</p>
@@ -267,7 +315,8 @@
 
 <script>
 import CategoryItem from "./CategoryItem.vue";
-
+import MaterialModal from "@/components/material/MaterialModal.vue";
+import { useModalStore } from "@/stores/modal";
 import api from "@/api/api";
 
 export default {
@@ -277,14 +326,14 @@ export default {
     return {
       dragState: this.dragState,
       moveCategory: this.moveCategory,
+      dragConfig: this.dragConfig,
     };
   },
   data() {
     return {
+      modal: useModalStore(),
       searchQuery: "",
       selectedCategoryId: null,
-      openForm: false,
-      editMode: false,
       isMobile: false,
       mobileSearchTerm: "",
       isMobileDropdownOpen: false,
@@ -294,6 +343,9 @@ export default {
         dropTarget: null,
         dropPosition: null,
       },
+      dragConfig: {
+        enabled: false,
+      },
       // 카테고리 모달
       catModalOpen: false,
       catModalEditMode: false,
@@ -301,21 +353,13 @@ export default {
       catModalTarget: null,
       catForm: {
         name: "",
-        code: "",
         parentName: "",
       },
       // 카테고리 트리 (Prisma 모델 기반)
       categoryTree: [],
-      materials: [
-        {
-          id: 101,
-          category_id: 111,
-          name: "알루미늄 플레이트 10T",
-          code: "AL-P-10",
-          spec: "100x100",
-        },
-      ],
-      matForm: { id: null, name: "", code: "", spec: "" },
+      currentMaterials: [],
+      sidebarWidth: 420,
+      isResizing: false,
     };
   },
   computed: {
@@ -380,21 +424,18 @@ export default {
       if (this.catModalParent) return "하위 카테고리 등록";
       return "루트 카테고리 등록";
     },
-    currentMaterials() {
-      return this.materials.filter(
-        (m) => m.category_id === this.selectedCategoryId,
-      );
-    },
   },
   watch: {
     selectedCategoryId: {
       handler(newId) {
         if (!newId) {
           this.mobileSearchTerm = "";
+          this.currentMaterials = [];
           return;
         }
         const found = this.flatCategories.find((c) => c.id === newId);
         if (found) this.mobileSearchTerm = found.name;
+        this.loadMaterials();
       },
       immediate: true,
     },
@@ -403,8 +444,36 @@ export default {
     window.removeEventListener("resize", this.checkMobile);
   },
   methods: {
+    toggleDragEnabled() {
+      this.dragConfig.enabled = !this.dragConfig.enabled;
+      this.dragState.draggingItem = null;
+      this.dragState.dropTarget = null;
+      this.dragState.dropPosition = null;
+    },
     checkMobile() {
       this.isMobile = window.innerWidth <= 1024;
+    },
+    startResize(e) {
+      e.preventDefault();
+      this.isResizing = true;
+      const startX = e.clientX;
+      const startWidth = this.sidebarWidth;
+
+      const onMouseMove = (e) => {
+        const newWidth = startWidth + (e.clientX - startX);
+        this.sidebarWidth = Math.max(280, Math.min(newWidth, 700));
+      };
+      const onMouseUp = () => {
+        this.isResizing = false;
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      };
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
     },
     toggleAll() {
       this.allExpanded = !this.allExpanded;
@@ -417,22 +486,25 @@ export default {
     },
     selectCategory(id) {
       this.selectedCategoryId = id;
-      this.closeForm();
     },
     // 카테고리 모달
     openAddRootModal() {
       this.catModalEditMode = false;
       this.catModalParent = null;
       this.catModalTarget = null;
-      this.catForm = { name: "", code: "", parentName: "" };
+      this.catForm = { name: "", parentName: "" };
       this.catModalOpen = true;
       this.$nextTick(() => this.$refs.catNameInput?.focus());
     },
     openAddChildModal(parent) {
+      this.selectedCategoryId = parent.id;
       this.catModalEditMode = false;
       this.catModalParent = parent;
       this.catModalTarget = null;
-      this.catForm = { name: "", code: "", parentName: parent.name };
+      this.catForm = {
+        name: "",
+        parentName: this.getCategoryPathNames(parent.id),
+      };
       if (parent.depth >= 10) {
         alert("최대 10단계까지만 등록할 수 있습니다.");
         return;
@@ -441,14 +513,14 @@ export default {
       this.$nextTick(() => this.$refs.catNameInput?.focus());
     },
     openEditCatModal(item) {
+      this.selectedCategoryId = item.id;
       this.catModalEditMode = true;
       this.catModalParent = null;
       this.catModalTarget = item;
       const parentNode = this.findParentNode(this.categoryTree, item.id);
       this.catForm = {
         name: item.name,
-        code: item.code || "",
-        parentName: parentNode ? parentNode.name : "",
+        parentName: parentNode ? this.getCategoryPathNames(parentNode.id) : "",
       };
       this.catModalOpen = true;
       this.$nextTick(() => this.$refs.catNameInput?.focus());
@@ -458,18 +530,21 @@ export default {
       this.catModalEditMode = false;
       this.catModalParent = null;
       this.catModalTarget = null;
-      this.catForm = { name: "", code: "", parentName: "" };
+      this.catForm = { name: "", parentName: "" };
     },
     saveCatModal() {
+      if (!this.catModalOpen) return;
       if (!this.catForm.name.trim()) {
-        alert("카테고리명을 입력하세요.");
+        this.$toast.error("카테고리명을 입력하세요");
         return;
       }
 
+      let selectId = null;
+
       if (this.catModalEditMode) {
-        // 수정
+        // 수정 — 이름만 변경, 코드는 유지
         this.catModalTarget.name = this.catForm.name.trim();
-        this.catModalTarget.code = this.catForm.code.trim();
+        selectId = this.catModalTarget.id;
       } else if (this.catModalParent) {
         // 하위 추가
         const parent = this.catModalParent;
@@ -478,7 +553,7 @@ export default {
         parent.children.push({
           id: tempId,
           name: this.catForm.name.trim(),
-          code: this.catForm.code.trim(),
+          code: `CAT-${tempId}`,
           sort: parent.children.length,
           parentId: parent.id,
           path: "",
@@ -488,13 +563,14 @@ export default {
           children: [],
         });
         parent.isOpen = true;
+        selectId = tempId;
       } else {
         // 루트 추가
         const tempId = Date.now();
         this.categoryTree.push({
           id: tempId,
           name: this.catForm.name.trim(),
-          code: this.catForm.code.trim(),
+          code: `CAT-${tempId}`,
           sort: this.categoryTree.length,
           parentId: null,
           path: "",
@@ -503,9 +579,25 @@ export default {
           isOpen: true,
           children: [],
         });
+        selectId = tempId;
       }
 
+      this.selectedCategoryId = selectId;
       this.closeCatModal();
+    },
+    getCategoryPathNames(id) {
+      const findPath = (nodes, targetId, path = []) => {
+        for (const n of nodes) {
+          if (n.id === targetId) return [...path, n];
+          if (n.children) {
+            const res = findPath(n.children, targetId, [...path, n]);
+            if (res) return res;
+          }
+        }
+        return null;
+      };
+      const path = findPath(this.categoryTree, id) || [];
+      return path.map((n) => n.name).join(" > ");
     },
     findParentNode(nodes, childId) {
       for (const n of nodes) {
@@ -517,17 +609,23 @@ export default {
       }
       return null;
     },
-    deleteCategory(id) {
-      if (confirm("삭제하시겠습니까?")) {
-        const remove = (nodes) => {
-          const i = nodes.findIndex((n) => n.id === id);
-          if (i !== -1) return nodes.splice(i, 1);
-          nodes.forEach((n) => n.children && remove(n.children));
-        };
-        remove(this.categoryTree);
-        if (this.selectedCategoryId === id) {
-          this.selectedCategoryId = null;
-        }
+
+    // 삭제처리
+    async deleteCategory(id) {
+      const ok = await this.$confirm(
+        "선택된 자재를 삭제하시겠습니까?",
+        "삭제 확인",
+      );
+      if (!ok) return;
+
+      const remove = (nodes) => {
+        const i = nodes.findIndex((n) => n.id === id);
+        if (i !== -1) return nodes.splice(i, 1);
+        nodes.forEach((n) => n.children && remove(n.children));
+      };
+      remove(this.categoryTree);
+      if (this.selectedCategoryId === id) {
+        this.selectedCategoryId = null;
       }
     },
 
@@ -573,6 +671,7 @@ export default {
       try {
         const res = await api.post("/api/category/save", payload);
         this.$toast.success("카테고리가 저장처리 되었습니다");
+        await this.loadCategoryTree();
       } catch (e) {
         this.$toast.error(e.message);
       }
@@ -632,7 +731,6 @@ export default {
       this.selectedCategoryId = cat.id;
       this.mobileSearchTerm = cat.name;
       this.isMobileDropdownOpen = false;
-      this.closeForm();
     },
     resetMobileSelection() {
       this.selectedCategoryId = null;
@@ -640,36 +738,41 @@ export default {
       this.isMobileDropdownOpen = false;
     },
     // 자재 관리
-    saveMaterial() {
-      if (!this.matForm.name || !this.matForm.code) return alert("필수입력!");
-      if (this.editMode) {
-        const i = this.materials.findIndex((m) => m.id === this.matForm.id);
-        this.materials[i] = {
-          ...this.matForm,
-          category_id: this.selectedCategoryId,
-        };
-      } else {
-        this.materials.push({
-          ...this.matForm,
-          id: Date.now(),
+    async loadMaterials() {
+      if (!this.selectedCategoryId) {
+        this.currentMaterials = [];
+        return;
+      }
+      try {
+        const res = await api.post("/api/material/list", {
           category_id: this.selectedCategoryId,
         });
+        this.currentMaterials = res.data || [];
+      } catch (e) {
+        this.currentMaterials = [];
       }
-      this.closeForm();
     },
-    startEditMaterial(m) {
-      this.editMode = true;
-      Object.assign(this.matForm, m);
-      this.openForm = true;
+    openMaterialModal(id) {
+      const props = {
+        onSaved: this.loadMaterials,
+      };
+      if (id) props.id = id;
+      else props.category_id = this.selectedCategoryId;
+      this.modal.openModal(MaterialModal, props);
     },
-    removeMaterial(id) {
-      if (confirm("삭제?"))
-        this.materials = this.materials.filter((m) => m.id !== id);
-    },
-    closeForm() {
-      this.openForm = false;
-      this.editMode = false;
-      Object.assign(this.matForm, { id: null, name: "", code: "", spec: "" });
+    async removeMaterial(id) {
+      const ok = await this.$confirm(
+        "선택된 자재를 삭제하시겠습니까?",
+        "삭제 확인",
+      );
+      if (!ok) return;
+      try {
+        await api.post("/api/material/batchDelete", [{ id }]);
+        this.$toast.success("삭제되었습니다");
+        this.loadMaterials();
+      } catch (e) {
+        this.$toast.error(e.response?.data?.message || e.message);
+      }
     },
   },
 
@@ -688,20 +791,58 @@ export default {
   display: flex;
   height: 100vh;
   background: #f8fafc;
-  font-family: "Inter", -apple-system, sans-serif;
+  font-family:
+    "Inter",
+    -apple-system,
+    sans-serif;
   overflow: hidden;
 }
 
 /* ===== 사이드바 ===== */
 .sidebar {
-  width: 420px;
-  min-width: 340px;
+  min-width: 280px;
+  max-width: 700px;
   background: #ffffff;
-  border-right: 1px solid #e2e8f0;
+  border-right: none;
   display: flex;
   flex-direction: column;
-  resize: horizontal;
   overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* ===== 리사이즈 핸들 ===== */
+.resize-handle {
+  width: 12px;
+  position: relative;
+  cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border-left: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  z-index: 10;
+}
+.resize-handle:hover,
+.resize-handle:active {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+.resize-handle-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 48px;
+  color: #94a3b8;
+  font-size: 10px;
+  transition: color 0.15s;
+}
+.resize-handle:hover .resize-handle-bar,
+.resize-handle:active .resize-handle-bar {
+  color: #3b82f6;
 }
 .sidebar-header {
   padding: 24px 20px 16px;
@@ -806,6 +947,24 @@ export default {
   background: #ecfdf5;
   border-color: #a7f3d0;
 }
+.toolbar-btn.drag-on {
+  color: #f59e0b;
+  background: #fffbeb;
+  border-color: #fcd34d;
+  font-weight: 600;
+}
+.toolbar-btn.drag-on:hover {
+  background: #fef3c7;
+  border-color: #f59e0b;
+}
+.toolbar-btn.drag-off {
+  color: #94a3b8;
+  font-weight: 500;
+}
+.toolbar-btn.drag-off:hover {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
 .toolbar-divider {
   width: 1px;
   height: 16px;
@@ -907,6 +1066,74 @@ export default {
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
+/* ===== 검색 결과 없음 ===== */
+.tree-no-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 40px 20px;
+  animation: fadeInUp 0.3s ease;
+}
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.tree-no-result-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: #d97706;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.15);
+}
+.tree-no-result-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
+}
+.tree-no-result-desc {
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.tree-no-result-desc strong {
+  color: #d97706;
+  font-weight: 600;
+}
+.tree-no-result-btn {
+  padding: 8px 20px;
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tree-no-result-btn:hover {
+  background: #f1f5f9;
+  color: #334155;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
 /* ===== 메인 패널 ===== */
 .main-panel {
   flex: 1;
@@ -917,7 +1144,9 @@ export default {
   background: white;
   border-radius: 16px;
   padding: 28px 32px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 20px rgba(0, 0, 0, 0.02);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 20px rgba(0, 0, 0, 0.02);
   border: 1px solid #f1f5f9;
 }
 .content-header {
@@ -976,82 +1205,6 @@ export default {
 .btn-add-main:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(30, 41, 59, 0.3);
-}
-
-/* 자재 폼 */
-.form-section {
-  background: #f8fafc;
-  padding: 20px 24px;
-  border-radius: 12px;
-  margin-bottom: 24px;
-  border: 1px solid #e2e8f0;
-}
-.form-section-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #334155;
-  margin-bottom: 16px;
-}
-.grid-form {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-.input-group label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #64748b;
-  margin-bottom: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-.input-group input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
-  outline: none;
-  font-size: 13.5px;
-  transition: all 0.15s;
-  background: white;
-}
-.input-group input:focus {
-  border-color: #93c5fd;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
-}
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 16px;
-}
-.form-btn {
-  padding: 8px 18px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: all 0.15s;
-}
-.form-btn.save {
-  background: #3b82f6;
-  color: white;
-}
-.form-btn.save:hover {
-  background: #2563eb;
-}
-.form-btn.cancel {
-  background: white;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
-}
-.form-btn.cancel:hover {
-  background: #f1f5f9;
 }
 
 /* 테이블 */
@@ -1399,9 +1552,6 @@ export default {
   }
   .main-panel {
     padding: 16px;
-  }
-  .grid-form {
-    grid-template-columns: 1fr;
   }
 }
 

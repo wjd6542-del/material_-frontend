@@ -28,6 +28,27 @@
         >
           {{ isEditMode ? "정점 편집 활성화" : "구획 이동/회전 모드" }}
         </button>
+
+        <div class="space-y-1">
+          <label class="text-[10px] font-black text-slate-400 uppercase ml-1 block">Shape Type</label>
+          <div class="grid grid-cols-3 gap-1">
+            <button
+              v-for="st in shapeTypes"
+              :key="st.key"
+              @click="selectedShapeType = st.key"
+              :class="[
+                'py-2 px-1 rounded-lg text-center transition-all border-2 text-xs font-bold',
+                selectedShapeType === st.key
+                  ? 'bg-indigo-500 border-indigo-500 text-white shadow-md'
+                  : 'bg-white border-slate-200 text-slate-500 hover:border-indigo-300',
+              ]"
+            >
+              <div class="text-base leading-none mb-0.5">{{ st.icon }}</div>
+              <div class="text-[9px]">{{ st.label }}</div>
+            </button>
+          </div>
+        </div>
+
         <button
           @click="addShape"
           class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 px-4 rounded-xl font-bold shadow-md transition-transform active:scale-95 text-sm"
@@ -263,10 +284,19 @@ import api from "@/api/api";
 export default {
   data() {
     return {
-      // 로컬 shape 객체: { _localId, id, name, code, memo, sort, points, rotation, color }
+      // 로컬 shape 객체: { _localId, id, name, code, memo, sort, points, rotation, color, shapeType }
       shapes: [],
       selected: [],
       isEditMode: false,
+      selectedShapeType: "rect",
+      shapeTypes: [
+        { key: "triangle", icon: "△", label: "삼각형" },
+        { key: "rect", icon: "□", label: "사각형" },
+        { key: "circle", icon: "○", label: "원형" },
+        { key: "hexagon", icon: "⬡", label: "육각형" },
+        { key: "nieun", icon: "ㄴ", label: "ㄴ형" },
+        { key: "giyeok", icon: "ㄱ", label: "ㄱ형" },
+      ],
       isSaving: false,
       gridSize: 20,
       dragState: {
@@ -439,16 +469,22 @@ export default {
           return c.x > b.x && c.x < b.x + b.w && c.y > b.y && c.y < b.y + b.h;
         });
       }
-      // 최종 스냅 보정
+      // 최종 스냅 보정 (원형은 스냅하면 찌그러지므로 제외)
       if (["move", "rotate", "vertex"].includes(this.dragState.type)) {
         if (this.selectedShape) {
-          this.selected.forEach(
-            (s) =>
-              (s.points = s.points.map((p) => ({
+          this.selected.forEach((s) => {
+            if (s.shapeType === "circle") {
+              s.points = s.points.map((p) => ({
+                x: Math.round(p.x),
+                y: Math.round(p.y),
+              }));
+            } else {
+              s.points = s.points.map((p) => ({
                 x: this.snap(p.x),
                 y: this.snap(p.y),
-              }))),
-          );
+              }));
+            }
+          });
         }
       }
       this.dragState.active = false;
@@ -478,6 +514,7 @@ export default {
           points: w.points ?? [],
           rotation: w.rotation ?? 0,
           color: w.color || "#334155",
+          shapeType: w.shapeType || "rect",
         }));
       } catch (err) {
         console.error("창고 데이터 로드 실패", err);
@@ -500,6 +537,7 @@ export default {
             points: s.points,
             rotation: s.rotation ?? 0,
             color: s.color || null,
+            shapeType: s.shapeType || "rect",
           };
 
           if (s.id) {
@@ -519,21 +557,94 @@ export default {
       }
     },
 
+    generateShapePoints(type, cx, cy, size) {
+      const s = size || 100;
+      switch (type) {
+        case "triangle":
+          return [
+            { x: cx, y: cy - s },
+            { x: cx + s, y: cy + s * 0.7 },
+            { x: cx - s, y: cy + s * 0.7 },
+          ];
+        case "rect":
+          return [
+            { x: cx - s, y: cy - s * 0.6 },
+            { x: cx + s, y: cy - s * 0.6 },
+            { x: cx + s, y: cy + s * 0.6 },
+            { x: cx - s, y: cy + s * 0.6 },
+          ];
+        case "circle": {
+          // 48각형으로 원 근사 (스냅 왜곡 최소화)
+          const pts = [];
+          const sides = 48;
+          for (let i = 0; i < sides; i++) {
+            const angle = (2 * Math.PI * i) / sides - Math.PI / 2;
+            pts.push({
+              x: Math.round(cx + s * Math.cos(angle)),
+              y: Math.round(cy + s * Math.sin(angle)),
+            });
+          }
+          return pts;
+        }
+        case "hexagon": {
+          const pts = [];
+          for (let i = 0; i < 6; i++) {
+            const angle = (Math.PI / 3) * i - Math.PI / 2;
+            pts.push({
+              x: cx + s * Math.cos(angle),
+              y: cy + s * Math.sin(angle),
+            });
+          }
+          return pts;
+        }
+        case "nieun":
+          // ㄴ 형태
+          return [
+            { x: cx - s, y: cy - s },
+            { x: cx - s * 0.4, y: cy - s },
+            { x: cx - s * 0.4, y: cy + s * 0.4 },
+            { x: cx + s, y: cy + s * 0.4 },
+            { x: cx + s, y: cy + s },
+            { x: cx - s, y: cy + s },
+          ];
+        case "giyeok":
+          // ㄱ 형태
+          return [
+            { x: cx - s, y: cy - s },
+            { x: cx + s, y: cy - s },
+            { x: cx + s, y: cy + s },
+            { x: cx + s * 0.4, y: cy + s },
+            { x: cx + s * 0.4, y: cy - s * 0.4 },
+            { x: cx - s, y: cy - s * 0.4 },
+          ];
+        default:
+          return [
+            { x: cx - s, y: cy - s },
+            { x: cx + s, y: cy - s },
+            { x: cx + s, y: cy + s },
+            { x: cx - s, y: cy + s },
+          ];
+      }
+    },
+
     addShape() {
+      const raw = this.generateShapePoints(this.selectedShapeType, 500, 500, 100);
+      // 원형은 스냅하면 찌그러지므로 1px 단위 반올림만 적용
+      const points =
+        this.selectedShapeType === "circle"
+          ? raw
+          : raw.map((p) => ({ x: this.snap(p.x), y: this.snap(p.y) }));
+
       const newShape = {
         _localId: `new-${Date.now()}`,
         id: null,
         name: `창고-${this.shapes.length + 1}`,
         code: `W-${Date.now().toString().slice(-4)}`,
         memo: "",
-        points: [
-          { x: 400, y: 400 },
-          { x: 600, y: 400 },
-          { x: 600, y: 500 },
-          { x: 400, y: 500 },
-        ],
+        points,
         rotation: 0,
         color: "#334155",
+        shapeType: this.selectedShapeType,
       };
       this.shapes.push(newShape);
       this.selected = [newShape];

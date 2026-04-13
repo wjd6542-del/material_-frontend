@@ -16,11 +16,8 @@
 
       <div>
         <label class="text-sm text-gray-600">카테고리</label>
-        <SearchSelect
+        <CategoryTreeSelect
           v-model="form.category_id"
-          :options="categorys"
-          labelKey="name"
-          valueKey="id"
           @change="changeCode"
         />
       </div>
@@ -117,7 +114,7 @@
 <script lang="ts">
 import { useModalStore } from "@/stores/modal";
 import BaseImage from "@/components/base/BaseImage.vue";
-import SearchSelect from "@/components/base/SearchSelect.vue";
+import CategoryTreeSelect from "@/components/base/CategoryTreeSelect.vue";
 import api from "@/api/api";
 
 export default {
@@ -125,11 +122,12 @@ export default {
 
   components: {
     BaseImage,
-    SearchSelect,
+    CategoryTreeSelect,
   },
 
   props: {
     id: { type: Number, default: 0 },
+    category_id: { type: Number, default: 0 },
     onSaved: Function,
   },
 
@@ -293,6 +291,8 @@ export default {
       this.isEdit = true;
       this.editId = this.id;
       this.loadData();
+    } else if (this.category_id) {
+      this.form.category_id = this.category_id;
     }
   },
 

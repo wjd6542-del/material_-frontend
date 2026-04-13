@@ -8,8 +8,9 @@
         'drop-after': isDropTarget && dropPos === 'after',
         'drop-inside': isDropTarget && dropPos === 'inside',
         'is-dragging': isDragging,
+        'drag-ready': dragConfig.enabled,
       }"
-      draggable="true"
+      :draggable="dragConfig.enabled"
       @dragstart.stop="onDragStart"
       @dragover.prevent.stop="onDragOver"
       @dragleave="onDragLeave"
@@ -39,12 +40,15 @@
           ></i>
         </span>
 
+        <span class="depth-badge">[{{ item.depth }}]</span>
         <span class="node-label">{{ item.name }}</span>
 
         <span
           v-if="item.children?.length > 0"
           class="child-count"
+          :class="{ 'child-count--active': isSelected }"
         >
+          <i class="fa-solid fa-layer-group child-count-icon"></i>
           {{ item.children.length }}
         </span>
       </span>
@@ -99,7 +103,7 @@
 <script>
 export default {
   name: "CategoryItem",
-  inject: ["dragState", "moveCategory"],
+  inject: ["dragState", "moveCategory", "dragConfig"],
   props: {
     item: { type: Object, required: true },
     selectedId: { type: Number, default: null },
@@ -131,11 +135,16 @@ export default {
         this.item.isOpen = !this.item.isOpen;
     },
     onDragStart(e) {
+      if (!this.dragConfig.enabled) {
+        e.preventDefault();
+        return;
+      }
       this.dragState.draggingItem = this.item;
       e.dataTransfer.effectAllowed = "move";
       e.dataTransfer.setData("text/plain", String(this.item.id));
     },
     onDragOver(e) {
+      if (!this.dragConfig.enabled) return;
       if (
         !this.dragState.draggingItem ||
         this.dragState.draggingItem.id === this.item.id
@@ -165,6 +174,7 @@ export default {
       this.dropPos = null;
     },
     onDrop() {
+      if (!this.dragConfig.enabled) return;
       if (
         !this.dragState.draggingItem ||
         this.dragState.draggingItem.id === this.item.id
@@ -223,13 +233,13 @@ export default {
 
 /* 토글 화살표 */
 .toggle-area {
-  width: 20px;
+  width: 14px;
   height: 20px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 2px;
+  margin-right: 1px;
   border-radius: 4px;
   transition: background 0.15s;
 }
@@ -245,7 +255,7 @@ export default {
   transform: rotate(90deg);
 }
 .toggle-spacer {
-  width: 12px;
+  width: 9px;
 }
 
 /* 노드 내용 */
@@ -264,6 +274,12 @@ export default {
   align-items: center;
   justify-content: center;
 }
+.depth-badge {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+  flex-shrink: 0;
+}
 .node-label {
   font-size: 13.5px;
   display: flex;
@@ -272,18 +288,32 @@ export default {
   letter-spacing: -0.01em;
 }
 .child-count {
-  font-size: 10px;
-  min-width: 18px;
-  height: 18px;
+  font-size: 11px;
+  height: 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #1e293b;
-  color: #ffffff;
-  border-radius: 9px;
+  gap: 3px;
+  background: #f1f5f9;
+  color: #64748b;
+  border-radius: 10px;
   font-weight: 600;
   flex-shrink: 0;
-  padding: 0 5px;
+  padding: 0 8px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.15s ease;
+}
+.child-count-icon {
+  font-size: 9px;
+  opacity: 0.7;
+}
+.child-count--active {
+  background: #dbeafe;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+.child-count--active .child-count-icon {
+  opacity: 0.9;
 }
 
 /* 액션 버튼 */
@@ -350,6 +380,12 @@ export default {
 }
 
 /* 드래그 앤 드롭 */
+.item-row.drag-ready {
+  cursor: grab;
+}
+.item-row.drag-ready:active {
+  cursor: grabbing;
+}
 .is-dragging {
   opacity: 0.35;
 }
