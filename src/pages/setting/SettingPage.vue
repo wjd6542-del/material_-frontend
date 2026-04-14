@@ -39,6 +39,7 @@ import Warehouse from "@/components/setting/Warehouse.vue";
 import Role from "@/components/setting/Role.vue";
 import Location from "@/components/setting/Location.vue";
 import Permission from "@/components/setting/Permission.vue";
+import Tag from "@/components/setting/Tag.vue";
 
 /* 🔥 markRaw 로 컴포넌트 보호 */
 const tabs = [
@@ -53,6 +54,12 @@ const tabs = [
     label: "카테고리",
     icon: "fa-solid fa-folder",
     component: markRaw(Category),
+  },
+  {
+    key: "tag",
+    label: "자재 태그",
+    icon: "fa-solid fa-tags",
+    component: markRaw(Tag),
   },
   {
     key: "supplier",

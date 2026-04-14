@@ -83,78 +83,7 @@
 
 <script>
 import api from "@/api/api";
-
-const TreeSelectNode = {
-  name: "TreeSelectNode",
-  props: {
-    node: { type: Object, required: true },
-    selectedId: { type: Number, default: null },
-    depth: { type: Number, default: 0 },
-  },
-  emits: ["select"],
-  data() {
-    return {
-      expanded: this.depth < 1,
-    };
-  },
-  computed: {
-    hasChildren() {
-      return this.node.children && this.node.children.length > 0;
-    },
-    isSelected() {
-      return this.selectedId === this.node.id;
-    },
-  },
-  methods: {
-    toggleExpand(e) {
-      e.stopPropagation();
-      this.expanded = !this.expanded;
-    },
-    onSelect() {
-      this.$emit("select", this.node.id);
-    },
-  },
-  template: `
-    <div>
-      <div
-        class="tree-select-item"
-        :class="{ selected: isSelected }"
-        :style="{ paddingLeft: (depth * 20 + 8) + 'px' }"
-        @click="onSelect"
-      >
-        <span
-          class="tree-select-toggle"
-          :class="{ invisible: !hasChildren }"
-          @click="toggleExpand"
-        >
-          <i class="fa-solid fa-chevron-right" :class="{ 'rotate-90': expanded }"></i>
-        </span>
-        <i
-          class="fa-solid text-sm"
-          :class="[
-            expanded && hasChildren ? 'fa-folder-open text-amber-400' : 'fa-folder text-amber-300',
-            isSelected && 'text-blue-500'
-          ]"
-        ></i>
-        <span class="tree-select-label" :class="{ 'font-semibold text-blue-700': isSelected }">
-          {{ node.name }}
-        </span>
-        <span v-if="hasChildren" class="tree-select-count">{{ node.children.length }}</span>
-        <i v-if="isSelected" class="fa-solid fa-check text-blue-500 text-xs ml-auto"></i>
-      </div>
-      <div v-if="hasChildren && expanded">
-        <TreeSelectNode
-          v-for="child in node.children"
-          :key="child.id"
-          :node="child"
-          :selected-id="selectedId"
-          :depth="depth + 1"
-          @select="$emit('select', $event)"
-        />
-      </div>
-    </div>
-  `,
-};
+import TreeSelectNode from "@/components/base/TreeSelectNode.vue";
 
 export default {
   name: "CategoryTreeSelect",

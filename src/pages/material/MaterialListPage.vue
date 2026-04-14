@@ -33,12 +33,22 @@
           />
         </div>
         <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[200px] sm:max-w-[350px]">
-          <SearchSelect
+          <CategoryTreeSelect
             v-model="where.category_id"
-            :options="categorys"
-            labelKey="name"
-            valueKey="id"
             placeholder="카테고리 검색"
+            @change="loadList"
+          />
+        </div>
+        <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[200px] sm:max-w-[350px]">
+          <MultiCheck
+            v-model="where.tag_ids"
+            :items="tags"
+            idKey="id"
+            textKey="name"
+            :search-keys="['code']"
+            sub-text-key="code"
+            placeholder="태그 검색"
+            search-placeholder="태그명/코드 검색..."
             @change="loadList"
           />
         </div>
@@ -73,8 +83,10 @@ import BaseTable from "@/components/base/BaseTable.vue";
 import { useModalStore } from "@/stores/modal";
 import MaterialModal from "@/components/material/MaterialModal.vue";
 import BaseInput from "@/components/base/BaseInput.vue";
+import MultiCheck from "@/components/base/MultiCheck.vue";
 
 import SearchSelect from "@/components/base/SearchSelect.vue";
+import CategoryTreeSelect from "@/components/base/CategoryTreeSelect.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
 import ImageModal from "@/components/base/ImageModal.vue";
 import { useAuthStore } from "@/stores/auth";
@@ -88,8 +100,10 @@ export default {
     BaseTable,
     MaterialModal,
     SearchSelect,
+    CategoryTreeSelect,
     DateRangePicker,
     BaseInput,
+    MultiCheck,
   },
 
   data() {
@@ -177,11 +191,13 @@ export default {
       rows: [],
 
       categorys: [],
+      tags: [],
 
       dateRange: { start: null, end: null },
       where: {
         category_id: "",
         keyword: "",
+        tag_ids: [],
       },
 
       url: import.meta.env.VITE_API_URL,
@@ -278,9 +294,19 @@ export default {
       const res = await api.post("/api/category/list");
       this.categorys = res.data;
     },
+
+    async loadTags() {
+      try {
+        const res = await api.post("/api/tag/list");
+        this.tags = Array.isArray(res.data) ? res.data : [];
+      } catch (e) {
+        this.tags = [];
+      }
+    },
   },
   mounted() {
     this.loadCategory();
+    this.loadTags();
     this.loadList();
   },
 };

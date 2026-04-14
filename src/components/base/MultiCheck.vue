@@ -1,8 +1,17 @@
-﻿<template>
+<template>
   <div ref="wrapper" class="relative w-full">
     <!-- 라벨 -->
-    <label v-if="label" class="block mb-1 text-sm font-medium text-gray-700">
+    <label
+      v-if="label"
+      class="block mb-1 text-sm font-medium text-gray-700 flex items-center gap-1"
+    >
       {{ label }}
+      <span
+        v-if="selectedItems.length"
+        class="text-xs text-blue-500 font-normal"
+      >
+        ({{ selectedItems.length }})
+      </span>
     </label>
 
     <!-- 선택 영역 -->
@@ -20,6 +29,13 @@
           >
             <i v-if="item.icon" :class="item.icon"></i>
             {{ item[textKey] }}
+            <button
+              type="button"
+              class="hover:text-red-200"
+              @click.stop="removeItem(item[idKey])"
+            >
+              <i class="fa-solid fa-xmark text-[10px]"></i>
+            </button>
           </span>
         </template>
 
@@ -51,40 +67,99 @@
       class="absolute z-50 mt-1 w-full bg-white border rounded shadow"
     >
       <!-- 검색 -->
-      <div class="p-2 border-b">
-        <input
-          v-model="keyword"
-          type="text"
-          placeholder="검색..."
-          class="w-full text-xs border rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        />
+      <div class="p-3 bg-gray-50 border-b">
+        <div class="relative">
+          <i
+            class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
+          ></i>
+          <input
+            ref="searchInput"
+            v-model="keyword"
+            type="text"
+            :placeholder="searchPlaceholder"
+            class="w-full text-base border rounded-lg pl-9 pr-9 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            @keydown.esc="open = false"
+          />
+          <button
+            v-if="keyword"
+            type="button"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+            @click="keyword = ''"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 액션 바 -->
+      <div
+        v-if="filteredItems.length"
+        class="flex items-center justify-between px-4 py-2 border-b bg-gray-50 text-sm text-gray-600"
+      >
+        <span>
+          {{ keyword ? `검색결과 ${filteredItems.length}건` : `전체 ${items.length}건` }}
+        </span>
+        <div class="flex gap-3">
+          <button
+            type="button"
+            class="text-blue-600 hover:underline font-medium"
+            @click="selectAllFiltered"
+          >
+            {{ keyword ? "검색결과 전체선택" : "전체선택" }}
+          </button>
+          <button
+            type="button"
+            class="text-gray-500 hover:underline font-medium"
+            @click="clearFiltered"
+          >
+            해제
+          </button>
+        </div>
       </div>
 
       <!-- 리스트 -->
-      <div class="max-h-60 overflow-y-auto">
+      <div class="max-h-64 overflow-y-auto">
         <label
           v-for="item in filteredItems"
           :key="item[idKey]"
-          class="flex items-center gap-2 px-3 py-2 text-xs hover:bg-gray-100 cursor-pointer"
+          class="flex items-center gap-2 px-4 py-3 text-base hover:bg-blue-50 cursor-pointer"
         >
           <input
             type="checkbox"
-            :value="item[idKey]"
-            v-model="innerValue"
-            @change="emitChange"
+            class="w-4 h-4"
+            :checked="isChecked(item[idKey])"
+            @change="toggleItem(item[idKey])"
           />
 
           <i v-if="item.icon" :class="item.icon"></i>
 
-          {{ item[textKey] }}
+          <span class="flex-1" v-html="highlight(item[textKey])"></span>
+
+          <span
+            v-if="subTextKey && item[subTextKey]"
+            class="text-xs text-gray-400"
+            v-html="highlight(String(item[subTextKey]))"
+          ></span>
         </label>
 
         <div
-          v-if="!filteredItems.length"
-          class="text-center text-xs text-gray-400 py-3"
+          v-if="!filteredItems.length && !canQuickAdd"
+          class="text-center text-sm text-gray-400 py-6"
         >
           검색 결과 없음
         </div>
+
+        <button
+          v-if="canQuickAdd"
+          type="button"
+          class="w-full flex items-center gap-2 px-4 py-3 text-base text-blue-600 hover:bg-blue-50 border-t"
+          @click="quickAdd"
+        >
+          <i class="fa-solid fa-plus"></i>
+          <span>
+            "<strong>{{ keyword.trim() }}</strong>" 추가
+          </span>
+        </button>
       </div>
     </div>
   </div>
@@ -97,13 +172,17 @@ export default {
   props: {
     label: String,
     placeholder: { type: String, default: "선택하세요." },
+    searchPlaceholder: { type: String, default: "검색..." },
     items: { type: Array, default: () => [] },
     modelValue: { type: Array, default: () => [] },
     idKey: { type: String, default: "id" },
     textKey: { type: String, default: "name" },
+    subTextKey: { type: String, default: "" },
+    searchKeys: { type: Array, default: () => [] },
+    creatable: { type: Boolean, default: false },
   },
 
-  emits: ["update:modelValue", "change"],
+  emits: ["update:modelValue", "change", "create"],
 
   data() {
     return {
@@ -117,22 +196,50 @@ export default {
     modelValue(val: any[]) {
       this.innerValue = [...val];
     },
+    open(val: boolean) {
+      if (val) {
+        this.$nextTick(() => (this.$refs.searchInput as HTMLInputElement)?.focus());
+      } else {
+        this.keyword = "";
+      }
+    },
   },
 
   computed: {
     selectedItems(): any[] {
       return this.items.filter((item: any) =>
-        this.innerValue.includes(item[this.idKey]),
+        this.innerValue.some((v: any) => v == item[this.idKey]),
       );
     },
 
-    filteredItems(): any[] {
-      if (!this.keyword) return this.items;
+    searchTargets(): string[] {
+      const keys: string[] = [
+        this.textKey,
+        ...(this.searchKeys as string[]),
+      ];
+      if (this.subTextKey) keys.push(this.subTextKey);
+      return [...new Set(keys.filter(Boolean))];
+    },
 
-      const keyword = this.keyword.toLowerCase();
+    filteredItems(): any[] {
+      const kw = this.keyword.trim().toLowerCase();
+      if (!kw) return this.items;
 
       return this.items.filter((item: any) =>
-        String(item[this.textKey]).toLowerCase().includes(keyword),
+        this.searchTargets.some((key) =>
+          String(item[key] ?? "")
+            .toLowerCase()
+            .includes(kw),
+        ),
+      );
+    },
+
+    canQuickAdd(): boolean {
+      const kw = this.keyword.trim();
+      if (!this.creatable || !kw) return false;
+      return !this.items.some(
+        (item: any) =>
+          String(item[this.textKey] ?? "").toLowerCase() === kw.toLowerCase(),
       );
     },
   },
@@ -156,6 +263,19 @@ export default {
       }
     },
 
+    isChecked(id: any): boolean {
+      return this.innerValue.some((v: any) => v == id);
+    },
+
+    toggleItem(id: any) {
+      if (this.isChecked(id)) {
+        this.innerValue = this.innerValue.filter((v: any) => v != id);
+      } else {
+        this.innerValue = [...this.innerValue, id];
+      }
+      this.emitChange();
+    },
+
     emitChange() {
       this.$emit("update:modelValue", this.innerValue);
       this.$emit("change", this.innerValue);
@@ -163,8 +283,64 @@ export default {
 
     clearAll() {
       this.innerValue = [];
-      this.$emit("update:modelValue", []);
-      this.$emit("change", []);
+      this.emitChange();
+    },
+
+    removeItem(id: any) {
+      this.innerValue = this.innerValue.filter((v: any) => v !== id);
+      this.emitChange();
+    },
+
+    selectAllFiltered() {
+      const ids = this.filteredItems.map((i: any) => i[this.idKey]);
+      const merged = [...new Set([...this.innerValue, ...ids])];
+      this.innerValue = merged;
+      this.emitChange();
+    },
+
+    clearFiltered() {
+      const ids = this.filteredItems.map((i: any) => i[this.idKey]);
+      this.innerValue = this.innerValue.filter(
+        (v: any) => !ids.includes(v),
+      );
+      this.emitChange();
+    },
+
+    quickAdd() {
+      const name = this.keyword.trim();
+      if (!name) return;
+      this.$emit("create", {
+        name,
+        select: (id: any) => {
+          if (id == null) return;
+          if (!this.innerValue.includes(id)) {
+            this.innerValue = [...this.innerValue, id];
+            this.emitChange();
+          }
+          this.keyword = "";
+        },
+      });
+    },
+
+    highlight(text: string): string {
+      const safe = String(text ?? "").replace(
+        /[&<>"']/g,
+        (c) =>
+          ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+          })[c] as string,
+      );
+      const kw = this.keyword.trim();
+      if (!kw) return safe;
+      const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return safe.replace(
+        new RegExp(`(${escaped})`, "gi"),
+        '<mark class="bg-yellow-200 rounded px-0.5">$1</mark>',
+      );
     },
   },
 };

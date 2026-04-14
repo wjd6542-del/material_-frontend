@@ -253,52 +253,26 @@
         </div>
 
         <div class="table-wrap">
-          <table class="styled-table">
-            <thead>
-              <tr>
-                <th>코드</th>
-                <th>자재명</th>
-                <th>규격</th>
-                <th>단위</th>
-                <th>안전재고</th>
-                <th>메모</th>
-                <th style="width: 130px" class="text-center">액션</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="m in currentMaterials" :key="m.id">
-                <td>
-                  <span class="code-cell">{{ m.code }}</span>
-                </td>
-                <td class="font-semibold text-slate-800">{{ m.name }}</td>
-                <td class="text-slate-500">{{ m.spec }}</td>
-                <td class="text-slate-500">{{ m.unit }}</td>
-                <td class="text-slate-500 text-right">{{ m.safety_stock }}</td>
-                <td class="text-slate-400 text-sm">{{ m.memo }}</td>
-                <td>
-                  <div class="table-actions">
-                    <button
-                      @click="openMaterialModal(m.id)"
-                      class="tbl-btn edit"
-                    >
-                      <i class="fa-solid fa-pencil"></i> 수정
-                    </button>
-                    <button @click="removeMaterial(m.id)" class="tbl-btn del">
-                      <i class="fa-solid fa-trash-can"></i> 삭제
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr v-if="currentMaterials.length === 0">
-                <td colspan="7" class="table-empty">
-                  <div class="table-empty-inner">
-                    <i class="fa-solid fa-inbox"></i>
-                    <p>등록된 자재가 없습니다</p>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <BaseTable
+            :columns="materialColumns"
+            :rows="currentMaterials"
+            sortable
+            pagination
+            :pageSize="10"
+            :pageSizeOptions="[10, 20, 50, 100]"
+            @cell-click="onMaterialCellClick"
+          >
+            <template #actions="{ row }">
+              <div class="table-actions">
+                <button @click="openMaterialModal(row.id)" class="tbl-btn edit">
+                  <i class="fa-solid fa-pencil"></i> 수정
+                </button>
+                <button @click="removeMaterial(row.id)" class="tbl-btn del">
+                  <i class="fa-solid fa-trash-can"></i> 삭제
+                </button>
+              </div>
+            </template>
+          </BaseTable>
         </div>
       </div>
 
@@ -316,12 +290,13 @@
 <script>
 import CategoryItem from "./CategoryItem.vue";
 import MaterialModal from "@/components/material/MaterialModal.vue";
+import BaseTable from "@/components/base/BaseTable.vue";
 import { useModalStore } from "@/stores/modal";
 import api from "@/api/api";
 
 export default {
   name: "MaterialCategoryPage",
-  components: { CategoryItem },
+  components: { CategoryItem, BaseTable },
   provide() {
     return {
       dragState: this.dragState,
@@ -358,6 +333,15 @@ export default {
       // 카테고리 트리 (Prisma 모델 기반)
       categoryTree: [],
       currentMaterials: [],
+      materialColumns: [
+        { key: "code", label: "코드", width: "180px", sortable: true },
+        { key: "name", label: "자재명", minWidth: "180px", sortable: true },
+        { key: "spec", label: "규격", align: "center", width: "120px", sortable: true },
+        { key: "unit", label: "단위", align: "center", width: "100px", sortable: true },
+        { key: "safety_stock", label: "안전재고", align: "right", width: "110px", sortable: true },
+        { key: "memo", label: "메모", minWidth: "160px" },
+        { key: "actions", label: "액션", align: "center", width: "150px" },
+      ],
       sidebarWidth: 420,
       isResizing: false,
     };
@@ -750,6 +734,11 @@ export default {
         this.currentMaterials = res.data || [];
       } catch (e) {
         this.currentMaterials = [];
+      }
+    },
+    onMaterialCellClick(data) {
+      if (data.key === "name" || data.key === "code") {
+        this.openMaterialModal(data.row.id);
       }
     },
     openMaterialModal(id) {

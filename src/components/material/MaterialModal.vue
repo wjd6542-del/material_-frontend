@@ -16,10 +16,7 @@
 
       <div>
         <label class="text-sm text-gray-600">카테고리</label>
-        <CategoryTreeSelect
-          v-model="form.category_id"
-          @change="changeCode"
-        />
+        <CategoryTreeSelect v-model="form.category_id" />
       </div>
 
       <div>
@@ -55,6 +52,20 @@
           v-model="form.safety_stock"
           type="number"
           class="mt-1 w-full border rounded px-3 py-2"
+        />
+      </div>
+
+      <div>
+        <MultiCheck
+          v-model="form.tags"
+          :items="tagItems"
+          label="태그"
+          placeholder="태그를 선택하세요"
+          search-placeholder="태그명/코드 검색..."
+          :search-keys="['code']"
+          sub-text-key="code"
+          creatable
+          @create="createTag"
         />
       </div>
 
@@ -115,6 +126,7 @@
 import { useModalStore } from "@/stores/modal";
 import BaseImage from "@/components/base/BaseImage.vue";
 import CategoryTreeSelect from "@/components/base/CategoryTreeSelect.vue";
+import MultiCheck from "@/components/base/MultiCheck.vue";
 import api from "@/api/api";
 
 export default {
@@ -123,6 +135,7 @@ export default {
   components: {
     BaseImage,
     CategoryTreeSelect,
+    MultiCheck,
   },
 
   props: {
@@ -153,10 +166,12 @@ export default {
         safety_stock: 0,
         memo: "",
         is_active: true,
-        images: [],
-      },
+        images: [] as any[],
+        tags: [] as any[],
+      } as any,
 
-      categorys: [],
+      categorys: [] as any[],
+      tagItems: [] as any[],
       isEdit: false,
       editId: 0,
 
@@ -169,7 +184,7 @@ export default {
   methods: {
     mappingData(data) {
       for (const key in this.form) {
-        if (key === "images") continue; // 이미지는 별도 처리
+        if (key === "images" || key === "tags") continue; // 별도 처리
         this.form[key] = data[key];
       }
 
@@ -179,6 +194,12 @@ export default {
         file_url: img.file_url,
         isNew: false, // 서버에서 가져온 데이터임을 명시
       }));
+
+      // 태그 매핑 (배열 또는 객체배열 모두 허용)
+      const rawTags = data.tags || data.tag_ids || [];
+      this.form.tags = rawTags.map((t: any) =>
+        typeof t === "object" ? (t.id ?? t.tag_id) : t,
+      );
     },
 
     async loadData() {
@@ -191,13 +212,39 @@ export default {
       this.categorys = res.data;
     },
 
-    changeCode() {
-      if (this.isEdit) return;
-      const category = this.categorys.find(
-        (row) => row.id == this.form.category_id,
-      );
-      if (!category?.code) return;
-      this.form.code = `${category.code.toUpperCase()}-${Date.now()}`;
+    async createTag({
+      name,
+      select,
+    }: {
+      name: string;
+      select: (id: any) => void;
+    }) {
+      try {
+        const payload = {
+          id: -1,
+          name,
+          code: "",
+          memo: "",
+          sort: (this.tagItems[this.tagItems.length - 1]?.sort || 0) + 1,
+        };
+        const res = await api.post("/api/tag/save", payload);
+        const created = Array.isArray(res.data) ? res.data[0] : res.data;
+        const item = created?.id ? created : { ...payload, id: Date.now() };
+        this.tagItems = [...this.tagItems, item];
+        select(item.id);
+        this.$toast.success(`태그 "${name}" 등록되었습니다`);
+      } catch (e) {
+        this.$toast.error(e.response?.data?.message || e.message);
+      }
+    },
+
+    async loadTags() {
+      try {
+        const res = await api.post("/api/tag/list");
+        this.tagItems = res.data || [];
+      } catch (e) {
+        this.tagItems = [];
+      }
     },
 
     /* =========================
@@ -258,6 +305,11 @@ export default {
           formData.append(field, String(this.form[field]));
         });
 
+        const tagIds = (this.form.tags || []).map((t: any) =>
+          typeof t === "object" ? (t.id ?? t.tag_id) : t,
+        );
+        formData.append("tag_ids", JSON.stringify(tagIds));
+
         if (this.isEdit) {
           formData.append("id", String(this.editId));
           formData.append(
@@ -287,6 +339,7 @@ export default {
 
   mounted() {
     this.loadCategory();
+    this.loadTags();
     if (this.id) {
       this.isEdit = true;
       this.editId = this.id;

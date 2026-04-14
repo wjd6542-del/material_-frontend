@@ -8,6 +8,21 @@
 
       <div class="control-grid">
         <div class="panel-card">
+          <div class="label">태그 검색</div>
+          <MultiCheck
+            v-model="search.tag_ids"
+            :items="tagArr"
+            idKey="id"
+            textKey="name"
+            :search-keys="['code']"
+            sub-text-key="code"
+            placeholder="태그를 선택하세요"
+            search-placeholder="태그명/코드 검색..."
+            @change="loadData"
+          />
+        </div>
+
+        <div class="panel-card">
           <div class="label">제품 검색</div>
           <MultiCheck
             v-model="search.material_ids"
@@ -161,7 +176,8 @@ export default {
     return {
       materials: [],
       searchArr: [],
-      search: { material_ids: [] },
+      tagArr: [],
+      search: { material_ids: [], tag_ids: [] },
 
       labelFormat: "A4_20",
       labelLayout: "v",
@@ -295,6 +311,9 @@ export default {
           material_ids: Array.isArray(this.search.material_ids)
             ? this.search.material_ids
             : [],
+          tag_ids: Array.isArray(this.search.tag_ids)
+            ? this.search.tag_ids
+            : [],
         };
 
         const res = await api.post("/api/material/list", payload);
@@ -312,6 +331,16 @@ export default {
       } catch (e) {
         console.error(e);
         this.searchArr = [];
+      }
+    },
+
+    async loadTags() {
+      try {
+        const res = await api.post("/api/tag/list");
+        this.tagArr = Array.isArray(res.data) ? res.data : [];
+      } catch (e) {
+        console.error(e);
+        this.tagArr = [];
       }
     },
 
@@ -433,6 +462,7 @@ export default {
   created() {
     this.loadData();
     this.loadMaterial();
+    this.loadTags();
   },
 };
 </script>
