@@ -36,6 +36,7 @@ import StockPage from "@/pages/stock/StockPage.vue"
 import StockDetailPage from "@/pages/stock/StockDetailPage.vue"
 import StockWarehousePage from "@/pages/stock/StockWarehousePage.vue"
 import StockLoctoinPage from "@/pages/stock/StockLoctoinPage.vue"
+import StockShelfPage from "@/pages/stock/StockShelfPage.vue"
 import StockMovePage from "@/pages/stock/StockMovePage.vue"
 import StockChangePage from "@/pages/stock/StockChangePage.vue"
 
@@ -194,7 +195,12 @@ const routes = [
 					{
 						path: "/stock/location",
 						component: StockLoctoinPage,
-						meta: { title: "재고 위치 (선반)", auth: true, permission: "stock.location.view" },
+						meta: { title: "재고 위치 (위치)", auth: true, permission: "stock.location.view" },
+					},
+					{
+						path: "/stock/shelf",
+						component: StockShelfPage,
+						meta: { title: "재고 위치 (선반)", auth: true, permission: "stock.shelf.view" },
 					},
 					{
 						path: "/stock/change",

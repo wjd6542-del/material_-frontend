@@ -35,6 +35,9 @@
         <thead class="bg-gray-100">
           <tr>
             <th class="px-2 py-2 border">자재</th>
+            <th class="px-2 py-2 border">
+              거래처 <span class="text-red-500">*</span>
+            </th>
             <th class="px-2 py-2 border w-32">위치</th>
             <th class="px-2 py-2 border w-24">수량</th>
             <th class="px-2 py-2 border w-32">원가</th>
@@ -60,6 +63,17 @@
                 labelKey="name"
                 valueKey="id"
                 placeholder="자재 선택"
+              />
+            </td>
+
+            <!-- 거래처 -->
+            <td class="border px-2">
+              <SearchSelect
+                v-model="item.supplier_id"
+                :options="suppliers"
+                labelKey="name"
+                valueKey="id"
+                placeholder="거래처 선택"
               />
             </td>
 
@@ -110,7 +124,7 @@
           </tr>
 
           <tr v-if="!form.items.length">
-            <td colspan="7" class="text-center py-4 text-gray-400">
+            <td colspan="8" class="text-center py-4 text-gray-400">
               품목을 추가하세요
             </td>
           </tr>
@@ -169,6 +183,7 @@ export default {
       this.form.items.push({
         id: 0,
         material_id: null,
+        supplier_id: null,
         warehouse_id: null,
         location_id: null,
         // 판매 갯수
@@ -186,6 +201,17 @@ export default {
 
     // 저장 처리
     async save() {
+      if (!this.form.items.length) {
+        this.$toast.error("품목을 추가하세요");
+        return;
+      }
+
+      const missing = this.form.items.findIndex((it) => !it.supplier_id);
+      if (missing !== -1) {
+        this.$toast.error(`${missing + 1}번 품목의 거래처를 선택하세요`);
+        return;
+      }
+
       try {
         await api.post("/api/outbound/save", this.form);
 
@@ -227,6 +253,11 @@ export default {
       this.materials = res.data;
     },
 
+    async loadSupplier() {
+      const res = await api.post("/api/supplier/list");
+      this.suppliers = res.data;
+    },
+
     async loadWarehouse() {
       const res = await api.post("/api/warehouse/list");
       this.warehouses = res.data;
@@ -244,6 +275,7 @@ export default {
     this.loadWarehouse();
     this.loadMaterial();
     this.loadLocation();
+    this.loadSupplier();
 
     if (this.id) {
       this.loadData();

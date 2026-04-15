@@ -4,6 +4,7 @@
       class="item-row group"
       :class="{
         active: isSelected,
+        'is-new': item.isNew,
         'drop-before': isDropTarget && dropPos === 'before',
         'drop-after': isDropTarget && dropPos === 'after',
         'drop-inside': isDropTarget && dropPos === 'inside',
@@ -42,6 +43,10 @@
 
         <span class="depth-badge">[{{ item.depth }}]</span>
         <span class="node-label">{{ item.name }}</span>
+        <span v-if="item.isNew" class="new-badge">
+          <i class="fa-solid fa-star new-badge-icon"></i>
+          NEW
+        </span>
 
         <span
           v-if="item.children?.length > 0"
@@ -229,6 +234,46 @@ export default {
   box-shadow: inset 0 0 0 1.5px #bfdbfe;
   color: #1d4ed8;
   font-weight: 600;
+}
+
+/* 신규 추가 항목 */
+.item-row.is-new {
+  background: linear-gradient(135deg, #fef9c3, #fef3c7);
+  box-shadow: inset 0 0 0 1.5px #fde68a;
+}
+.item-row.is-new:hover {
+  background: linear-gradient(135deg, #fef08a, #fde68a);
+}
+.item-row.is-new.active {
+  background: linear-gradient(135deg, #fef3c7, #e0f2fe);
+  box-shadow: inset 0 0 0 1.5px #fbbf24;
+}
+.new-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  padding: 2px 7px;
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(245, 158, 11, 0.4);
+  animation: new-pulse 1.8s ease-in-out infinite;
+}
+.new-badge-icon {
+  font-size: 8px;
+}
+@keyframes new-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 1px 3px rgba(245, 158, 11, 0.4);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.6);
+  }
 }
 
 /* 토글 화살표 */

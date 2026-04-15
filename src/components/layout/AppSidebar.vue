@@ -303,8 +303,13 @@ export default defineComponent({
             },
             {
               to: "/stock/location",
-              label: "재고 위치 (선반)",
+              label: "재고 위치 (위치)",
               permission: "stock.location.view",
+            },
+            {
+              to: "/stock/shelf",
+              label: "재고 위치 (선반)",
+              permission: "stock.shelf.view",
             },
           ],
         },

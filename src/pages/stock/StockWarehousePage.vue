@@ -54,13 +54,13 @@
               </span>
               <span
                 :class="[
-                  'text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-wider',
+                  'text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-wider font-mono',
                   selectedWarehouse?.id === rack.id
                     ? 'bg-white/20 text-white'
                     : 'bg-slate-100 text-slate-500',
                 ]"
               >
-                {{ rack.width }} × {{ rack.height }}
+                {{ rack.code }}
               </span>
             </div>
 
@@ -153,45 +153,136 @@
         </div>
 
         <div
-          class="flex-1 border border-slate-100 rounded-xl bg-[#fdfdfd] relative overflow-hidden shadow-inner flex items-center justify-center p-4"
+          class="flex-1 border border-slate-100 rounded-xl bg-[#fdfdfd] relative overflow-hidden shadow-inner flex items-center justify-center p-2"
         >
+          <!-- 줌 컨트롤 -->
           <div
-            class="absolute inset-0 opacity-[0.03]"
-            :style="dotPattern"
-          ></div>
-
-          <div ref="grid" class="relative w-full h-full max-h-[600px]">
-            <div
-              class="grid gap-[1px] opacity-20 h-full"
-              :style="{ gridTemplateColumns: `repeat(${cols}, 1fr)` }"
+            class="absolute top-3 right-3 z-10 flex flex-col gap-1 bg-white/90 backdrop-blur border border-slate-200 rounded-xl shadow-md p-1"
+          >
+            <button
+              @click="zoomIn"
+              class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 font-bold flex items-center justify-center transition-colors"
+              title="확대"
             >
-              <div
-                v-for="n in rows * cols"
-                :key="n"
-                class="border border-slate-200 aspect-square"
-              />
-            </div>
+              <i class="fa-solid fa-plus text-xs"></i>
+            </button>
+            <button
+              @click="zoomOut"
+              class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 font-bold flex items-center justify-center transition-colors"
+              title="축소"
+            >
+              <i class="fa-solid fa-minus text-xs"></i>
+            </button>
+            <button
+              @click="resetZoom"
+              class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 font-bold flex items-center justify-center transition-colors"
+              title="원래크기"
+            >
+              <i class="fa-solid fa-expand text-xs"></i>
+            </button>
+          </div>
+          <div
+            class="absolute bottom-3 right-3 z-10 bg-white/90 backdrop-blur border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 font-mono shadow-sm"
+          >
+            {{ Math.round((1000 / viewBox.w) * 100) }}%
+          </div>
 
-            <div
+          <svg
+            ref="svg"
+            :viewBox="`${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`"
+            preserveAspectRatio="xMidYMid meet"
+            class="w-auto h-auto max-w-full max-h-full aspect-square block"
+            :class="isPanning ? 'cursor-grabbing' : 'cursor-grab'"
+            @wheel.prevent="handleWheel"
+            @mousedown="handlePanStart"
+            @mousemove="handlePanMove"
+            @mouseup="handlePanEnd"
+            @mouseleave="handlePanEnd"
+          >
+            <defs>
+              <pattern
+                id="stockGrid"
+                width="20"
+                height="20"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M 20 0 L 0 0 0 20"
+                  fill="none"
+                  stroke="#f1f5f9"
+                  stroke-width="0.5"
+                />
+              </pattern>
+              <pattern
+                id="stockGridLarge"
+                width="100"
+                height="100"
+                patternUnits="userSpaceOnUse"
+              >
+                <rect width="100%" height="100%" fill="url(#stockGrid)" />
+                <path
+                  d="M 100 0 L 0 0 0 100"
+                  fill="none"
+                  stroke="#e2e8f0"
+                  stroke-width="1"
+                />
+              </pattern>
+            </defs>
+            <rect
+              :x="viewBox.x"
+              :y="viewBox.y"
+              :width="viewBox.w"
+              :height="viewBox.h"
+              fill="url(#stockGridLarge)"
+            />
+
+            <g
               v-for="rack in racks"
               :key="rack.id"
-              :class="['rack-box', rackClass(rack)]"
-              :style="rackStyle(rack)"
+              class="cursor-pointer"
               @click="selectWarehouse(rack)"
             >
-              <div class="rack-header">{{ rack.name }}</div>
-              <div
-                class="flex-1 flex flex-col items-center justify-center gap-0.5 px-1"
+              <polygon
+                :points="pointsToString(rack.points)"
+                :fill="rackFill(rack)"
+                :stroke="rackStroke(rack)"
+                :stroke-width="selectedWarehouse?.id === rack.id ? 3 : 1.5"
+                :opacity="rackOpacity(rack)"
+                class="transition-all duration-200"
+              />
+              <text
+                :x="getCenter(rack.points).x"
+                :y="getCenter(rack.points).y - 10"
+                class="font-black text-[13px] pointer-events-none uppercase tracking-tighter"
+                :fill="rackTextColor(rack)"
+                text-anchor="middle"
+                dominant-baseline="middle"
               >
-                <span class="text-[10px] font-black leading-none">{{
-                  totalQty(rack).toLocaleString()
-                }}</span>
-                <span class="text-[8px] opacity-80 font-medium tracking-tighter"
-                  >{{ rack.stocks.length.toLocaleString() }}종류</span
-                >
-              </div>
-            </div>
-          </div>
+                {{ rack.name }}
+              </text>
+              <text
+                :x="getCenter(rack.points).x"
+                :y="getCenter(rack.points).y + 8"
+                class="font-black text-[14px] pointer-events-none"
+                :fill="rackTextColor(rack)"
+                text-anchor="middle"
+                dominant-baseline="middle"
+              >
+                {{ totalQty(rack).toLocaleString() }}
+              </text>
+              <text
+                :x="getCenter(rack.points).x"
+                :y="getCenter(rack.points).y + 24"
+                class="text-[10px] pointer-events-none"
+                :fill="rackTextColor(rack)"
+                fill-opacity="0.8"
+                text-anchor="middle"
+                dominant-baseline="middle"
+              >
+                {{ rack.stocks.length.toLocaleString() }}종류
+              </text>
+            </g>
+          </svg>
         </div>
       </div>
     </div>
@@ -328,31 +419,20 @@ import api from "@/api/api";
 export default {
   data() {
     return {
-      rows: 30,
-      cols: 36,
       racks: [],
       selectedWarehouse: null,
       searchText: "",
       searchMaterial: "",
       detailSearchText: "",
-      gridWidth: 0,
-      gridHeight: 0,
       url: import.meta.env.VITE_API_URL,
+      viewBox: { x: 0, y: 0, w: 1000, h: 1000 },
+      minZoom: 200,
+      maxZoom: 3000,
+      isPanning: false,
+      panStart: { x: 0, y: 0, vx: 0, vy: 0 },
     };
   },
   computed: {
-    cellWidth() {
-      return this.gridWidth / this.cols;
-    },
-    cellHeight() {
-      return this.gridHeight / this.rows;
-    },
-    dotPattern() {
-      return {
-        backgroundImage: `radial-gradient(#cbd5e1 1px, transparent 0)`,
-        backgroundSize: `20px 20px`,
-      };
-    },
     warehouseKpiMap() {
       const map = {};
       this.racks.forEach((r) => {
@@ -393,85 +473,147 @@ export default {
     },
   },
   methods: {
-    rackStyle(r) {
+    pointsToString(p) {
+      if (!p || !p.length) return "";
+      return p.map((v) => `${v.x},${v.y}`).join(" ");
+    },
+    getCenter(p) {
+      if (!p || !p.length) return { x: 0, y: 0 };
       return {
-        left: r.x * this.cellWidth + "px",
-        top: r.y * this.cellHeight + "px",
-        width: r.width * this.cellWidth + "px",
-        height: r.height * this.cellHeight + "px",
+        x: p.reduce((a, b) => a + b.x, 0) / p.length,
+        y: p.reduce((a, b) => a + b.y, 0) / p.length,
       };
     },
-    rackClass(r) {
-      if (this.selectedWarehouse?.id === r.id) return "rack-selected";
+    rackState(r) {
+      if (this.selectedWarehouse?.id === r.id) return "selected";
       if (this.searchMaterial) {
-        return this.matchedRackIds.includes(r.id)
-          ? "rack-matched"
-          : "rack-dimmed";
+        return this.matchedRackIds.includes(r.id) ? "matched" : "dimmed";
       }
-      return r.stocks?.length ? "rack-has-stock" : "rack-empty";
+      return r.stocks?.length ? "hasStock" : "empty";
+    },
+    rackFill(r) {
+      const state = this.rackState(r);
+      if (state === "selected") return "#2563eb";
+      if (state === "matched") return "#10b981";
+      if (state === "dimmed") return "#f8fafc";
+      if (state === "hasStock") return r.color || "#1e293b";
+      return "#f1f5f9";
+    },
+    rackStroke(r) {
+      const state = this.rackState(r);
+      if (state === "selected") return "#ffffff";
+      if (state === "matched") return "#a7f3d0";
+      if (state === "dimmed") return "#e2e8f0";
+      if (state === "hasStock") return "#0f172a";
+      return "#e2e8f0";
+    },
+    rackOpacity(r) {
+      return this.rackState(r) === "dimmed" ? 0.25 : 1;
+    },
+    rackTextColor(r) {
+      const state = this.rackState(r);
+      if (state === "empty" || state === "dimmed") return "#94a3b8";
+      return "#ffffff";
     },
     totalQty(r) {
-      return r.stocks.reduce((s, v) => s + v.qty, 0);
+      return (r.stocks || []).reduce((s, v) => s + v.qty, 0);
     },
     selectWarehouse(r) {
       this.selectedWarehouse = r;
       this.detailSearchText = "";
     },
-    updateGridSize() {
-      if (!this.$refs.grid) return;
-      const rect = this.$refs.grid.getBoundingClientRect();
-      this.gridWidth = rect.width;
-      this.gridHeight = rect.height;
+    svgPoint(e) {
+      const svg = this.$refs.svg;
+      if (!svg) return { x: 0, y: 0 };
+      const pt = svg.createSVGPoint();
+      pt.x = e.clientX;
+      pt.y = e.clientY;
+      const ctm = svg.getScreenCTM();
+      if (!ctm) return { x: 0, y: 0 };
+      const p = pt.matrixTransform(ctm.inverse());
+      return { x: p.x, y: p.y };
+    },
+    handleWheel(e) {
+      const scale = e.deltaY > 0 ? 1.15 : 1 / 1.15;
+      const newW = Math.min(
+        Math.max(this.viewBox.w * scale, this.minZoom),
+        this.maxZoom,
+      );
+      const newH = newW;
+      const p = this.svgPoint(e);
+      const ratio = newW / this.viewBox.w;
+      this.viewBox = {
+        x: p.x - (p.x - this.viewBox.x) * ratio,
+        y: p.y - (p.y - this.viewBox.y) * ratio,
+        w: newW,
+        h: newH,
+      };
+    },
+    zoomIn() {
+      this.zoomBy(1 / 1.25);
+    },
+    zoomOut() {
+      this.zoomBy(1.25);
+    },
+    zoomBy(scale) {
+      const newW = Math.min(
+        Math.max(this.viewBox.w * scale, this.minZoom),
+        this.maxZoom,
+      );
+      const cx = this.viewBox.x + this.viewBox.w / 2;
+      const cy = this.viewBox.y + this.viewBox.h / 2;
+      this.viewBox = {
+        x: cx - newW / 2,
+        y: cy - newW / 2,
+        w: newW,
+        h: newW,
+      };
+    },
+    resetZoom() {
+      this.viewBox = { x: 0, y: 0, w: 1000, h: 1000 };
+    },
+    handlePanStart(e) {
+      if (e.target.closest("g")) return;
+      this.isPanning = true;
+      this.panStart = {
+        x: e.clientX,
+        y: e.clientY,
+        vx: this.viewBox.x,
+        vy: this.viewBox.y,
+      };
+    },
+    handlePanMove(e) {
+      if (!this.isPanning) return;
+      const svg = this.$refs.svg;
+      const rect = svg.getBoundingClientRect();
+      const scale = this.viewBox.w / rect.width;
+      this.viewBox = {
+        ...this.viewBox,
+        x: this.panStart.vx - (e.clientX - this.panStart.x) * scale,
+        y: this.panStart.vy - (e.clientY - this.panStart.y) * scale,
+      };
+    },
+    handlePanEnd() {
+      this.isPanning = false;
     },
     async loadData() {
       try {
         const res = await api.post("/api/stock/warehousStock");
         this.racks = res.data;
+
+        console.log("data check >> ", res.data);
       } catch (e) {
         console.error("데이터 로드 실패", e);
       }
     },
   },
-  async mounted() {
-    this.$nextTick(() => {
-      this.updateGridSize();
-    });
+  mounted() {
     this.loadData();
-
-    window.addEventListener("resize", this.updateGridSize);
-  },
-  beforeUnmount() {
-    window.removeEventListener("resize", this.updateGridSize);
   },
 };
 </script>
 
 <style scoped>
-.rack-box {
-  @apply absolute rounded-lg shadow-sm flex flex-col cursor-pointer transition-all duration-300 border overflow-hidden;
-}
-.rack-header {
-  @apply text-center text-[9px] font-black border-b py-[1px] bg-white/20 uppercase tracking-tighter truncate px-1 shrink-0;
-}
-.rack-selected {
-  @apply bg-blue-600 text-white border-blue-400 z-20 scale-105 shadow-xl shadow-blue-300/50 ring-2 ring-white;
-}
-/* ⬛ 재고 있음: 검정색 계열 */
-.rack-has-stock {
-  @apply bg-slate-800 text-white border-slate-700 hover:bg-slate-700 hover:scale-105;
-}
-/* ⬜ 재고 없음: 밝은 회색 */
-.rack-empty {
-  @apply bg-slate-50 text-slate-300 border-slate-100;
-}
-/* 🟩 검색 매칭: 초록색 */
-.rack-matched {
-  @apply bg-emerald-500 text-white border-emerald-300 z-10 scale-105 shadow-lg shadow-emerald-200 ring-2 ring-emerald-100;
-}
-/* 검색 비매칭: 흐리게 */
-.rack-dimmed {
-  @apply bg-slate-50 opacity-20 border-slate-100 scale-95;
-}
 .custom-scroll::-webkit-scrollbar {
   width: 4px;
 }
