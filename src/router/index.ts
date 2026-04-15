@@ -13,6 +13,7 @@ import DashboardPage from "@/pages/dashboard/DashboardPage.vue"
 import MaterialListPage from "@/pages/material/MaterialListPage.vue"
 import MaterialPrintPage from "@/pages/material/MaterialPrintPage.vue"
 import MaterialCategoryPage from "@/pages/material/MaterialCategoryPage.vue"
+import MaterialCategoryColumnPage from "@/pages/material/MaterialCategoryColumnPage.vue"
 
 
 // 입고
@@ -112,6 +113,11 @@ const routes = [
 						path: "materials/category",
 						component: MaterialCategoryPage,
 						meta: { title: "자재 카테고리", auth: true, permission: "material.category.view" },
+					},
+					{
+						path: "materials/category/column",
+						component: MaterialCategoryColumnPage,
+						meta: { title: "자재 카테고리 (가로)", auth: true, permission: "material.category.view" },
 					},
 
 					// 입고

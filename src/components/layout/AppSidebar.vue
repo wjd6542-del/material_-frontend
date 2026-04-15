@@ -210,6 +210,11 @@ export default defineComponent({
               label: "자재 카테고리",
               permission: "material.category.view",
             },
+            {
+              to: "/materials/category/column",
+              label: "자재 카테고리 (가로)",
+              permission: "material.category.view",
+            },
           ],
         },
         {
