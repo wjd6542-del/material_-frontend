@@ -3,8 +3,7 @@
     <MobileCategorySelector
       v-if="isMobile"
       :selected-id="selectedCategoryId"
-      :categories="flatCategories"
-      :selected-name="selectedCategoryName"
+      :tree="categoryTree"
       @select="selectCategory"
       @reset="selectedCategoryId = null"
     />
@@ -60,7 +59,6 @@ import api from "@/api/api";
 import {
   findPath,
   findParentNode,
-  flattenTree,
   setAllOpen,
   initOpenState,
   buildSavePayload,
@@ -112,9 +110,6 @@ export default {
     };
   },
   computed: {
-    flatCategories() {
-      return flattenTree(this.categoryTree);
-    },
     categoryPath() {
       return findPath(this.categoryTree, this.selectedCategoryId) || [];
     },

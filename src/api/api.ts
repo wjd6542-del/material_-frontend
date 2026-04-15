@@ -1,5 +1,6 @@
 ﻿import axios from "axios";
 import { useAuthStore } from "@/stores/auth";
+import { router } from "@/router";
 
 
 const api = axios.create({
@@ -24,11 +25,17 @@ api.interceptors.response.use(
 	(res) => res,
 	(err) => {
 		if (err.response?.status === 401) {
-			useAuthStore().logout()
+			useAuthStore().logout();
+			if (router.currentRoute.value.path !== "/login") {
+				router.replace({
+					path: "/login",
+					query: { redirect: router.currentRoute.value.fullPath },
+				});
+			}
 		}
 
 		console.error("API ERROR", err.response || err);
-		return Promise.reject(err.response.data);
+		return Promise.reject(err.response?.data ?? err);
 	},
 );
 

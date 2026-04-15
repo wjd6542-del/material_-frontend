@@ -31,31 +31,73 @@
       style="top: calc(100% + 4px); z-index: 9999; min-width: 280px"
     >
       <!-- 검색 -->
-      <div class="p-3 bg-gray-50 border-b">
+      <div class="p-3 bg-gray-50 border-b flex items-center gap-2">
+        <button
+          type="button"
+          @click.stop="toggleExpandAll"
+          class="flex-shrink-0 w-9 h-9 flex items-center justify-center border rounded-lg bg-white hover:bg-gray-100 text-gray-600 transition-colors"
+          :title="allExpanded ? '전체 닫기' : '전체 열기'"
+        >
+          <i
+            class="fa-solid"
+            :class="allExpanded ? 'fa-folder-minus' : 'fa-folder-plus'"
+          ></i>
+        </button>
         <input
           ref="searchInput"
           v-model="keyword"
           type="text"
           placeholder="카테고리 검색..."
-          class="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          class="flex-1 px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
         />
       </div>
 
       <!-- 트리 영역 -->
-      <div class="max-h-72 overflow-y-auto p-2">
+      <div class="max-h-72 overflow-y-auto p-3">
         <template v-if="keyword">
-          <!-- 검색 모드: 플랫 리스트 -->
-          <div
-            v-for="item in filteredFlat"
-            :key="item.id"
-            class="tree-select-item"
-            :class="{ selected: item.id === modelValue }"
-            @click="select(item.id)"
-          >
-            <span class="tree-select-path">{{ item.path }}</span>
-            <span class="tree-select-name">{{ item.name }}</span>
-            <i v-if="item.id === modelValue" class="fa-solid fa-check text-blue-500 text-xs ml-auto"></i>
-          </div>
+          <!-- 검색 모드: 플랫 리스트(동일 UI) -->
+          <ul class="tree-root">
+            <li
+              v-for="item in filteredFlat"
+              :key="item.id"
+              class="tree-item is-root"
+            >
+              <div
+                class="item-row"
+                :class="{ active: item.id === modelValue }"
+                @click="select(item.id)"
+              >
+                <span class="toggle-area">
+                  <span class="toggle-spacer"></span>
+                </span>
+                <span class="node-content">
+                  <span class="folder-icon-wrap">
+                    <i
+                      class="fa-solid fa-folder"
+                      :class="item.id === modelValue ? 'text-blue-500' : 'text-amber-400'"
+                    ></i>
+                  </span>
+                  <span v-if="item.depth != null" class="depth-badge">[{{ item.depth }}]</span>
+                  <span class="node-label">
+                    <span v-if="item.path" class="node-path">{{ item.path }} ›</span>
+                    {{ item.name }}
+                  </span>
+                  <span
+                    v-if="item.childCount > 0"
+                    class="child-count"
+                    :class="{ 'child-count--active': item.id === modelValue }"
+                  >
+                    <i class="fa-solid fa-layer-group child-count-icon"></i>
+                    {{ item.childCount }}
+                  </span>
+                </span>
+                <i
+                  v-if="item.id === modelValue"
+                  class="fa-solid fa-check text-blue-500 text-xs ml-auto"
+                ></i>
+              </div>
+            </li>
+          </ul>
           <div v-if="filteredFlat.length === 0" class="tree-select-empty">
             <i class="fa-solid fa-magnifying-glass"></i>
             <span>일치하는 카테고리가 없습니다</span>
@@ -67,14 +109,18 @@
             <i class="fa-solid fa-folder-open"></i>
             <span>카테고리가 없습니다</span>
           </div>
-          <TreeSelectNode
-            v-for="node in tree"
-            :key="node.id"
-            :node="node"
-            :selected-id="modelValue"
-            :depth="0"
-            @select="select"
-          />
+          <ul v-else class="tree-root">
+            <TreeSelectNode
+              v-for="node in tree"
+              :key="node.id"
+              :node="node"
+              :selected-id="modelValue"
+              :expanded-ids="expandedIds"
+              :is-root="true"
+              @select="select"
+              @toggle="toggleNode"
+            />
+          </ul>
         </template>
       </div>
     </div>
@@ -99,12 +145,20 @@ export default {
       keyword: "",
       tree: [],
       flatList: [],
+      expandedIds: new Set(),
+      allExpandableIds: [],
     };
   },
   computed: {
     selectedLabel() {
       const found = this.flatList.find((c) => c.id === this.modelValue);
       return found ? found.fullName : "";
+    },
+    allExpanded() {
+      return (
+        this.allExpandableIds.length > 0 &&
+        this.expandedIds.size >= this.allExpandableIds.length
+      );
     },
     filteredFlat() {
       if (!this.keyword) return [];
@@ -138,9 +192,63 @@ export default {
       this.open = !this.open;
       this.keyword = "";
       if (this.open) {
-        if (this.tree.length === 0) this.loadTree();
+        if (this.tree.length === 0) {
+          this.loadTree();
+        } else {
+          this.expandToSelected();
+        }
         this.$nextTick(() => this.$refs.searchInput?.focus());
       }
+    },
+    toggleNode(id) {
+      const next = new Set(this.expandedIds);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      this.expandedIds = next;
+    },
+    toggleExpandAll() {
+      if (this.allExpanded) {
+        this.expandedIds = new Set();
+      } else {
+        this.expandedIds = new Set(this.allExpandableIds);
+      }
+    },
+    collectExpandableIds(nodes) {
+      const ids = [];
+      const walk = (list) => {
+        for (const n of list) {
+          if (n.children && n.children.length > 0) {
+            ids.push(n.id);
+            walk(n.children);
+          }
+        }
+      };
+      walk(nodes);
+      return ids;
+    },
+    findPathToId(nodes, targetId, path = []) {
+      for (const n of nodes) {
+        if (n.id === targetId) return path;
+        if (n.children && n.children.length > 0) {
+          const found = this.findPathToId(n.children, targetId, [
+            ...path,
+            n.id,
+          ]);
+          if (found) return found;
+        }
+      }
+      return null;
+    },
+    expandToSelected() {
+      const next = new Set();
+      for (const n of this.tree) {
+        if (n.children && n.children.length > 0) next.add(n.id);
+      }
+      if (this.modelValue != null) {
+        const path = this.findPathToId(this.tree, this.modelValue);
+        if (path) path.forEach((id) => next.add(id));
+      }
+      this.expandedIds = next;
     },
     select(id) {
       this.$emit("update:modelValue", id);
@@ -162,23 +270,30 @@ export default {
         const res = await api.post("/api/category/getCategoryTree");
         this.tree = res.data || [];
         this.flatList = this.flatten(this.tree);
+        this.allExpandableIds = this.collectExpandableIds(this.tree);
+        this.expandToSelected();
       } catch {
         this.tree = [];
         this.flatList = [];
+        this.allExpandableIds = [];
+        this.expandedIds = new Set();
       }
     },
-    flatten(nodes, parentPath = "") {
+    flatten(nodes, parentPath = "", depth = 1) {
       const result = [];
       for (const n of nodes) {
         const fullName = parentPath ? `${parentPath} > ${n.name}` : n.name;
+        const childCount = n.children ? n.children.length : 0;
         result.push({
           id: n.id,
           name: n.name,
           path: parentPath,
           fullName,
+          depth,
+          childCount,
         });
-        if (n.children && n.children.length > 0) {
-          result.push(...this.flatten(n.children, fullName));
+        if (childCount > 0) {
+          result.push(...this.flatten(n.children, fullName, depth + 1));
         }
       }
       return result;
@@ -195,81 +310,110 @@ export default {
 </script>
 
 <style scoped>
-.tree-select-item {
+.tree-root {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tree-item {
+  position: relative;
+  list-style: none;
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+  margin-bottom: 1px;
+}
+.item-row:hover {
+  background: #f8fafc;
+  box-shadow: inset 0 0 0 1.5px #e2e8f0;
+}
+.item-row.active {
+  background: linear-gradient(135deg, #eff6ff, #e0f2fe);
+  box-shadow: inset 0 0 0 1.5px #bfdbfe;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.toggle-area {
+  width: 14px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1px;
+}
+.toggle-spacer {
+  width: 9px;
+}
+
+.node-content {
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  color: #334155;
-  transition: background 0.12s;
+  min-width: 0;
+  overflow: hidden;
 }
-.tree-select-item:hover {
-  background: #f1f5f9;
-}
-.tree-select-item.selected {
-  background: #eff6ff;
-}
-
-.tree-select-toggle {
-  width: 18px;
-  height: 18px;
+.folder-icon-wrap {
+  font-size: 14px;
+  width: 20px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  flex-shrink: 0;
-  font-size: 9px;
+}
+.depth-badge {
+  font-size: 11px;
   color: #94a3b8;
-  transition: all 0.15s;
+  font-weight: 600;
+  flex-shrink: 0;
 }
-.tree-select-toggle:hover {
-  background: #e2e8f0;
-  color: #64748b;
-}
-.tree-select-toggle.invisible {
-  visibility: hidden;
-}
-.tree-select-toggle i {
-  transition: transform 0.2s;
-}
-
-.tree-select-label {
-  flex: 1;
-  min-width: 0;
+.node-label {
+  font-size: 13.5px;
+  letter-spacing: -0.01em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+  flex: 1;
 }
-
-.tree-select-count {
-  font-size: 10px;
-  min-width: 16px;
-  height: 16px;
+.node-path {
+  color: #94a3b8;
+  font-weight: 500;
+  margin-right: 2px;
+}
+.child-count {
+  font-size: 11px;
+  height: 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #e2e8f0;
+  gap: 3px;
+  background: #f1f5f9;
   color: #64748b;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 600;
-  padding: 0 4px;
   flex-shrink: 0;
+  padding: 0 8px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.15s ease;
 }
-
-.tree-select-path {
-  font-size: 11px;
-  color: #94a3b8;
-  margin-right: 2px;
+.child-count-icon {
+  font-size: 9px;
+  opacity: 0.7;
 }
-.tree-select-path:not(:empty)::after {
-  content: " >";
-}
-
-.tree-select-name {
-  font-weight: 500;
+.child-count--active {
+  background: #dbeafe;
+  color: #2563eb;
+  border-color: #bfdbfe;
 }
 
 .tree-select-empty {

@@ -15,7 +15,7 @@
   </Transition>
 </template>
 
-<script lang="ts">
+<script>
 import { useModalStore } from "@/stores/modal";
 
 export default {
