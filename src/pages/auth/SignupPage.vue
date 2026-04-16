@@ -36,7 +36,7 @@
             </svg>
           </div>
           <h1 class="text-4xl font-extrabold tracking-tight mb-4">
-            Join <span class="text-blue-400">MMS</span>
+            Join <span class="text-blue-400">WMS</span>
           </h1>
           <p class="text-gray-400 text-lg leading-relaxed font-light">
             통합 자재 관리 시스템의 일원이 되어<br />

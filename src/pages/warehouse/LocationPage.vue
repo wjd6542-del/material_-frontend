@@ -6,14 +6,12 @@
       class="w-80 bg-white border-r border-slate-200 flex flex-col shadow-sm z-10"
     >
       <div class="p-6 border-b border-slate-100">
-        <h2 class="text-xl font-black tracking-tight text-indigo-600 uppercase">
-          Location Management
-        </h2>
-        <p
-          class="text-[10px] text-slate-400 font-bold tracking-widest mt-1 text-center bg-slate-100 py-1 rounded"
+        <h2
+          class="text-xl font-black tracking-tight text-indigo-600 flex items-center gap-2"
         >
-          RESPONSIVE VIEWBOX ENGINE
-        </p>
+          <i class="fa-solid fa-location-dot"></i>
+          위치 관리
+        </h2>
       </div>
 
       <!-- 창고 선택 -->
@@ -21,6 +19,7 @@
         <label
           class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
         >
+          <i class="fa-solid fa-warehouse me-1"></i>
           창고 선택
         </label>
 
@@ -79,12 +78,15 @@
           <div
             class="flex items-center justify-between border-b border-slate-200 pb-3"
           >
-            <h3 class="font-black text-slate-700 text-xs uppercase italic">
-              Section Properties
+            <h3
+              class="font-black text-slate-700 text-xs flex items-center gap-1.5"
+            >
+              <i class="fa-solid fa-sliders text-indigo-500"></i>
+              구획 속성
             </h3>
             <span
               class="text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded font-mono"
-              >CODE: {{ selectedShape.code }}</span
+              >코드: {{ selectedShape.code }}</span
             >
           </div>
 
@@ -92,8 +94,10 @@
             <div class="group">
               <label
                 class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
-                >Location Name</label
               >
+                <i class="fa-solid fa-location-dot me-1"></i>
+                위치 이름
+              </label>
               <input
                 v-model="selectedShape.name"
                 type="text"
@@ -105,8 +109,10 @@
             <div class="group">
               <label
                 class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
-                >Location Code</label
               >
+                <i class="fa-solid fa-hashtag me-1"></i>
+                위치 코드
+              </label>
               <input
                 v-model="selectedShape.code"
                 type="text"
@@ -118,8 +124,10 @@
             <div class="group">
               <label
                 class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
-                >Color</label
               >
+                <i class="fa-solid fa-palette me-1"></i>
+                색상
+              </label>
               <input
                 v-model="selectedShape.color"
                 type="color"
@@ -138,14 +146,18 @@
 
         <div
           v-else
-          class="h-full flex flex-col items-center justify-center text-center opacity-30"
+          class="h-full flex flex-col items-center justify-center text-center opacity-40"
         >
-          <p
-            class="text-xs font-bold text-slate-500 uppercase tracking-tighter"
-          >
+          <i
+            :class="[
+              'text-2xl text-slate-400 mb-2 fa-solid',
+              selectedWarehouseId ? 'fa-hand-pointer' : 'fa-warehouse',
+            ]"
+          ></i>
+          <p class="text-xs font-bold text-slate-500 tracking-tight">
             {{
               selectedWarehouseId
-                ? "Select a shape to edit data"
+                ? "편집할 구획을 선택하세요"
                 : "창고를 먼저 선택하세요"
             }}
           </p>

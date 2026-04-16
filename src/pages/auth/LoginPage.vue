@@ -36,7 +36,7 @@
             </svg>
           </div>
           <h1 class="text-4xl font-extrabold tracking-tight mb-4">
-            MMS <span class="text-blue-400">Pro</span>
+            WMS <span class="text-blue-400">Pro</span>
           </h1>
           <p class="text-gray-400 text-lg leading-relaxed font-light">
             복잡한 재고 관리를 한눈에.<br />
@@ -194,7 +194,7 @@
         <div
           class="mt-auto pt-10 text-center text-[10px] text-gray-300 uppercase tracking-widest font-semibold"
         >
-          2026 - MMS pro system
+          2026 - WMS pro system
         </div>
       </div>
     </div>

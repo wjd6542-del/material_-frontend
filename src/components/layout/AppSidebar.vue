@@ -21,14 +21,14 @@
         <div
           class="w-9 h-9 rounded bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shrink-0 text-base"
         >
-          M
+          W
         </div>
 
         <div v-if="open" class="flex items-baseline overflow-hidden shrink-0">
           <span
             class="text-[25px] font-black text-white tracking-tighter uppercase"
           >
-            MMS
+            WMS
           </span>
           <span
             class="ml-1 text-[15px] font-bold text-blue-500 tracking-tight uppercase self-end mb-[2px]"

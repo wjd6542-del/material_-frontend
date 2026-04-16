@@ -6,14 +6,12 @@
       class="w-80 bg-white border-r border-slate-200 flex flex-col shadow-sm z-10"
     >
       <div class="p-6 border-b border-slate-100">
-        <h2 class="text-xl font-black tracking-tight text-indigo-600 uppercase">
-          Warehouse Management
-        </h2>
-        <p
-          class="text-[10px] text-slate-400 font-bold tracking-widest mt-1 text-center bg-slate-100 py-1 rounded"
+        <h2
+          class="text-xl font-black tracking-tight text-indigo-600 flex items-center gap-2"
         >
-          RESPONSIVE VIEWBOX ENGINE
-        </p>
+          <i class="fa-solid fa-warehouse"></i>
+          창고 관리
+        </h2>
       </div>
 
       <div class="p-4 space-y-2">
@@ -32,8 +30,10 @@
         <div class="space-y-1">
           <label
             class="text-[10px] font-black text-slate-400 uppercase ml-1 block"
-            >Shape Type</label
           >
+            <i class="fa-solid fa-shapes me-1"></i>
+            도형 유형
+          </label>
           <div class="grid grid-cols-3 gap-1">
             <button
               v-for="st in shapeTypes"
@@ -77,12 +77,15 @@
           <div
             class="flex items-center justify-between border-b border-slate-200 pb-3"
           >
-            <h3 class="font-black text-slate-700 text-xs uppercase italic">
-              Section Properties
+            <h3
+              class="font-black text-slate-700 text-xs flex items-center gap-1.5"
+            >
+              <i class="fa-solid fa-sliders text-indigo-500"></i>
+              구획 속성
             </h3>
             <span
               class="text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded font-mono"
-              >CODE: {{ selectedShape.code }}</span
+              >코드: {{ selectedShape.code }}</span
             >
           </div>
 
@@ -90,8 +93,10 @@
             <div class="group">
               <label
                 class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
-                >Warehouse Name</label
               >
+                <i class="fa-solid fa-warehouse me-1"></i>
+                창고 이름
+              </label>
               <input
                 v-model="selectedShape.name"
                 type="text"
@@ -103,8 +108,10 @@
             <div class="group">
               <label
                 class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
-                >Zone Code</label
               >
+                <i class="fa-solid fa-hashtag me-1"></i>
+                구역 코드
+              </label>
               <input
                 v-model="selectedShape.code"
                 type="text"
@@ -116,8 +123,10 @@
             <div class="group">
               <label
                 class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
-                >Description / Memo</label
               >
+                <i class="fa-solid fa-note-sticky me-1"></i>
+                메모 / 설명
+              </label>
               <textarea
                 v-model="selectedShape.memo"
                 rows="4"
@@ -129,8 +138,10 @@
             <div class="group">
               <label
                 class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
-                >Color</label
               >
+                <i class="fa-solid fa-palette me-1"></i>
+                색상
+              </label>
               <input
                 v-model="selectedShape.color"
                 type="color"
@@ -149,12 +160,11 @@
 
         <div
           v-else
-          class="h-full flex flex-col items-center justify-center text-center opacity-30"
+          class="h-full flex flex-col items-center justify-center text-center opacity-40"
         >
-          <p
-            class="text-xs font-bold text-slate-500 uppercase tracking-tighter"
-          >
-            Select a shape to edit data
+          <i class="fa-solid fa-hand-pointer text-2xl text-slate-400 mb-2"></i>
+          <p class="text-xs font-bold text-slate-500 tracking-tight">
+            편집할 구획을 선택하세요
           </p>
         </div>
       </div>

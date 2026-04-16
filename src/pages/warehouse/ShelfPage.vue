@@ -8,14 +8,12 @@
     >
       <!-- 헤더 -->
       <div class="p-6 border-b border-slate-100">
-        <h2 class="text-xl font-black tracking-tight text-slate-800 uppercase">
-          Shelf Management
-        </h2>
-        <p
-          class="text-[10px] text-slate-400 font-bold tracking-widest mt-1 text-center bg-slate-100 py-1 rounded"
+        <h2
+          class="text-xl font-black tracking-tight text-slate-800 flex items-center gap-2"
         >
-          선반 레이아웃 편집
-        </p>
+          <i class="fa-solid fa-layer-group text-indigo-600"></i>
+          선반 관리
+        </h2>
       </div>
 
       <!-- 창고 선택 -->
@@ -23,6 +21,7 @@
         <label
           class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
         >
+          <i class="fa-solid fa-warehouse me-1"></i>
           창고 선택
         </label>
         <div class="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar">
@@ -48,6 +47,7 @@
         <label
           class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
         >
+          <i class="fa-solid fa-location-dot me-1"></i>
           위치 선택
         </label>
         <div
@@ -138,8 +138,11 @@
           <div
             class="flex items-center justify-between border-b border-slate-200 pb-3"
           >
-            <h3 class="font-black text-slate-700 text-xs uppercase italic">
-              Shelf Properties
+            <h3
+              class="font-black text-slate-700 text-xs flex items-center gap-1.5"
+            >
+              <i class="fa-solid fa-sliders text-indigo-500"></i>
+              선반 속성
             </h3>
             <span
               class="text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded font-mono"
@@ -151,8 +154,10 @@
             <div class="group">
               <label
                 class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
-                >Shelf Code</label
               >
+                <i class="fa-solid fa-hashtag me-1"></i>
+                선반 코드
+              </label>
               <input
                 v-model="focusedRack.code"
                 type="text"
@@ -164,8 +169,10 @@
             <div class="group">
               <label
                 class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
-                >Shelf Name</label
               >
+                <i class="fa-solid fa-tag me-1"></i>
+                선반 이름
+              </label>
               <input
                 v-model="focusedRack.name"
                 type="text"
@@ -178,8 +185,10 @@
               <div>
                 <label
                   class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
-                  >Width</label
                 >
+                  <i class="fa-solid fa-arrows-left-right me-1"></i>
+                  너비
+                </label>
                 <input
                   v-model.number="focusedRack.width"
                   type="number"
@@ -190,8 +199,10 @@
               <div>
                 <label
                   class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-1 block"
-                  >Height</label
                 >
+                  <i class="fa-solid fa-arrows-up-down me-1"></i>
+                  높이
+                </label>
                 <input
                   v-model.number="focusedRack.height"
                   type="number"
