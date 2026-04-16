@@ -156,11 +156,13 @@ export default {
     };
   },
 
+  // 마운트 시 사용자 목록을 로드한다
   mounted() {
     this.loadUsers();
   },
 
   computed: {
+    // 검색어로 필터링된 사용자 목록을 반환한다
     filteredUsers() {
       if (!this.search) return this.users;
 
@@ -173,11 +175,13 @@ export default {
   },
 
   methods: {
+    // 사용자 목록을 로드한다
     async loadUsers() {
       const res = await api.post("/api/user/list");
       this.users = res.data;
     },
 
+    // 사용자 선택 시 선택 상태를 갱신한다
     async selectUser(user) {
       this.selectedUser = user;
     },

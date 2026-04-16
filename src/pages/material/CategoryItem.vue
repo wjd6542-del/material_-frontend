@@ -121,12 +121,15 @@ export default {
     };
   },
   computed: {
+    // 현재 아이템이 선택 상태인지 반환한다
     isSelected() {
       return this.selectedId === this.item.id;
     },
+    // 현재 아이템을 드래그 중인지 반환한다
     isDragging() {
       return this.dragState.draggingItem?.id === this.item.id;
     },
+    // 현재 아이템이 드롭 대상인지 반환한다
     isDropTarget() {
       return (
         this.dragState.dropTarget?.id === this.item.id &&
@@ -135,10 +138,12 @@ export default {
     },
   },
   methods: {
+    // 자식이 있으면 펼침/접힘을 토글한다
     toggle() {
       if (this.item.children?.length > 0)
         this.item.isOpen = !this.item.isOpen;
     },
+    // 드래그 시작 시 드래그 상태에 현재 아이템을 설정한다
     onDragStart(e) {
       if (!this.dragConfig.enabled) {
         e.preventDefault();
@@ -148,6 +153,7 @@ export default {
       e.dataTransfer.effectAllowed = "move";
       e.dataTransfer.setData("text/plain", String(this.item.id));
     },
+    // 드래그 오버 시 포인터 위치 기준으로 before/after/inside를 판단한다
     onDragOver(e) {
       if (!this.dragConfig.enabled) return;
       if (
@@ -171,6 +177,7 @@ export default {
       this.dragState.dropTarget = this.item;
       this.dragState.dropPosition = this.dropPos;
     },
+    // 드래그 이탈 시 드롭 타겟 표시를 해제한다
     onDragLeave() {
       if (this.dragState.dropTarget?.id === this.item.id) {
         this.dragState.dropTarget = null;
@@ -178,6 +185,7 @@ export default {
       }
       this.dropPos = null;
     },
+    // 드롭 시 moveCategory를 호출하고 드래그 상태를 초기화한다
     onDrop() {
       if (!this.dragConfig.enabled) return;
       if (
@@ -197,6 +205,7 @@ export default {
       this.dragState.dropPosition = null;
       this.dropPos = null;
     },
+    // 드래그 종료 시 드래그 상태 전체를 초기화한다
     onDragEnd() {
       this.dragState.draggingItem = null;
       this.dragState.dropTarget = null;

@@ -295,6 +295,7 @@ export default {
     };
   },
   computed: {
+    // 검색어로 필터링된 재고 목록을 반환한다
     filteredStocks() {
       if (!this.searchKeyword) return this.stocks;
       const kw = this.searchKeyword.toLowerCase();
@@ -305,11 +306,13 @@ export default {
           s.location_name.toLowerCase().includes(kw),
       );
     },
+    // 선택된 이동 대상 위치 객체를 반환한다
     selectedLocation() {
       return (
         this.locations.find((l) => l.id === this.form.to_location_id) || null
       );
     },
+    // 이동 후 대상 위치에 예상되는 총 수량을 계산한다
     toPreviewQty() {
       if (!this.selectedStock) return 0;
       const target = this.stocks.find(
@@ -320,10 +323,12 @@ export default {
       return (target?.quantity || 0) + (this.form.quantity || 0);
     },
   },
+  // 마운트 시 재고와 위치 데이터를 로드한다
   async mounted() {
     await this.loadData();
   },
   methods: {
+    // 재고 목록과 위치 목록을 병렬로 로드한다
     async loadData() {
       const [s, l] = await Promise.all([
         api.post("/api/stock/list"),
@@ -332,14 +337,17 @@ export default {
       this.stocks = s.data || [];
       this.locations = l.data || [];
     },
+    // 이동할 재고 행을 선택하고 폼을 초기화한다
     selectStock(row) {
       this.selectedStock = row;
       this.form.to_location_id = null;
       this.form.quantity = 1;
     },
+    // 숫자에 천단위 구분자를 적용해 포맷팅한다
     formatNumber(num) {
       return (num || 0).toLocaleString();
     },
+    // 사용자 확인 후 재고 이동 처리를 서버에 요청한다
     async submit() {
       console.log("check ", this.selectedStock);
 

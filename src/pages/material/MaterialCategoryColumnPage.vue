@@ -282,6 +282,7 @@ export default {
     };
   },
   computed: {
+    // 선택된 경로를 따라 각 depth의 컬럼 아이템 배열을 반환한다
     columns() {
       const cols = [{ items: this.tree }];
       let cur = this.tree;
@@ -293,17 +294,20 @@ export default {
       }
       return cols;
     },
+    // 현재 선택된 말단 노드를 반환한다
     selectedNode() {
       if (this.selectedIds.length === 0) return null;
       const last = this.selectedIds[this.selectedIds.length - 1];
       const p = findPath(this.tree, last);
       return p ? p[p.length - 1] : null;
     },
+    // 선택된 노드까지의 전체 경로 배열을 반환한다
     path() {
       if (this.selectedIds.length === 0) return [];
       const last = this.selectedIds[this.selectedIds.length - 1];
       return findPath(this.tree, last) || [];
     },
+    // 루트에서 말단까지 이어지는 전체 경로 목록을 생성한다
     allPaths() {
       const out = [];
       const walk = (nodes, trail) => {
@@ -319,6 +323,7 @@ export default {
       walk(this.tree, []);
       return out;
     },
+    // pathFilter로 전체 경로 목록을 필터링한다
     filteredAllPaths() {
       const q = this.pathFilter.trim().toLowerCase();
       if (!q) return this.allPaths;
@@ -326,6 +331,7 @@ export default {
         p.segments.join(" > ").toLowerCase().includes(q),
       );
     },
+    // 검색어에 매칭되는 노드와 각 경로를 최대 50건까지 반환한다
     searchResults() {
       const q = this.searchQuery.trim().toLowerCase();
       if (!q) return [];
@@ -343,14 +349,17 @@ export default {
       return out.slice(0, 50);
     },
   },
+  // 마운트 시 카테고리 트리를 로드한다
   mounted() {
     this.loadTree();
   },
   methods: {
+    // 카테고리 트리를 서버에서 로드한다
     async loadTree() {
       const res = await api.post("/api/category/getCategoryTree");
       this.tree = res.data || [];
     },
+    // 특정 컬럼에서 항목 선택 시 하위 경로를 잘라내고 해당 id를 추가한다
     selectAt(colIdx, item) {
       this.selectedIds = this.selectedIds.slice(0, colIdx);
       this.selectedIds.push(item.id);
@@ -359,9 +368,11 @@ export default {
         if (el) el.scrollTo({ left: el.scrollWidth, behavior: "smooth" });
       });
     },
+    // 경로 칩 클릭 시 해당 depth까지로 선택을 축소한다
     jumpTo(index) {
       this.selectedIds = this.selectedIds.slice(0, index + 1);
     },
+    // 검색 결과 클릭 시 경로를 선택 상태로 반영한다
     gotoSearchResult(r) {
       this.selectedIds = r.path.map((n) => n.id);
       this.searchQuery = "";
@@ -370,6 +381,7 @@ export default {
         if (el) el.scrollTo({ left: el.scrollWidth, behavior: "smooth" });
       });
     },
+    // 이름에서 검색어를 mark 태그로 감싸 하이라이트 처리한다
     highlightMatch(name) {
       const q = this.searchQuery.trim();
       if (!q) return this.escapeHtml(name);
@@ -380,6 +392,7 @@ export default {
       );
       return safe.replace(re, '<mark class="sr-hl">$1</mark>');
     },
+    // HTML 특수 문자를 엔티티로 이스케이프한다
     escapeHtml(s) {
       return String(s)
         .replace(/&/g, "&amp;")

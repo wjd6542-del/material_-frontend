@@ -224,6 +224,7 @@ import { useModalStore } from "@/stores/modal";
 export default {
   emits: ["toggle-sidebar"],
 
+  // 라우트와 auth/알림/북마크 스토어를 초기화한다
   setup() {
     const route = useRoute();
     const authStore = useAuthStore();
@@ -251,6 +252,7 @@ export default {
   },
 
   computed: {
+    // 모든 알림 카운트의 합계를 반환한다
     totalNotifications() {
       const c = this.noti.counts;
       return (
@@ -264,36 +266,43 @@ export default {
   },
 
   methods: {
+    // 사용자 드롭다운 메뉴 열림 상태를 토글한다
     toggleUserMenu() {
       this.userMenu = !this.userMenu;
     },
 
+    // 헤더 외부 클릭 시 사용자 메뉴를 닫는다
     handleOutside(e) {
       if (!this.$el.contains(e.target)) {
         this.userMenu = false;
       }
     },
 
+    // 특정 타입의 알림 패널을 연다
     openNotification(type) {
       this.noti.openPanel(type);
     },
 
+    // 로그아웃 처리 후 로그인 페이지로 이동한다
     logout() {
       this.authStore.logout();
       this.$router.push("/login");
     },
 
     // 북마크 열기
+    // 북마크 패널을 연다
     openBookmark() {
       this.bookmark.openPanel();
     },
   },
 
+  // 마운트 시 알림 카운트 로드 및 외부 클릭 리스너 등록
   mounted() {
     this.noti.loadCounts();
     document.addEventListener("click", this.handleOutside);
   },
 
+  // 언마운트 직전 외부 클릭 리스너를 제거한다
   beforeUnmount() {
     document.removeEventListener("click", this.handleOutside);
   },

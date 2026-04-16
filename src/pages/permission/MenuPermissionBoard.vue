@@ -304,6 +304,7 @@ export default {
   },
 
   computed: {
+    // 검색어로 필터링된 미할당 권한 목록을 반환한다
     filteredUnassigned() {
       if (!this.searchUnassigned) return this.unassigned;
       const search = this.searchUnassigned.toLowerCase();
@@ -312,6 +313,7 @@ export default {
       );
     },
 
+    // 검색어로 필터링된 할당 권한 목록을 반환한다
     filteredAssigned() {
       if (!this.searchAssigned) return this.assigned;
       const search = this.searchAssigned.toLowerCase();
@@ -322,6 +324,7 @@ export default {
   watch: {
     roleId: {
       immediate: true,
+      // roleId 변경 시 권한 데이터를 재로드한다
       handler() {
         if (this.roleId) this.loadPermissions();
       },
@@ -329,6 +332,7 @@ export default {
   },
 
   methods: {
+    // 역할의 권한 정보와 전체 권한 목록을 로드하고 분리한다
     async loadPermissions() {
       try {
         const res = await api.post("/api/permission/list");
@@ -349,6 +353,7 @@ export default {
       }
     },
 
+    // action 종류별 아이콘/색상 메타 정보를 반환한다
     getActionMeta(action) {
       const map = {
         view: {
@@ -391,34 +396,41 @@ export default {
       );
     },
 
+    // 특정 action의 미할당 권한 개수를 반환한다
     getUnassignedCount(action) {
       return this.unassigned.filter((p) => p.action === action).length;
     },
 
+    // 특정 action의 할당 권한 개수를 반환한다
     getAssignedCount(action) {
       return this.assigned.filter((p) => p.action === action).length;
     },
 
+    // 미할당 → 할당으로 단일 권한을 이동한다
     addPermission(item) {
       this.assigned.push(item);
       this.unassigned = this.unassigned.filter((p) => p.id !== item.id);
     },
 
+    // 할당 → 미할당으로 단일 권한을 이동한다
     removePermission(item) {
       this.unassigned.push(item);
       this.assigned = this.assigned.filter((p) => p.id !== item.id);
     },
 
+    // 미할당 전체를 할당으로 이동한다
     addAll() {
       this.assigned.push(...this.unassigned);
       this.unassigned = [];
     },
 
+    // 할당 전체를 미할당으로 이동한다
     removeAll() {
       this.unassigned.push(...this.assigned);
       this.assigned = [];
     },
 
+    // 검색 결과만 할당으로 이동한다
     addFiltered() {
       const list = [...this.filteredUnassigned];
       this.assigned.push(...list);
@@ -427,6 +439,7 @@ export default {
       this.searchUnassigned = "";
     },
 
+    // 특정 action의 권한 전체를 할당으로 이동한다
     addByAction(action) {
       const list = this.unassigned.filter((p) => p.action === action);
       this.assigned.push(...list);
@@ -434,6 +447,7 @@ export default {
       this.unassigned = this.unassigned.filter((p) => !ids.includes(p.id));
     },
 
+    // 특정 action의 권한 전체를 미할당으로 이동한다
     removeByAction(action) {
       const list = this.assigned.filter((p) => p.action === action);
       this.unassigned.push(...list);
@@ -441,6 +455,7 @@ export default {
       this.assigned = this.assigned.filter((p) => !ids.includes(p.id));
     },
 
+    // 현재 할당된 권한 구성을 역할에 저장한다
     async save() {
       const ok = await this.$confirm(
         "현재 구성된 권한을 역할에 저장하시겠습니까?",

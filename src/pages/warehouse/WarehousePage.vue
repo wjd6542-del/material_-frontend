@@ -30,7 +30,10 @@
         </button>
 
         <div class="space-y-1">
-          <label class="text-[10px] font-black text-slate-400 uppercase ml-1 block">Shape Type</label>
+          <label
+            class="text-[10px] font-black text-slate-400 uppercase ml-1 block"
+            >Shape Type</label
+          >
           <div class="grid grid-cols-3 gap-1">
             <button
               v-for="st in shapeTypes"
@@ -313,10 +316,12 @@ export default {
     };
   },
 
+  // 마운트 시 창고 목록을 서버에서 로드한다
   async mounted() {
     await this.loadData();
   },
   computed: {
+    // 다중 선택 중 가장 최근에 선택된 shape를 반환한다
     selectedShape() {
       return this.selected[this.selected.length - 1] || null;
     },
@@ -333,13 +338,16 @@ export default {
       return { x: svgP.x, y: svgP.y };
     },
 
+    // 좌표값을 그리드 단위로 스냅한다
     snap(v) {
       return Math.round(v / this.gridSize) * this.gridSize;
     },
+    // 포인트 배열을 SVG polygon용 문자열로 변환한다
     pointsToString(p) {
       return p.map((v) => `${v.x},${v.y}`).join(" ");
     },
 
+    // 다각형 포인트들의 중심 좌표를 계산한다
     getCenter(p) {
       return {
         x: p.reduce((a, b) => a + b.x, 0) / p.length,
@@ -347,6 +355,7 @@ export default {
       };
     },
 
+    // 각 변의 중점 좌표 배열을 반환한다 (정점 추가용)
     getMidPoints(p) {
       return p.map((v, i) => {
         const next = p[(i + 1) % p.length];
@@ -354,16 +363,19 @@ export default {
       });
     },
 
+    // 회전 핸들의 위치(중심 오른쪽)를 반환한다
     getRotateHandle(s) {
       const c = this.getCenter(s.points);
       return { x: c.x + 80, y: c.y };
     },
 
+    // 특정 shape가 현재 선택되어 있는지 확인한다
     isSelected(s) {
       return this.selected.includes(s);
     },
 
     /* 🖱 이벤트 핸들러 */
+    // 빈 캔버스 클릭 시 선택 해제 및 드래그 선택 박스를 시작한다
     handleCanvasMouseDown(e) {
       if (e.target !== this.$refs.svgCanvas) return;
       const pt = this.getSVGPoint(e);
@@ -373,6 +385,7 @@ export default {
       this.selectionBox = { ...pt, w: 0, h: 0 };
     },
 
+    // shape 클릭 시 선택 처리 및 이동 드래그를 시작한다 (Ctrl로 다중 선택)
     handleShapeMouseDown(e, shape) {
       const isCtrl = e.ctrlKey || e.metaKey;
       if (isCtrl) {
@@ -397,6 +410,7 @@ export default {
       }
     },
 
+    // 정점 클릭 시 정점 이동 드래그를 시작한다
     handleVertexMouseDown(shape, idx) {
       this.dragState = {
         active: true,
@@ -406,6 +420,7 @@ export default {
       };
     },
 
+    // 회전 핸들 클릭 시 회전 드래그를 시작한다
     handleRotateMouseDown(shape, e) {
       const pt = this.getSVGPoint(e);
       this.dragState = {
@@ -417,6 +432,7 @@ export default {
       };
     },
 
+    // 드래그 중 마우스 이동에 따라 이동/정점 편집/회전/선택 박스를 갱신한다
     handleMouseMove(e) {
       if (!this.dragState.active) return;
       const pt = this.getSVGPoint(e);
@@ -461,6 +477,7 @@ export default {
       }
     },
 
+    // 드래그 종료 시 선택 박스 내 shape 선택 및 스냅 보정을 수행한다
     handleMouseUp() {
       if (this.dragState.type === "select" && this.selectionBox) {
         const b = this.selectionBox;
@@ -521,6 +538,7 @@ export default {
       }
     },
 
+    // 현재 shape 목록 전체를 순차 저장하고 신규 항목에 서버 id를 반영한다
     async saveAll() {
       this.isSaving = true;
       try {
@@ -549,14 +567,15 @@ export default {
             s._localId = String(s.id);
           }
         }
-        alert("저장되었습니다.");
+        this.$toast.success("저장되었습니다.");
       } catch (err) {
-        alert("저장 실패: " + (err?.message || "서버 오류"));
+        this.$toast.error("저장 실패: " + (err?.message || "서버 오류"));
       } finally {
         this.isSaving = false;
       }
     },
 
+    // shape 타입별 초기 정점 좌표 배열을 생성한다
     generateShapePoints(type, cx, cy, size) {
       const s = size || 100;
       switch (type) {
@@ -627,8 +646,14 @@ export default {
       }
     },
 
+    // 선택된 타입의 새 shape를 캔버스 중앙에 추가한다
     addShape() {
-      const raw = this.generateShapePoints(this.selectedShapeType, 500, 500, 100);
+      const raw = this.generateShapePoints(
+        this.selectedShapeType,
+        500,
+        500,
+        100,
+      );
       // 원형은 스냅하면 찌그러지므로 1px 단위 반올림만 적용
       const points =
         this.selectedShapeType === "circle"
@@ -650,6 +675,7 @@ export default {
       this.selected = [newShape];
     },
 
+    // 현재 선택된 shape를 서버와 로컬에서 삭제한다
     async deleteShape() {
       if (!confirm("정말 삭제하시겠습니까?")) return;
       const target = this.selectedShape;
@@ -657,7 +683,7 @@ export default {
         try {
           await api.post(`/api/warehouse/delete/${target.id}`);
         } catch (err) {
-          alert("삭제 실패: " + (err?.message || "서버 오류"));
+          this.$toast.success("삭제 실패: " + (err?.message || "서버 오류"));
           return;
         }
       }
@@ -665,12 +691,14 @@ export default {
       this.selected = [];
     },
 
+    // 지정 위치에 새 정점을 삽입한다 (스냅 적용)
     insertPoint(shape, index, pos) {
       shape.points.splice(index, 0, {
         x: this.snap(pos.x),
         y: this.snap(pos.y),
       });
     },
+    // 정점을 제거한다 (최소 3개 유지)
     removePoint(shape, i) {
       if (shape.points.length > 3) shape.points.splice(i, 1);
     },

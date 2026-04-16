@@ -143,9 +143,11 @@ export default {
     };
   },
   computed: {
+    // 트리를 평면화한 리스트를 반환한다
     flatList() {
       return this.flatten(this.tree);
     },
+    // 확장 가능한 모든 노드 id 배열을 반환한다
     allExpandableIds() {
       const ids = [];
       const walk = (list) => {
@@ -159,16 +161,19 @@ export default {
       walk(this.tree);
       return ids;
     },
+    // 모든 노드가 펼쳐져 있는지 여부
     allExpanded() {
       return (
         this.allExpandableIds.length > 0 &&
         this.expandedIds.size >= this.allExpandableIds.length
       );
     },
+    // 선택된 카테고리의 전체 경로 이름
     selectedLabel() {
       const found = this.flatList.find((c) => c.id === this.selectedId);
       return found ? found.fullName : "";
     },
+    // 키워드로 필터링된 플랫 리스트를 반환한다
     filteredFlat() {
       if (!this.keyword) return [];
       const kw = this.keyword.toLowerCase();
@@ -180,6 +185,7 @@ export default {
     },
   },
   methods: {
+    // 드롭다운을 토글하고 열릴 때 확장/포커스를 처리한다
     toggle() {
       this.open = !this.open;
       this.keyword = "";
@@ -188,12 +194,14 @@ export default {
         this.$nextTick(() => this.$refs.searchInput?.focus());
       }
     },
+    // 단일 노드의 확장/축소 상태를 토글한다
     toggleNode(id) {
       const next = new Set(this.expandedIds);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       this.expandedIds = next;
     },
+    // 전체 확장/축소를 토글한다
     toggleExpandAll() {
       if (this.allExpanded) {
         this.expandedIds = new Set();
@@ -201,6 +209,7 @@ export default {
         this.expandedIds = new Set(this.allExpandableIds);
       }
     },
+    // 특정 id 노드까지의 부모 id 경로 배열을 찾는다
     findPathToId(nodes, targetId, path = []) {
       for (const n of nodes) {
         if (n.id === targetId) return path;
@@ -214,6 +223,7 @@ export default {
       }
       return null;
     },
+    // 선택된 노드 경로와 루트 노드들을 확장 상태로 설정한다
     expandToSelected() {
       const next = new Set();
       for (const n of this.tree) {
@@ -225,19 +235,23 @@ export default {
       }
       this.expandedIds = next;
     },
+    // 특정 카테고리를 선택하고 드롭다운을 닫는다
     select(id) {
       this.$emit("select", id);
       this.open = false;
     },
+    // 선택 해제 이벤트를 emit한다
     reset() {
       this.$emit("reset");
       this.open = false;
     },
+    // 외부 클릭 시 드롭다운을 닫는다
     handleClickOutside(e) {
       if (this.$refs.wrapper && !this.$refs.wrapper.contains(e.target)) {
         this.open = false;
       }
     },
+    // 중첩 트리를 경로 정보가 포함된 평면 리스트로 변환한다
     flatten(nodes, parentPath = "", depth = 0) {
       const result = [];
       for (const n of nodes) {
@@ -258,9 +272,11 @@ export default {
       return result;
     },
   },
+  // 마운트 시 외부 클릭 리스너를 등록한다
   mounted() {
     document.addEventListener("click", this.handleClickOutside, true);
   },
+  // 언마운트 직전 외부 클릭 리스너를 제거한다
   beforeUnmount() {
     document.removeEventListener("click", this.handleClickOutside, true);
   },

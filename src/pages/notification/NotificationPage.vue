@@ -179,6 +179,7 @@ export default {
 
   methods: {
     // 데이터 로드 처리
+    // 검색 조건으로 알림 목록을 로드한다
     async loadList() {
       this.rows = [];
 
@@ -197,6 +198,7 @@ export default {
       this.rows = res.data;
     },
 
+    // 선택된 알림들을 일괄 읽음 처리한다
     async readRows() {
       const rows = this.$refs.notificationTable.getSelectedRows();
       if (!rows.length) {
@@ -226,6 +228,7 @@ export default {
       }
     },
 
+    // 선택된 알림들을 사용자 확인 후 일괄 삭제한다
     async deleteRows() {
       const rows = this.$refs.notificationTable.getSelectedRows();
       if (!rows.length) {
@@ -255,11 +258,13 @@ export default {
       }
     },
 
+    // 위치 옵션을 로드한다
     async loadLocation() {
       const res = await api.post("/api/location/list");
       this.locations = res.data;
     },
   },
+  // 마운트 시 쿼리 id가 있으면 반영 후 목록을 로드한다
   mounted() {
     const id = this.$route.query.id;
     if (id) {

@@ -89,12 +89,14 @@ export default {
     return { open: false, keyword: "" };
   },
   computed: {
+    // 현재 선택된 옵션의 라벨을 반환한다
     selectedLabel() {
       const found = this.options.find(
         (o) => o[this.valueKey] === this.modelValue,
       );
       return found ? found[this.labelKey] : "";
     },
+    // 키워드로 필터링된 옵션 목록을 반환한다
     filteredOptions() {
       if (!this.keyword) return this.options;
       return this.options.filter((o) =>
@@ -103,9 +105,11 @@ export default {
           .includes(this.keyword.toLowerCase()),
       );
     },
+    // 주입된 클래스에 큰 텍스트 크기가 포함됐는지 여부
     isLargeSize() {
       return /text-(xl|2xl|3xl|4xl)/.test(this.$attrs.class || "");
     },
+    // 주입된 클래스 유무에 따라 트리거 버튼 클래스를 조립한다
     triggerClasses() {
       const parentClass = this.$attrs.class || "";
 
@@ -131,6 +135,7 @@ export default {
     },
   },
   methods: {
+    // 드롭다운 열림 상태를 토글하고 검색창 포커스를 처리한다
     toggle() {
       this.open = !this.open;
       this.keyword = "";
@@ -140,25 +145,30 @@ export default {
         });
       }
     },
+    // 옵션 선택 시 v-model을 업데이트하고 드롭다운을 닫는다
     select(item) {
       this.$emit("update:modelValue", item[this.valueKey]);
       this.$emit("change", item[this.valueKey]);
       this.open = false;
     },
+    // 선택을 해제한다
     clear() {
       this.$emit("update:modelValue", "");
       this.$emit("change", "");
       this.open = false;
     },
+    // 컴포넌트 외부 클릭 시 드롭다운을 닫는다
     handleClickOutside(e) {
       if (this.$refs.wrapper && !this.$refs.wrapper.contains(e.target)) {
         this.open = false;
       }
     },
   },
+  // 마운트 시 외부 클릭 리스너를 등록한다
   mounted() {
     document.addEventListener("click", this.handleClickOutside, true);
   },
+  // 언마운트 직전 외부 클릭 리스너를 제거한다
   beforeUnmount() {
     document.removeEventListener("click", this.handleClickOutside, true);
   },

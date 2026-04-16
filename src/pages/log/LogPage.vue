@@ -137,6 +137,7 @@ export default {
   },
 
   methods: {
+    // 셀 편집 종료 시 해당 행을 선택 상태로 유지한다
     onCellEditingStopped(params) {
       params.api.setNodesSelected({
         nodes: [params.node],
@@ -145,6 +146,7 @@ export default {
       });
     },
 
+    // AG Grid 준비 완료 시 API 저장 및 컬럼 크기를 조정한다
     onGridReady(params) {
       this.gridApi = params.api;
       this.columnApi = params.columnApi;
@@ -153,6 +155,7 @@ export default {
       }, 0);
     },
 
+    // 날짜 값을 YYYY-MM-DD HH:mm:ss 형식으로 포맷팅한다
     formatDate(value) {
       const d = new Date(value);
 
@@ -170,6 +173,7 @@ export default {
     /* =========================
      * 데이터 로드
      * ========================= */
+    // 감사 로그 목록과 컬럼 정의를 서버에서 로드한다
     async loadList() {
       this.rowData = [];
 
@@ -263,12 +267,14 @@ export default {
     },
 
     // 모달 열기
+    // 로그 데이터 상세 모달을 연다
     openModal(title, data) {
       // 모달 열기
       this.modal.openModal(LogModal, { title: title, data: data }, "lg");
     },
   },
 
+  // 마운트 시 로그 목록을 로드한다
   mounted() {
     this.loadList();
   },

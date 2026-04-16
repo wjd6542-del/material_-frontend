@@ -274,6 +274,7 @@ export default {
     };
   },
   methods: {
+    // 이메일로 비밀번호 재설정 인증 코드를 발송 요청한다
     async find() {
       if (!this.email) return;
       this.loading = true;
@@ -286,6 +287,7 @@ export default {
         this.loading = false;
       }
     },
+    // 인증 코드와 새 비밀번호로 변경을 요청하고 로그인으로 이동한다
     async chagePassword() {
       if (!this.code || !this.password) return;
       this.loading = true;

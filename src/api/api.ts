@@ -12,6 +12,7 @@ const api = axios.create({
 	},
 });
 
+// 요청 인터셉터: 저장된 토큰을 Authorization 헤더에 주입한다
 api.interceptors.request.use((config) => {
 	const token = localStorage.getItem("token");
 	if (token) {

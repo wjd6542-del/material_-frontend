@@ -177,6 +177,7 @@ export default {
 
   methods: {
     // 데이터 로드 처리
+    // 재고 변동 이력을 검색 조건으로 로드한다
     async loadList() {
       this.rows = [];
 
@@ -197,21 +198,25 @@ export default {
       console.log(res.data);
     },
 
+    // 자재 옵션을 로드한다
     async loadMaterial() {
       const res = await api.post("/api/material/list");
       this.materials = res.data;
     },
 
+    // 창고 옵션을 로드한다
     async loadWarehouse() {
       const res = await api.post("/api/warehouse/list");
       this.warehouses = res.data;
     },
 
+    // 위치 옵션을 로드한다
     async loadLocation() {
       const res = await api.post("/api/location/list");
       this.locations = res.data;
     },
   },
+  // 마운트 시 이력/자재/창고/위치를 로드한다
   mounted() {
     this.loadList();
     this.loadMaterial();

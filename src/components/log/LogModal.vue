@@ -34,6 +34,7 @@ export default {
   },
 
   computed: {
+    // data를 JSON으로 파싱하여 들여쓰기된 문자열로 반환한다
     formattedJson() {
       try {
         const json =

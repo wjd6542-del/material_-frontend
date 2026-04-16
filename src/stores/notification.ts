@@ -18,17 +18,20 @@ export const useNotificationStore = defineStore("notification", {
 	}),
 
 	actions: {
+		// 특정 타입의 알림 패널을 열고 목록을 로드한다
 		openPanel (type) {
 			this.panelOpen = true
 			this.currentType = type
 			this.loadList(type)
 		},
 
+		// 알림 패널을 닫는다
 		closePanel () {
 			this.panelOpen = false
 		},
 
 		// 타입별 카운트
+		// 알림 타입별 미확인 카운트를 서버에서 로드한다
 		async loadCounts () {
 			const res = await api.post("/api/notification/countByType")
 
@@ -42,6 +45,7 @@ export const useNotificationStore = defineStore("notification", {
 		},
 
 		// 알림 리스트
+		// 지정 타입의 알림 목록을 서버에서 로드한다
 		async loadList (type, limit = 10) {
 			this.loading = true
 
@@ -56,6 +60,7 @@ export const useNotificationStore = defineStore("notification", {
 		},
 
 		// 읽기
+		// 단일 알림을 읽음 처리하고 카운트를 동기화한다
 		async read (id) {
 			try {
 				await api.post("/api/notification/read", { id })
@@ -80,6 +85,7 @@ export const useNotificationStore = defineStore("notification", {
 		},
 
 		// 전체 읽기
+		// 모든 알림을 일괄 읽음 처리하고 로컬 리스트를 갱신한다
 		async readAll () {
 			await api.post("/api/notification/readAll")
 
@@ -92,6 +98,7 @@ export const useNotificationStore = defineStore("notification", {
 		},
 
 		// 상단 알림메뉴 1분마다 갱신됨
+		// 로그인 상태에서 1분 간격으로 카운트 자동 갱신을 시작한다
 		startAutoRefresh () {
 			const auth = useAuthStore()
 			if (!auth.token) return   // 🔥 로그인 안하면 호출 차단

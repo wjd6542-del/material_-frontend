@@ -49,6 +49,7 @@ export default {
   },
   emits: ["ok", "cancel"],
   methods: {
+    // 배경 클릭 시 confirm은 취소, alert는 확인으로 emit 처리한다
     onBackdropClick() {
       // confirm → cancel / alert → ok
       this.type === "confirm" ? this.$emit("cancel") : this.$emit("ok");

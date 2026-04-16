@@ -20,10 +20,12 @@ import { useModalStore } from "@/stores/modal";
 
 export default {
   computed: {
+    // 모달 Pinia 스토어 인스턴스를 반환한다
     modal() {
       return useModalStore();
     },
 
+    // 모달 size 속성에 대응하는 Tailwind max-width 클래스를 반환한다
     sizeClass() {
       switch (this.modal.size) {
         case "sm":

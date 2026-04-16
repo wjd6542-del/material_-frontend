@@ -105,6 +105,7 @@ export default {
   },
 
   methods: {
+    // 셀 편집 종료 시 해당 행을 선택 상태로 유지한다
     onCellEditingStopped(params) {
       params.api.setNodesSelected({
         nodes: [params.node],
@@ -113,6 +114,7 @@ export default {
       });
     },
 
+    // AG Grid 준비 완료 시 API 참조 저장 및 컬럼 크기를 조정한다
     onGridReady(params) {
       this.gridApi = params.api;
       this.columnApi = params.columnApi;
@@ -124,6 +126,7 @@ export default {
     /* =========================
      * 데이터 로드
      * ========================= */
+    // 위치 목록과 컬럼 정의(창고 셀렉터 포함)를 서버에서 로드한다
     async loadList() {
       this.rowData = [];
       const res = await api.post("/api/location/list", this.search);
@@ -173,6 +176,7 @@ export default {
     /* =========================
      * 행 추가
      * ========================= */
+    // 최대 sort 값을 계산해 신규 위치 행을 그리드 상단에 추가한다
     addRow() {
       let maxSort = 0;
 
@@ -200,6 +204,7 @@ export default {
     /* =========================
      * 저장
      * ========================= */
+    // 선택된 위치 행들을 서버에 일괄 저장한다
     async saveRows() {
       const rows = this.gridApi.getSelectedRows();
       try {
@@ -218,6 +223,7 @@ export default {
     },
 
     // 일괄 삭제 처리
+    // 선택된 위치를 사용자 확인 후 서버에서 일괄 삭제한다
     async deleteRows() {
       const rows = this.gridApi.getSelectedRows();
 
@@ -243,6 +249,7 @@ export default {
     },
 
     // 창고 목록 호출
+    // 창고 목록을 로드하고 id→name 맵을 구성한다
     async loadWarehouse() {
       const res = await api.post("/api/warehouse/list");
       const warehouses = res.data;
@@ -253,6 +260,7 @@ export default {
     },
   },
 
+  // 마운트 시 창고와 위치 목록을 순차적으로 로드한다
   async mounted() {
     await this.loadWarehouse();
     await this.loadList();

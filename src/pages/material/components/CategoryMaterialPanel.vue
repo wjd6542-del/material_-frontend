@@ -98,12 +98,14 @@ export default {
   watch: {
     selectedId: {
       immediate: true,
+      // 선택된 카테고리 변경 시 자재 목록을 재로드한다
       handler() {
         this.load();
       },
     },
   },
   methods: {
+    // 선택된 카테고리의 자재 목록을 로드한다
     async load() {
       if (!this.selectedId) {
         this.materials = [];
@@ -118,17 +120,20 @@ export default {
         this.materials = [];
       }
     },
+    // 자재명/코드 셀 클릭 시 상세 수정 모달을 연다
     onCellClick(data) {
       if (data.key === "name" || data.key === "code") {
         this.openModal(data.row.id);
       }
     },
+    // 자재 등록/수정 모달을 연다 (id가 있으면 수정 모드)
     openModal(id) {
       const props = { onSaved: this.load };
       if (id) props.id = id;
       else props.category_id = this.selectedId;
       this.modal.openModal(MaterialModal, props);
     },
+    // 지정 자재를 사용자 확인 후 서버에서 삭제한다
     async remove(id) {
       const ok = await this.$confirm(
         "선택된 자재를 삭제하시겠습니까?",

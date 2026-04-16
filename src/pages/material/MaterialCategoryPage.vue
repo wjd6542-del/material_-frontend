@@ -79,6 +79,7 @@ export default {
     CategoryFormModal,
     CategoryMaterialPanel,
   },
+  // 하위 컴포넌트에 드래그 상태/설정과 이동 함수를 주입한다
   provide() {
     return {
       dragState: this.dragState,
@@ -110,39 +111,48 @@ export default {
     };
   },
   computed: {
+    // 선택된 카테고리의 루트→노드 경로 배열을 반환한다
     categoryPath() {
       return findPath(this.categoryTree, this.selectedCategoryId) || [];
     },
+    // 선택된 카테고리의 이름을 반환한다
     selectedCategoryName() {
       const path = this.categoryPath;
       return path.length > 0 ? path[path.length - 1].name : "";
     },
   },
+  // 마운트 시 모바일 여부 판별 및 리스너 등록, 트리 로드
   mounted() {
     this.checkMobile();
     window.addEventListener("resize", this.checkMobile);
     this.loadCategoryTree();
   },
+  // 언마운트 직전 리사이즈 리스너를 제거한다
   beforeUnmount() {
     window.removeEventListener("resize", this.checkMobile);
   },
   methods: {
+    // 윈도우 너비 기준으로 모바일 모드 여부를 설정한다
     checkMobile() {
       this.isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
     },
+    // 특정 카테고리 id를 선택 상태로 설정한다
     selectCategory(id) {
       this.selectedCategoryId = id;
     },
+    // 전체 트리의 펼침/접힘을 토글한다
     toggleAll() {
       this.allExpanded = !this.allExpanded;
       setAllOpen(this.categoryTree, this.allExpanded);
     },
+    // 드래그 기능 활성화를 토글하고 드래그 상태를 초기화한다
     toggleDragEnabled() {
       this.dragConfig.enabled = !this.dragConfig.enabled;
       this.dragState.draggingItem = null;
       this.dragState.dropTarget = null;
       this.dragState.dropPosition = null;
     },
+    // 사이드바 너비 조정을 위한 드래그 리사이즈를 시작한다
     startResize(e) {
       e.preventDefault();
       const startX = e.clientX;
@@ -164,6 +174,7 @@ export default {
     },
 
     // 카테고리 모달
+    // 루트 카테고리 추가 모달을 연다
     openAddRootModal() {
       this.catModal = {
         open: true,
@@ -174,6 +185,7 @@ export default {
         initialName: "",
       };
     },
+    // 하위 카테고리 추가 모달을 연다 (최대 depth 체크)
     openAddChildModal(parent) {
       if (parent.depth >= MAX_DEPTH) {
         alert(`최대 ${MAX_DEPTH}단계까지만 등록할 수 있습니다.`);
@@ -189,6 +201,7 @@ export default {
         initialName: "",
       };
     },
+    // 카테고리 수정 모달을 연다
     openEditCatModal(item) {
       this.selectedCategoryId = item.id;
       const parentNode = findParentNode(this.categoryTree, item.id);
@@ -201,9 +214,11 @@ export default {
         initialName: item.name,
       };
     },
+    // 카테고리 모달을 닫는다
     closeCatModal() {
       this.catModal.open = false;
     },
+    // 모달에서 입력된 이름으로 카테고리 추가/수정을 로컬 트리에 반영한다
     submitCatModal(name) {
       const { editMode, parent, target } = this.catModal;
 
@@ -224,6 +239,7 @@ export default {
 
       this.closeCatModal();
     },
+    // 신규 카테고리 노드 객체를 구성한다
     makeNewNode(id, name, parent) {
       return {
         id,
@@ -238,11 +254,13 @@ export default {
         children: [],
       };
     },
+    // 해당 id의 루트→노드 이름 경로를 "A > B > C" 형식으로 반환한다
     getPathNames(id) {
       const path = findPath(this.categoryTree, id) || [];
       return path.map((n) => n.name).join(" > ");
     },
 
+    // 사용자 확인 후 카테고리를 로컬 트리에서 제거한다
     async deleteCategory(id) {
       const ok = await this.$confirm(
         "선택된 자재를 삭제하시겠습니까?",
@@ -253,12 +271,14 @@ export default {
       if (this.selectedCategoryId === id) this.selectedCategoryId = null;
     },
 
+    // 카테고리 트리를 서버에서 로드하고 펼침 상태를 초기화한다
     async loadCategoryTree() {
       const res = await api.post("/api/category/getCategoryTree");
       initOpenState(res.data);
       this.categoryTree = res.data;
     },
 
+    // 변경된 트리를 서버에 저장하고 재조회한다
     async saveTree() {
       try {
         const payload = buildSavePayload(this.categoryTree);
@@ -270,6 +290,7 @@ export default {
       }
     },
 
+    // 드래그 결과를 받아 트리 내에서 카테고리를 이동시킨다
     moveCategory(sourceId, targetId, position) {
       moveNode(this.categoryTree, sourceId, targetId, position);
     },

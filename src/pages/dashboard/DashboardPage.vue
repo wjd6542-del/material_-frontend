@@ -358,6 +358,7 @@ export default {
   },
   computed: {
     // 💡 날짜 메우기: 이번 달 1일부터 오늘까지 모든 날짜를 0으로 채워 배열 생성
+    // 이번 달 1일부터 오늘까지의 날짜별 입/출/반품 수량 배열을 생성한다
     filledChartData() {
       const now = new Date();
       const currentMonth = now.getMonth() + 1; // 현재 월 (3)
@@ -392,6 +393,7 @@ export default {
       return { labels, inValues, outValues, returnValues };
     },
 
+    // 입/출/반품 라인 차트의 ECharts 옵션을 반환한다
     lineChart() {
       const { labels, inValues, outValues, returnValues } =
         this.filledChartData;
@@ -507,6 +509,7 @@ export default {
     },
   },
   methods: {
+    // 대시보드 종합 데이터를 로드한다
     async loadData() {
       try {
         const { data } = await api.post("/api/dashboard/dashboard");
@@ -524,9 +527,11 @@ export default {
         console.error("Dashboard data load failed:", e);
       }
     },
+    // 숫자를 천단위 구분자 문자열로 포맷팅한다
     formatNumber(v) {
       return new Intl.NumberFormat().format(v || 0);
     },
+    // 날짜 값을 YYYY-MM-DD HH:mm:ss 형식으로 포맷팅한다
     formatDate(v) {
       const d = new Date(v);
 
@@ -540,6 +545,7 @@ export default {
 
       return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
     },
+    // 처리 구분별 배지 색상 클래스를 반환한다
     getActionClass(a) {
       const m = {
         입고: "bg-blue-100 text-blue-700",
@@ -550,6 +556,7 @@ export default {
       return m[a] || "bg-gray-100 text-gray-500";
     },
   },
+  // 마운트 시 대시보드 데이터를 로드한다
   mounted() {
     this.loadData();
   },

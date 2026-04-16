@@ -56,6 +56,7 @@ export default {
     column: String,
   },
 
+  // props 기반으로 ECharts 옵션을 계산하는 setup 함수
   setup(props) {
     // 날짜 포맷 함수 (YYYY-MM-DD)
     const formatDate = (d) => {
@@ -76,6 +77,7 @@ export default {
       return result;
     };
 
+    // rows/기간/컬럼을 기반으로 ECharts 옵션 객체를 생성한다
     const chartOption = computed(() => {
       if (!props.start || !props.end) return {};
 

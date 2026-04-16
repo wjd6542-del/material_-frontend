@@ -173,6 +173,7 @@ export default {
   },
 
   methods: {
+    // 서버 데이터를 폼 필드에 매핑한다
     mapping_data(data: any) {
       for (const key in this.form) {
         if (Object.prototype.hasOwnProperty.call(data, key)) {
@@ -181,6 +182,7 @@ export default {
       }
     },
 
+    // 수정 대상 사용자 상세 정보를 로드한다
     async loadData() {
       try {
         const res = await api.post(`/api/user/${this.id}`, { id: this.id });
@@ -190,6 +192,7 @@ export default {
       }
     },
 
+    // 권한(역할) 선택 옵션 목록을 로드한다
     async loadRoles() {
       try {
         const res = await api.post("/api/role/list");
@@ -199,6 +202,7 @@ export default {
       }
     },
 
+    // 사용자 정보를 등록 또는 수정한다
     async save() {
       try {
         if (this.id) {
@@ -219,6 +223,7 @@ export default {
     },
   },
 
+  // 마운트 시 역할 목록을 로드하고 수정 모드라면 사용자 데이터도 로드한다
   async mounted() {
     await this.loadRoles();
     if (this.id) {

@@ -223,6 +223,7 @@ export default {
   },
 
   methods: {
+    // 검색 조건으로 입고 세부 내역을 로드한다
     async loadList() {
       try {
         const where = { ...this.where };
@@ -246,6 +247,7 @@ export default {
       }
     },
 
+    // 검색 조건을 초기화하고 목록을 재조회한다
     resetFilters() {
       this.where = {
         material_id: "",
@@ -260,21 +262,25 @@ export default {
       this.loadList();
     },
 
+    // 자재 옵션을 로드한다
     async loadMaterial() {
       const res = await api.post("/api/material/list");
       this.materials = res.data;
     },
 
+    // 거래처 옵션을 로드한다
     async loadSupplier() {
       const res = await api.post("/api/supplier/list");
       this.suppliers = res.data;
     },
 
+    // 창고 옵션을 로드한다
     async loadWarehouse() {
       const res = await api.post("/api/warehouse/list");
       this.warehouses = res.data;
     },
 
+    // 위치 옵션을 로드한다 (코드-이름 결합형 라벨)
     async loadLocation() {
       const res = await api.post("/api/location/list");
       this.locations = res.data.map((row) => ({
@@ -284,6 +290,7 @@ export default {
     },
   },
 
+  // 마운트 시 세부 내역 및 참조 데이터들을 로드한다
   mounted() {
     this.loadList();
     this.loadMaterial();

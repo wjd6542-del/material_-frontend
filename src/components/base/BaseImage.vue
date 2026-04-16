@@ -41,6 +41,7 @@ export default {
   },
   emits: ["change"],
   methods: {
+    // 숨겨진 파일 input을 프로그램적으로 클릭한다
     triggerFile() {
       this.$refs.fileInput.click();
     },

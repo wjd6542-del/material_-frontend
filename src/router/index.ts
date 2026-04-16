@@ -332,6 +332,7 @@ export const router = createRouter({
 	routes
 })
 
+// 라우트 진입 전 로그인/권한을 확인하는 네비게이션 가드
 router.beforeEach((to, from) => {
 	const auth = useAuthStore();
 
@@ -362,6 +363,7 @@ router.beforeEach((to, from) => {
 	return true;
 });
 
+// 라우트 전환 후 메타 타이틀로 document.title을 갱신한다
 router.afterEach((to) => {
 	const baseTitle = "자재관리 시스템";
 

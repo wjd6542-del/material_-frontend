@@ -260,10 +260,12 @@ export default {
   },
 
   computed: {
+    // 모든 행이 선택되었는지 여부를 반환한다
     isAllSelected() {
       return this.rows.length && this.selectedRows.length === this.rows.length;
     },
 
+    // 일부만 선택된 상태(부분 선택)인지 반환한다
     isIndeterminate() {
       return (
         this.selectedRows.length &&
@@ -271,6 +273,7 @@ export default {
       );
     },
 
+    // sortKey/sortOrder에 따라 정렬된 행 목록을 반환한다
     sortedRows() {
       if (!this.sortKey) return this.rows;
 
@@ -290,10 +293,12 @@ export default {
       return sorted;
     },
 
+    // 페이지네이션 기준 전체 페이지 수를 반환한다
     totalPages() {
       return Math.ceil(this.sortedRows.length / this.localPageSize);
     },
 
+    // 현재 페이지에서 표시할 행 배열을 반환한다
     displayRows() {
       if (!this.pagination) return this.sortedRows;
 
@@ -305,6 +310,7 @@ export default {
   },
 
   watch: {
+    // 페이지 변경 시 입력창 값과 동기화한다
     page(v) {
       this.inputPage = v;
     },
@@ -322,6 +328,7 @@ export default {
       );
     },
 
+    // 날짜 값을 YYYY-MM-DD HH:mm:ss 형식으로 포맷팅한다
     formatDate(value) {
       const d = new Date(value);
 
@@ -336,6 +343,7 @@ export default {
       return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
     },
 
+    // 컬럼 타입별 값 포맷팅을 수행한다 (숫자/통화/날짜/이미지 등)
     formatValue(value, column) {
       if (value === null || value === undefined) return "-";
 
@@ -361,6 +369,7 @@ export default {
       }
     },
 
+    // 헤더 체크박스로 전체 선택/해제를 토글한다
     toggleAll(e) {
       if (e.target.checked) {
         this.selectedRows = this.rows.map((r) => r[this.rowKey]);
@@ -371,6 +380,7 @@ export default {
       this.$emit("update:selected", this.selectedRows);
     },
 
+    // 개별 행 선택 상태를 토글한다
     toggleRow(id) {
       if (this.selectedRows.includes(id)) {
         this.selectedRows = this.selectedRows.filter((i) => i !== id);
@@ -381,6 +391,7 @@ export default {
       this.$emit("update:selected", this.selectedRows);
     },
 
+    // 컬럼 헤더 클릭으로 정렬 키/방향을 변경한다
     changeSort(col) {
       if (!this.sortable) return;
       if (!col.sortable) return;
@@ -398,11 +409,13 @@ export default {
       });
     },
 
+    // 현재 페이지를 변경하고 이벤트를 emit한다
     changePage(p) {
       this.page = p;
       this.$emit("update:page", p);
     },
 
+    // 입력창 값으로 페이지 이동 (범위 보정 포함)
     applyPage() {
       if (this.inputPage < 1) this.inputPage = 1;
 
@@ -411,6 +424,7 @@ export default {
       this.changePage(this.inputPage);
     },
 
+    // 페이지 사이즈 변경 및 첫 페이지로 리셋한다
     changePageSize() {
       this.page = 1;
       this.inputPage = 1;
@@ -418,10 +432,12 @@ export default {
       this.$emit("update:pageSize", this.localPageSize);
     },
 
+    // 행 클릭 이벤트를 상위로 emit한다
     rowClick(row) {
       this.$emit("row-click", row);
     },
 
+    // 셀 클릭 이벤트를 행/컬럼 정보와 함께 emit한다
     cellClick(row, col) {
       this.$emit("cell-click", {
         row,

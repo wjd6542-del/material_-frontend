@@ -215,6 +215,7 @@ export default {
     };
   },
   methods: {
+    // 입력값 검증 후 회원가입 API를 호출하고 로그인으로 이동한다
     async signup() {
       if (!this.name || !this.username || !this.email) return;
 

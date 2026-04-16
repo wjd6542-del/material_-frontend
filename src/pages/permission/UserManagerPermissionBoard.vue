@@ -260,6 +260,7 @@ export default {
     // 부모로부터 user_id가 바뀌면 유저 정보 재조회
     user_id: {
       immediate: true,
+      // user_id 변경 시 유저와 역할 목록을 재로드한다
       async handler(newVal) {
         if (newVal) {
           await this.loadUser(newVal);
@@ -271,6 +272,7 @@ export default {
 
   methods: {
     // 1. 유저 정보 단건 조회
+    // 단일 사용자 상세 정보를 로드한다
     async loadUser(id) {
       try {
         const res = await api.post(`/api/user/${id}`, { id });
@@ -282,6 +284,7 @@ export default {
     },
 
     // 2. 전체 권한(Role) 리스트 조회
+    // 전체 역할 리스트를 로드하고 권한 분리 처리를 실행한다
     async loadRoles() {
       try {
         const res = await api.post("/api/role/list");
@@ -293,6 +296,7 @@ export default {
     },
 
     // 3. 화면 표시 데이터 필터링
+    // 유저의 role_id 기준으로 할당/미할당 역할 리스트를 분리한다
     loadPermissions() {
       if (!this.user || !this.all.length) return;
 
@@ -301,26 +305,31 @@ export default {
       this.unassigned = this.all.filter((p) => !assignedIds.includes(p.id));
     },
 
+    // 미할당 → 할당으로 단일 역할을 이동한다
     addPermission(item) {
       this.assigned.push(item);
       this.unassigned = this.unassigned.filter((p) => p.id !== item.id);
     },
 
+    // 할당 → 미할당으로 단일 역할을 이동한다
     removePermission(item) {
       this.unassigned.push(item);
       this.assigned = this.assigned.filter((p) => p.id !== item.id);
     },
 
+    // 미할당 전체를 할당으로 이동한다
     addAll() {
       this.assigned.push(...this.unassigned);
       this.unassigned = [];
     },
 
+    // 할당 전체를 미할당으로 이동한다
     removeAll() {
       this.unassigned.push(...this.assigned);
       this.assigned = [];
     },
 
+    // 할당 리스트에서 특정 index 행을 한 칸 위로 이동한다
     moveUp(index) {
       if (index === 0) return;
       const temp = [...this.assigned];
@@ -328,6 +337,7 @@ export default {
       this.assigned = temp;
     },
 
+    // 할당 리스트에서 특정 index 행을 한 칸 아래로 이동한다
     moveDown(index) {
       if (index === this.assigned.length - 1) return;
       const temp = [...this.assigned];
@@ -335,6 +345,7 @@ export default {
       this.assigned = temp;
     },
 
+    // 할당된 단일 역할을 계정에 저장하고 유저 정보를 재조회한다
     async save() {
       if (this.assigned.length === 0) {
         this.$toast.error("최소 하나의 권한을 선택해야 합니다.");

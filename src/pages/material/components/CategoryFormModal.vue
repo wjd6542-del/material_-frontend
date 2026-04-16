@@ -62,6 +62,7 @@ export default {
     return { localName: "" };
   },
   computed: {
+    // 편집/추가/하위 추가 모드에 따라 모달 타이틀을 반환한다
     title() {
       if (this.editMode) return "카테고리 수정";
       if (this.hasParent) return "하위 카테고리 등록";
@@ -69,6 +70,7 @@ export default {
     },
   },
   watch: {
+    // 모달이 열릴 때 초기값 세팅 및 입력창 포커스 처리
     open(val) {
       if (val) {
         this.localName = this.initialName;
@@ -77,6 +79,7 @@ export default {
     },
   },
   methods: {
+    // 입력값 검증 후 submit 이벤트로 이름을 emit한다
     submit() {
       if (!this.open) return;
       const name = this.localName.trim();

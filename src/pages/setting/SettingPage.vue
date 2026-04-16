@@ -105,9 +105,11 @@ export default {
   },
 
   computed: {
+    // 탭 메타 정의 배열을 반환한다
     tabs() {
       return tabs; // reactive 아님
     },
+    // 현재 활성 탭에 해당하는 컴포넌트를 반환한다
     currentComponent() {
       return tabs.find((t) => t.key === this.activeTab)?.component;
     },
@@ -116,6 +118,7 @@ export default {
   watch: {
     "$route.query.tab": {
       immediate: true,
+      // URL 쿼리 tab 변경 시 활성 탭을 동기화한다
       handler(val) {
         const target = tabs.find((t) => t.key === val);
         if (target) {
@@ -127,6 +130,7 @@ export default {
   },
 
   methods: {
+    // 탭 클릭 시 활성 탭을 변경하고 쿼리 파라미터에 반영한다
     changeTab(key, newIndex) {
       if (this.activeTab === key) return;
 

@@ -369,6 +369,7 @@ export default {
     },
   },
 
+  // 마운트 시 로그인 사용자의 허용 IP 목록을 로드한다
   mounted() {
     this.loadUserIpList();
   },

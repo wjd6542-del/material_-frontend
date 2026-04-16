@@ -179,6 +179,7 @@ export default {
   },
 
   methods: {
+    // 신규 출고 품목 행을 리스트에 추가한다
     addItem() {
       this.form.items.push({
         id: 0,
@@ -195,6 +196,7 @@ export default {
       });
     },
 
+    // 지정 인덱스의 품목 행을 제거한다
     removeItem(index) {
       this.form.items.splice(index, 1);
     },
@@ -226,10 +228,12 @@ export default {
       }
     },
 
+    // 현재 시각 기반의 출고번호를 생성한다
     mk_in_no() {
       return "OUT-" + Date.now();
     },
 
+    // 서버 데이터를 폼 필드에 매핑한다
     mapping_data(data) {
       for (const key in this.form) {
         const val = data[key];
@@ -237,38 +241,45 @@ export default {
       }
     },
 
+    // 선택된 위치에 따라 창고 ID를 연동 설정한다
     setData(data) {
       const location = this.locations.find((item) => item.id);
       data.warehouse_id = location.warehouse_id;
     },
 
     // 데이터 로드
+    // 수정 대상 출고 전표의 상세 데이터를 로드한다
     async loadData() {
       const res = await api.post(`/api/outbound/${this.id}`, { id: this.id });
       this.mapping_data(res.data);
     },
 
+    // 자재 옵션을 로드한다
     async loadMaterial() {
       const res = await api.post("/api/material/list");
       this.materials = res.data;
     },
 
+    // 거래처 옵션을 로드한다
     async loadSupplier() {
       const res = await api.post("/api/supplier/list");
       this.suppliers = res.data;
     },
 
+    // 창고 옵션을 로드한다
     async loadWarehouse() {
       const res = await api.post("/api/warehouse/list");
       this.warehouses = res.data;
     },
 
+    // 위치 옵션을 로드한다
     async loadLocation() {
       const res = await api.post("/api/location/list");
       this.locations = res.data;
     },
   },
 
+  // 마운트 시 출고번호 생성 및 참조 데이터들을 로드한다
   mounted() {
     // 입고번호 자동생성
     this.form.outbound_no = this.mk_in_no();

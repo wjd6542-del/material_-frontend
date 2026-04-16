@@ -253,10 +253,12 @@ export default {
   },
 
   computed: {
+    // 현재 선택된 라벨 규격 객체를 반환한다
     format() {
       return this.labelFormats[this.labelFormat];
     },
 
+    // 사본 수와 시작 위치를 반영해 출력할 라벨 아이템 배열을 생성한다
     displayItems() {
       if (!this.materials.length) return [];
 
@@ -281,6 +283,7 @@ export default {
       return [...blanks, ...repeated];
     },
 
+    // 라벨들을 페이지 크기 단위로 분할해 페이지 배열을 반환한다
     pages() {
       const pageSize = this.format.cols * this.format.rows;
       const allItems = this.displayItems;
@@ -297,6 +300,7 @@ export default {
       return result.length ? result : [Array(pageSize).fill(null)];
     },
 
+    // 사본 수를 반영한 전체 라벨 개수를 반환한다
     totalLabelsCount() {
       const copyCount = Math.max(1, Number(this.printOptions.copyCount) || 1);
       return this.materials.length * copyCount;
@@ -304,6 +308,7 @@ export default {
   },
 
   methods: {
+    // 검색 조건으로 자재 목록을 로드한다
     async loadData() {
       try {
         const payload = {
@@ -324,6 +329,7 @@ export default {
       }
     },
 
+    // 자재 검색 옵션 전체 목록을 로드한다
     async loadMaterial() {
       try {
         const res = await api.post("/api/material/list");
@@ -334,6 +340,7 @@ export default {
       }
     },
 
+    // 태그 옵션 목록을 로드한다
     async loadTags() {
       try {
         const res = await api.post("/api/tag/list");
@@ -344,10 +351,12 @@ export default {
       }
     },
 
+    // 브라우저 프린트 다이얼로그를 호출한다
     printPage() {
       window.print();
     },
 
+    // 프린트 영역을 PDF 파일로 저장한다
     downloadPDF() {
       const element = this.$refs.printArea;
 
@@ -362,16 +371,19 @@ export default {
       html2pdf().set(opt).from(element).save();
     },
 
+    // 라벨 값을 문자열로 정규화한다 (null 안전)
     normalizeLabelValue(value) {
       if (value === null || value === undefined) return "";
       return String(value).trim();
     },
 
+    // CSV 안전을 위해 값을 따옴표 이스케이프한다
     escapeCsv(value) {
       const str = this.normalizeLabelValue(value).replace(/"/g, '""');
       return `"${str}"`;
     },
 
+    // 다운로드용 라벨 행 데이터를 구성한다
     buildLabelRows() {
       if (!this.materials.length) return [];
 
@@ -397,6 +409,7 @@ export default {
       return rows;
     },
 
+    // 라벨 행 배열을 CSV 문자열로 변환한다
     buildLabelCsv(rows) {
       const headers = ["material_id", "material_name", "material_code", "qr"];
 
@@ -408,6 +421,7 @@ export default {
       ].join("\n");
     },
 
+    // 블롭을 지정 파일명으로 브라우저에서 다운로드한다
     downloadBlobFile(blob, fileName) {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -421,6 +435,7 @@ export default {
       window.URL.revokeObjectURL(url);
     },
 
+    // 타임스탬프가 포함된 다운로드 파일명을 생성한다
     getDownloadFileName(prefix = "material_label", ext = "csv") {
       const now = new Date();
       const pad = (n) => String(n).padStart(2, "0");
@@ -438,6 +453,7 @@ export default {
       return `${prefix}_${ts}.${ext}`;
     },
 
+    // 현재 라벨 데이터를 CSV 파일로 다운로드한다
     downloadLabel() {
       const rows = this.buildLabelRows();
 
@@ -459,6 +475,7 @@ export default {
     },
   },
 
+  // 생성 시 데이터/자재/태그를 병렬 로드한다
   created() {
     this.loadData();
     this.loadMaterial();

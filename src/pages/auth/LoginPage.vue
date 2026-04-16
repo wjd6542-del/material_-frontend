@@ -216,6 +216,7 @@ export default {
     };
   },
   methods: {
+    // 아이디/비밀번호로 로그인 API를 호출하고 성공 시 메인으로 이동한다
     async login() {
       if (!this.username || !this.password) return;
       this.loading = true;

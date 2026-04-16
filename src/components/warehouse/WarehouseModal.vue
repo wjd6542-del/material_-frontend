@@ -170,6 +170,7 @@ export default {
   },
 
   methods: {
+    // 기본값이 설정된 신규 창고 행 객체를 반환한다
     newRow() {
       return {
         id: 0,
@@ -183,18 +184,22 @@ export default {
       };
     },
 
+    // 신규 행을 리스트에 추가한다
     addRow() {
       this.rows.push(this.newRow());
     },
 
+    // 지정 인덱스의 행을 제거한다
     removeRow(i) {
       this.rows.splice(i, 1);
     },
 
+    // 서버 데이터를 단일 행 리스트로 설정한다
     mappingData(data) {
       this.rows = [data];
     },
 
+    // 수정 대상 창고 상세 데이터를 로드한다
     async loadData() {
       try {
         const res = await api.post(`/api/warehouse/${this.id}`, {
@@ -206,6 +211,7 @@ export default {
       }
     },
 
+    // 유효성 검사 후 onSaved 콜백에 현재 행들을 전달한다
     async save() {
       try {
         // 유효성 체크 예시
@@ -224,6 +230,7 @@ export default {
     },
   },
 
+  // 마운트 시 id가 있으면 상세를 로드하고, 없으면 빈 행 하나를 추가한다
   mounted() {
     if (this.id) {
       this.loadData();

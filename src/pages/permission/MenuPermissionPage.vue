@@ -150,11 +150,13 @@ export default {
     };
   },
 
+  // 마운트 시 역할 목록을 로드한다
   mounted() {
     this.loadRoles();
   },
 
   computed: {
+    // 검색어로 필터링된 역할 목록을 반환한다
     filteredRoles() {
       if (!this.search) return this.roles;
 
@@ -169,11 +171,13 @@ export default {
   },
 
   methods: {
+    // 역할 목록을 로드한다
     async loadRoles() {
       const res = await api.post("/api/role/list");
       this.roles = res.data;
     },
 
+    // 역할 선택 시 선택 상태를 갱신한다
     selectRole(role) {
       this.selectedRole = role;
     },

@@ -39,10 +39,12 @@ const MOBILE_BREAKPOINT = 768;
 const isMobile = ref(window.innerWidth < MOBILE_BREAKPOINT);
 const sidebarOpen = ref(!isMobile.value);
 
+// 사이드바 열림 상태를 토글한다
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value;
 };
 
+// 윈도우 리사이즈에 따라 모바일 여부와 사이드바 열림 상태를 갱신한다
 const handleResize = () => {
   const mobile = window.innerWidth < MOBILE_BREAKPOINT;
   if (mobile !== isMobile.value) {

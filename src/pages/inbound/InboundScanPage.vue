@@ -228,9 +228,11 @@ export default {
   computed: {},
 
   methods: {
+    // 현재 시각 기반의 입고번호를 생성해 설정한다
     mk_number() {
       this.inbound_no = "IN-" + Date.now();
     },
+    // 셀 편집 종료 시 해당 행을 선택 상태로 유지한다
     onCellEditingStopped(params) {
       params.api.setNodesSelected({
         nodes: [params.node],
@@ -239,6 +241,7 @@ export default {
       });
     },
 
+    // AG Grid 준비 완료 시 API 저장 및 행 변경 리스너를 등록한다
     onGridReady(params) {
       this.gridApi = params.api;
       this.columnApi = params.columnApi;
@@ -253,16 +256,19 @@ export default {
     },
 
     // QR 조회 API
+    // QR 스캔 코드로 재고를 조회한다
     async scanMaterial() {
       this.search({ scan_code: this.scanCode });
     },
 
     // 자재 검색 API
+    // 키워드로 재고를 검색한다
     async searchMaterial() {
       this.search({ scan_code: this.searchText });
     },
 
     // 검색 진행
+    // 검색 조건으로 재고 리스트를 API에서 로드한다
     async search(where) {
       this.materials = [];
       try {
@@ -276,11 +282,13 @@ export default {
       }
     },
 
+    // 특정 행을 rowData에서 제거한다
     deleteRow(row) {
       this.rowData = this.rowData.filter((r) => r !== row);
     },
 
     // 로우 항목 추가
+    // 빈 신규 행을 그리드에 추가한다
     addRow() {
       let newRow = {
         id: this.tempId--,
@@ -294,6 +302,7 @@ export default {
     },
 
     // 항목추가
+    // 동일 자재/창고/위치 행이 있으면 수량을 증가시키고, 없으면 신규 추가한다
     addItem(item) {
       let foundNode = null;
       this.gridApi.forEachNode((node) => {
@@ -342,6 +351,7 @@ export default {
     },
 
     // 화면 삭제처리
+    // 그리드의 모든 행을 제거한다
     clearItems() {
       const rows = [];
 
@@ -359,6 +369,7 @@ export default {
     },
 
     // 저장 처리
+    // 선택된 행들을 입고 전표로 저장한다
     async saveOutbound() {
       try {
         const rows = this.gridApi.getSelectedRows();
@@ -384,6 +395,7 @@ export default {
       }
     },
 
+    // 자재 목록 및 id→name 맵을 로드한다
     async loadMaterial() {
       const res = await api.post("/api/material/list");
       const materialsArr = res.data;
@@ -394,6 +406,7 @@ export default {
       );
     },
 
+    // 창고 목록 및 id→name 맵을 로드한다
     async loadWarehouse() {
       const res = await api.post("/api/warehouse/list");
       const warehouses = res.data;
@@ -403,6 +416,7 @@ export default {
         warehouses.map((w) => [w.id, w.name]),
       );
     },
+    // 위치 목록 및 id→name 맵을 로드한다
     async loadLocation() {
       const res = await api.post("/api/location/list");
       const locations = res.data;
@@ -413,6 +427,7 @@ export default {
     },
 
     // 하단 데이터 업데이트
+    // 선택된 행들 기준으로 총 수량/금액을 계산해 반영한다
     updateFooter() {
       let totalQty = 0;
       let totalAmount = 0;
@@ -432,6 +447,7 @@ export default {
     },
 
     // 테이블 로드
+    // 참조 데이터를 사용해 AG Grid 컬럼 정의를 구성한다
     loadTable() {
       const warehouses = this.warehouses;
       const warehouseMap = this.warehouseMap;
@@ -528,6 +544,7 @@ export default {
     },
   },
 
+  // 마운트 시 참조 데이터/테이블 구성 및 초기 검색을 수행한다
   async mounted() {
     await this.loadMaterial();
     await this.loadWarehouse();

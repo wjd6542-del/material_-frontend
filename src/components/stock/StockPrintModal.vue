@@ -106,6 +106,7 @@ export default {
   },
 
   methods: {
+    // 날짜 값을 YYYY-MM-DD HH:mm:ss 형식으로 포맷팅한다
     formatDate(date) {
       const d = new Date(date);
 
@@ -120,14 +121,17 @@ export default {
       return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
     },
 
+    // 숫자를 천단위 구분자 문자열로 포맷팅한다
     formatNumber(num) {
       return Number(num || 0).toLocaleString();
     },
 
+    // 브라우저 프린트 다이얼로그를 호출한다
     print() {
       window.print();
     },
 
+    // 전체 재고 수량 합계를 계산한다
     calcTotal() {
       let total_qty = 0;
 
@@ -138,6 +142,7 @@ export default {
       this.total_qty = total_qty;
     },
 
+    // 재고 목록을 로드하고 합계를 계산한다
     async loadData() {
       const res = await api.post("/api/stock/list");
       this.list = res.data;
@@ -145,6 +150,7 @@ export default {
     },
   },
 
+  // 마운트 시 재고 목록을 로드한다
   mounted() {
     this.loadData();
   },

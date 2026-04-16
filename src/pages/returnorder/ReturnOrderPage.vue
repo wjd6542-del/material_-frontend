@@ -162,6 +162,7 @@ export default {
 
   methods: {
     // 삭제
+    // 선택된 반품 전표들을 사용자 확인 후 일괄 삭제한다
     async batchDelete() {
       const rows = this.$refs.returnorderTable.getSelectedRows();
       if (!rows.length) {
@@ -191,11 +192,13 @@ export default {
     },
 
     // 추가 처리
+    // 반품 등록 모달을 연다
     openModal() {
       this.modal.openModal(ReturnOrderModal, { onSaved: this.loadList }, "xl");
     },
 
     // 데이터 로드 처리
+    // 검색 조건을 반영해 반품 목록을 로드한다
     async loadList() {
       this.rows = [];
 
@@ -217,6 +220,7 @@ export default {
     },
 
     // 셀클릭시
+    // 전표번호 셀은 수정 모달, ID 셀은 전표 프린트 모달을 연다
     onCellClick(data) {
       // 자재명 클릭시 모달 상세 오픈
       if (data.key == "return_no") {
@@ -240,6 +244,7 @@ export default {
       }
     },
   },
+  // 마운트 시 반품 목록을 로드한다
   mounted() {
     this.loadList();
   },

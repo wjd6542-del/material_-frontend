@@ -72,20 +72,25 @@ export default {
   },
   emits: ["select", "toggle"],
   computed: {
+    // 자식 노드 존재 여부를 반환한다
     hasChildren() {
       return this.node.children && this.node.children.length > 0;
     },
+    // 현재 노드가 선택된 상태인지 반환한다
     isSelected() {
       return this.selectedId === this.node.id;
     },
+    // 현재 노드가 확장 상태인지 반환한다
     expanded() {
       return this.expandedIds.has(this.node.id);
     },
   },
   methods: {
+    // 자식이 있으면 확장/축소 토글 이벤트를 emit한다
     toggleExpand() {
       if (this.hasChildren) this.$emit("toggle", this.node.id);
     },
+    // 노드 선택 이벤트를 emit한다
     onSelect() {
       this.$emit("select", this.node.id);
     },

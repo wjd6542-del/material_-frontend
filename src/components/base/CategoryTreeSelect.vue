@@ -150,16 +150,19 @@ export default {
     };
   },
   computed: {
+    // 현재 선택된 카테고리의 전체 경로 이름을 반환한다
     selectedLabel() {
       const found = this.flatList.find((c) => c.id === this.modelValue);
       return found ? found.fullName : "";
     },
+    // 모든 확장 가능한 노드가 펼쳐져 있는지 여부
     allExpanded() {
       return (
         this.allExpandableIds.length > 0 &&
         this.expandedIds.size >= this.allExpandableIds.length
       );
     },
+    // 키워드 검색 결과로 필터링된 플랫 리스트를 반환한다
     filteredFlat() {
       if (!this.keyword) return [];
       const kw = this.keyword.toLowerCase();
@@ -168,6 +171,7 @@ export default {
         c.fullName.toLowerCase().includes(kw)
       );
     },
+    // 외부에서 전달된 class 유무에 따라 트리거 버튼 클래스를 구성한다
     triggerClasses() {
       const parentClass = this.$attrs.class || "";
       const hasPadding = /p[xy]?-/.test(parentClass);
@@ -188,6 +192,7 @@ export default {
     },
   },
   methods: {
+    // 드롭다운을 열고 트리 데이터를 로드하거나 확장 상태를 갱신한다
     toggle() {
       this.open = !this.open;
       this.keyword = "";
@@ -200,12 +205,14 @@ export default {
         this.$nextTick(() => this.$refs.searchInput?.focus());
       }
     },
+    // 단일 노드의 확장/축소 상태를 토글한다
     toggleNode(id) {
       const next = new Set(this.expandedIds);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       this.expandedIds = next;
     },
+    // 전체 확장/축소를 토글한다
     toggleExpandAll() {
       if (this.allExpanded) {
         this.expandedIds = new Set();
@@ -213,6 +220,7 @@ export default {
         this.expandedIds = new Set(this.allExpandableIds);
       }
     },
+    // 자식 노드를 가진 모든 노드의 id 배열을 수집한다
     collectExpandableIds(nodes) {
       const ids = [];
       const walk = (list) => {
@@ -226,6 +234,7 @@ export default {
       walk(nodes);
       return ids;
     },
+    // 특정 id 노드까지의 부모 id 경로 배열을 찾는다
     findPathToId(nodes, targetId, path = []) {
       for (const n of nodes) {
         if (n.id === targetId) return path;
@@ -239,6 +248,7 @@ export default {
       }
       return null;
     },
+    // 선택된 값의 경로 및 루트 노드들을 확장 상태로 설정한다
     expandToSelected() {
       const next = new Set();
       for (const n of this.tree) {
@@ -250,21 +260,25 @@ export default {
       }
       this.expandedIds = next;
     },
+    // 특정 카테고리 id를 선택 상태로 반영하고 드롭다운을 닫는다
     select(id) {
       this.$emit("update:modelValue", id);
       this.$emit("change", id);
       this.open = false;
     },
+    // 선택을 해제한다
     clear() {
       this.$emit("update:modelValue", null);
       this.$emit("change", null);
       this.open = false;
     },
+    // 컴포넌트 외부 클릭 시 드롭다운을 닫는다
     handleClickOutside(e) {
       if (this.$refs.wrapper && !this.$refs.wrapper.contains(e.target)) {
         this.open = false;
       }
     },
+    // 카테고리 트리 데이터를 API에서 로드한다
     async loadTree() {
       try {
         const res = await api.post("/api/category/getCategoryTree");
@@ -279,6 +293,7 @@ export default {
         this.expandedIds = new Set();
       }
     },
+    // 중첩 트리를 경로 정보가 포함된 평면 리스트로 변환한다
     flatten(nodes, parentPath = "", depth = 1) {
       const result = [];
       for (const n of nodes) {
@@ -299,10 +314,12 @@ export default {
       return result;
     },
   },
+  // 마운트 시 외부 클릭 리스너 등록 및 트리 로드
   mounted() {
     document.addEventListener("click", this.handleClickOutside, true);
     this.loadTree();
   },
+  // 언마운트 직전 외부 클릭 리스너를 제거한다
   beforeUnmount() {
     document.removeEventListener("click", this.handleClickOutside, true);
   },

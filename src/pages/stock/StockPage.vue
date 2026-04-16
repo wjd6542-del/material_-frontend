@@ -267,19 +267,23 @@ export default {
 
   methods: {
     // 모달로 리스트출력
+    // 저재고 상세 페이지로 이동한다
     goLowStockPage() {
       this.$router.push("/login");
     },
 
     //자재 페이지로 이동
+    // 자재 목록 페이지로 이동한다
     goNewMaterialPage() {
       this.$router.push("/materials");
     },
 
+    // 숫자에 천단위 구분자를 적용해 포맷팅한다
     formatNumber(v) {
       return new Intl.NumberFormat().format(v || 0);
     },
 
+    // 날짜 값을 YYYY-MM-DD HH:mm:ss 형식으로 포맷팅한다
     formatDate(value) {
       const d = new Date(value);
 
@@ -295,6 +299,7 @@ export default {
     },
 
     // 데이터 로드 처리
+    // 검색 조건을 반영해 재고 목록을 로드한다
     async loadList() {
       this.rows = [];
 
@@ -314,35 +319,42 @@ export default {
     },
 
     // 현재고 전표
+    // 재고 인쇄 모달을 연다
     openModal() {
       this.modal.openModal(StockPrintModal, {}, "xl");
     },
 
+    // 자재 옵션을 로드한다
     async loadMaterial() {
       const res = await api.post("/api/material/list");
       this.materials = res.data;
     },
 
+    // 창고 옵션을 로드한다
     async loadWarehouse() {
       const res = await api.post("/api/warehouse/list");
       this.warehouses = res.data;
     },
 
+    // 위치 옵션을 로드한다
     async loadLocation() {
       const res = await api.post("/api/location/list");
       this.locations = res.data;
     },
 
+    // 이번 달 신규 자재 목록을 로드한다
     async newMonthMaterial() {
       const res = await api.post("/api/material/newMonthMaterial");
       this.newMaterialList = res.data;
     },
 
+    // 안전재고 미달 자재 목록을 로드한다
     async lowStockMaterials() {
       const res = await api.post("/api/stock/lowStockMaterials");
       this.lowStockList = res.data;
     },
 
+    // 전체 재고 합계를 로드한다
     async totalStockCount() {
       const res = await api.post("/api/stock/stockSummary");
       const data = res.data;
@@ -350,6 +362,7 @@ export default {
       console.log(data);
     },
   },
+  // 마운트 시 재고/자재/위치/통계 데이터를 병렬 로드한다
   mounted() {
     this.loadList();
     this.loadMaterial();

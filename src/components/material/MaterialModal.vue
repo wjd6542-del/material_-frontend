@@ -182,6 +182,7 @@ export default {
   },
 
   methods: {
+    // 서버 데이터(이미지/태그 포함)를 폼 필드에 매핑한다
     mappingData(data) {
       for (const key in this.form) {
         if (key === "images" || key === "tags") continue; // 별도 처리
@@ -202,16 +203,19 @@ export default {
       );
     },
 
+    // 수정 대상 자재 상세 데이터를 로드한다
     async loadData() {
       const res = await api.post(`/api/material/${this.id}`, { id: this.id });
       this.mappingData(res.data);
     },
 
+    // 카테고리 옵션을 로드한다
     async loadCategory() {
       const res = await api.post("/api/category/list");
       this.categorys = res.data;
     },
 
+    // 신규 태그를 서버에 생성하고 선택 상태로 반영한다
     async createTag({
       name,
       select,
@@ -238,6 +242,7 @@ export default {
       }
     },
 
+    // 태그 옵션 목록을 로드한다
     async loadTags() {
       try {
         const res = await api.post("/api/tag/list");
@@ -250,6 +255,7 @@ export default {
     /* =========================
      이미지 선택 (핵심 수정)
     ========================== */
+    // 파일 선택 시 프리뷰 URL을 생성하고 한 장만 유지한다
     handleFiles(e) {
       if (!e?.target?.files || e.target.files.length === 0) return;
 
@@ -276,6 +282,7 @@ export default {
       e.target.value = ""; // 동일 파일 재선택 가능하도록 초기화
     },
 
+    // 이미지를 제거한다 (기존 이미지는 삭제 ID 리스트에 저장)
     removeImage(img) {
       if (!img.isNew) {
         this.deleteImageIds.push(img.id);
@@ -287,6 +294,7 @@ export default {
       this.form.images = this.form.images.filter((item) => item.id !== img.id);
     },
 
+    // 자재를 FormData로 저장한다 (이미지/태그 포함, 신규/수정 분기)
     async save() {
       try {
         const formData = new FormData();
@@ -337,6 +345,7 @@ export default {
     },
   },
 
+  // 마운트 시 카테고리/태그 로드 및 수정 대상 자재 로드
   mounted() {
     this.loadCategory();
     this.loadTags();
@@ -350,6 +359,7 @@ export default {
   },
 
   // 컴포넌트 파괴 시 메모리 누수 방지
+  // 언마운트 직전 프리뷰 objectURL을 해제한다
   beforeUnmount() {
     this.form.images.forEach((img) => {
       if (img.isNew && img.preview) URL.revokeObjectURL(img.preview);

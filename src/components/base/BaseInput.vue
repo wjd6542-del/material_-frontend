@@ -41,6 +41,7 @@ export default {
   },
   emits: ["update:modelValue"],
   methods: {
+    // input 변경 시 v-model 업데이트 이벤트를 emit한다
     updateValue(e: Event) {
       const target = e.target as HTMLInputElement;
       this.$emit("update:modelValue", target.value);

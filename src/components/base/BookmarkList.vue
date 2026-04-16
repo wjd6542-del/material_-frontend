@@ -66,10 +66,12 @@ export default {
   name: "BookmarkList",
   emits: ["close"],
 
+  // 북마크 스토어와 키워드 필터링 컴퓨티드를 초기화한다
   setup() {
     const bookmarkStore = useBookmarkStore();
     const keyword = ref("");
 
+    // 키워드로 이름/주소를 필터링한 북마크 목록을 반환한다
     const filteredList = computed(() => {
       if (!keyword.value.trim()) {
         return bookmarkStore.list;
@@ -93,6 +95,7 @@ export default {
   },
 
   methods: {
+    // 선택한 북마크의 주소를 클립보드에 복사한다
     async copyAddress(item) {
       try {
         await navigator.clipboard.writeText(item.address);
@@ -102,11 +105,13 @@ export default {
       }
     },
 
+    // 북마크를 스토어에서 제거한다
     remove(data) {
       this.bookmarkStore.remove(data.key);
       this.$toast?.success(`${data.name} 북마크가 삭제 처리 되었습니다`);
     },
 
+    // 북마크 항목 클릭 시 상세 페이지로 이동하고 모달을 닫는다
     move(data) {
       this.$router.push({
         path: `/locationDetail`,

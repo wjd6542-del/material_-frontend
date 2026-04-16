@@ -143,6 +143,7 @@ export default {
   },
 
   computed: {
+    // 키워드로 제목/경로를 필터링한 북마크 목록을 반환한다
     filteredList() {
       if (!this.keyword) return this.bookmarkStore.list;
 
@@ -158,17 +159,20 @@ export default {
   },
 
   methods: {
+    // 현재 라우트를 북마크에 추가한다
     addCurrent() {
       this.bookmarkStore.addCurrent(this.route);
       // Toast의 경우 프로젝트 환경에 맞게 유지 (this.$toast 가 정의되어 있어야 함)
       if (this.$toast) this.$toast.success("북마크에 추가되었습니다.");
     },
 
+    // 북마크 항목 클릭 시 해당 경로로 이동하고 패널을 닫는다
     move(row) {
       this.$router.push(row.path);
       this.bookmarkStore.closePanel();
     },
 
+    // 북마크 항목을 삭제한다
     remove(row) {
       this.bookmarkStore.remove(row.id);
       if (this.$toast) this.$toast.info("삭제되었습니다.");

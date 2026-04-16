@@ -167,6 +167,7 @@ export default {
 
   methods: {
     // 데이터 로드 처리
+    // 검색 조건으로 사용자 목록을 로드한다
     async loadList() {
       this.rows = [];
 
@@ -187,6 +188,7 @@ export default {
     },
 
     // 셀클릭시
+    // username 셀 클릭 시 사용자 정보 수정 모달을 연다
     onCellClick(data) {
       // 자재명 클릭시 모달 상세 오픈
       if (data.key == "username") {
@@ -202,16 +204,19 @@ export default {
     },
 
     // 열기 처리
+    // 사용자 등록 모달을 연다
     async openModal() {
       this.modal.openModal(UserInfoModal, { onSaved: this.loadList }, "xl");
     },
 
+    // 역할(Role) 목록을 로드한다
     async loadRole() {
       const res = await api.post("/api/role/list");
       this.roles = res.data;
       console.log(this.roles);
     },
   },
+  // 마운트 시 사용자와 역할 목록을 로드한다
   mounted() {
     this.loadList();
     this.loadRole();

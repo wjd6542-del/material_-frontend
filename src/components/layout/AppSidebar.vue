@@ -414,35 +414,43 @@ export default defineComponent({
     };
   },
   methods: {
+    // 부모 메뉴의 펼침 상태를 토글한다 (사이드바가 열려 있을 때만)
     toggle(menu: any) {
       if (this.open) menu.open = !menu.open;
     },
+    // 주어진 경로가 현재 활성 라우트인지 판단한다
     isActive(path: string) {
       const currentPath = this.$route.path;
       if (path === "/dashboard" && currentPath === "/") return true;
       return currentPath === path;
     },
+    // 부모 메뉴의 하위 중 활성 항목이 있는지 확인한다
     isParentActive(menu: any) {
       return menu.children?.some((sub: any) => this.isActive(sub.to));
     },
+    // 현재 경로에 해당하는 부모 메뉴를 자동 펼침 처리한다
     updateMenuOpen(path: string) {
       this.menus.forEach((menu: any) => {
         if (menu.children?.some((c: any) => c.to === path)) menu.open = true;
       });
     },
+    // auth 스토어로 특정 권한 보유 여부를 확인한다
     hasPermission(permission: string) {
       return useAuthStore().hasPermission(permission);
     },
+    // 부모 메뉴의 자식 중 사용자가 볼 수 있는 항목이 하나라도 있는지 확인한다
     hasAnyChildPermission(menu: any) {
       return menu.children?.some(
         (sub: any) => !sub.permission || this.hasPermission(sub.permission),
       );
     },
   },
+  // 마운트 시 현재 경로 기준으로 메뉴 펼침 상태를 초기화한다
   mounted() {
     this.updateMenuOpen(this.$route.path);
   },
   watch: {
+    // 라우트 경로 변경 시 부모 메뉴 펼침 상태를 갱신한다
     "$route.path"(newPath) {
       this.updateMenuOpen(newPath);
     },

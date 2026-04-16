@@ -512,12 +512,15 @@ export default {
     };
   },
   computed: {
+    // 한 셀의 픽셀 너비를 계산한다
     cellWidth() {
       return this.gridWidth / this.cols || 0;
     },
+    // 한 셀의 픽셀 높이를 계산한다
     cellHeight() {
       return this.gridHeight / this.rows || 0;
     },
+    // 검색어로 필터링된 위치 목록을 반환한다
     filteredLocations() {
       const q = this.locationSearchText.trim().toLowerCase();
       if (!q) return this.locations;
@@ -527,6 +530,7 @@ export default {
           (l.code || "").toLowerCase().includes(q),
       );
     },
+    // 검색어로 필터링된 선반 목록을 반환한다
     filteredRacks() {
       const q = this.rackSearchText.trim().toLowerCase();
       if (!q) return this.racks;
@@ -536,6 +540,7 @@ export default {
           (r.code || "").toLowerCase().includes(q),
       );
     },
+    // 선택된 선반의 재고를 상세 검색어로 필터링해 반환한다
     filteredStocks() {
       if (!this.selectedRack) return [];
       const list = this.selectedRack.stocks || [];
@@ -546,6 +551,7 @@ export default {
           .includes(this.detailSearchText.toLowerCase()),
       );
     },
+    // 검색어에 자재가 포함된 선반 id 배열을 반환한다
     matchedRackIds() {
       if (!this.searchText) return [];
       return this.racks
@@ -560,6 +566,7 @@ export default {
     },
   },
   watch: {
+    // 검색어 변경 시 첫 매칭 선반을 선택한다
     searchText(val) {
       if (!val) return;
       const found = this.racks.find((rack) =>
@@ -571,9 +578,11 @@ export default {
     },
   },
   methods: {
+    // 특정 선반의 총 재고 수량을 계산한다
     totalQty(rack) {
       return (rack.stocks || []).reduce((sum, v) => sum + v.qty, 0);
     },
+    // 선반 블록의 absolute 포지션 스타일을 반환한다
     rackStyle(rack) {
       return {
         left: rack.x * this.cellWidth + "px",
@@ -582,6 +591,7 @@ export default {
         height: rack.height * this.cellHeight + "px",
       };
     },
+    // 선반 상태별 CSS 클래스명을 반환한다
     rackClass(rack) {
       if (this.selectedRack?.id === rack.id) return "rack-selected";
       if (this.searchText) {
@@ -591,6 +601,7 @@ export default {
       }
       return rack.stocks?.length ? "rack-has-stock" : "rack-empty";
     },
+    // 창고 선택 시 하위 상태를 초기화하고 위치 목록을 로드한다
     async selectWarehouse(wh) {
       this.selectedWarehouse = wh;
       this.selectedLocation = null;
@@ -601,6 +612,7 @@ export default {
       this.rackSearchText = "";
       await this.loadLocations();
     },
+    // 위치 선택 시 선반 재고 로드 및 그리드 크기를 갱신한다
     async selectLocation(loc) {
       this.selectedLocation = loc;
       this.selectedRack = null;
@@ -608,16 +620,19 @@ export default {
       await this.loadRacks();
       this.$nextTick(() => this.updateGridSize());
     },
+    // 선반 선택 시 상세 검색 영역을 초기화한다
     selectRack(rack) {
       this.selectedRack = rack;
       this.detailSearchText = "";
     },
+    // 그리드 컨테이너의 실제 픽셀 크기를 갱신한다
     updateGridSize() {
       if (!this.$refs.grid) return;
       const rect = this.$refs.grid.getBoundingClientRect();
       this.gridWidth = rect.width;
       this.gridHeight = rect.height;
     },
+    // 창고 목록을 로드한다
     async loadWarehouses() {
       try {
         const res = await api.post("/api/warehouse/list");
@@ -626,6 +641,7 @@ export default {
         console.error(e);
       }
     },
+    // 선택된 창고의 위치 목록을 로드한다
     async loadLocations() {
       if (!this.selectedWarehouse) return;
       try {
@@ -637,6 +653,7 @@ export default {
         console.error(e);
       }
     },
+    // 선택된 위치의 선반 재고 데이터를 로드한다
     async loadRacks() {
       if (!this.selectedLocation) return;
       try {
@@ -652,10 +669,12 @@ export default {
       }
     },
   },
+  // 마운트 시 창고 로드 및 리사이즈 리스너 등록
   mounted() {
     this.loadWarehouses();
     window.addEventListener("resize", this.updateGridSize);
   },
+  // 언마운트 직전 리사이즈 리스너를 제거한다
   beforeUnmount() {
     window.removeEventListener("resize", this.updateGridSize);
   },

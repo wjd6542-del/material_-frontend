@@ -128,6 +128,7 @@ export default {
     return { searchQuery: "" };
   },
   computed: {
+    // 검색어로 필터링된 카테고리 트리를 반환한다
     filteredTree() {
       if (!this.searchQuery) return this.tree;
       return filterTree(this.tree, this.searchQuery);

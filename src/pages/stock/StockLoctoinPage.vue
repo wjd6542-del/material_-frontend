@@ -542,6 +542,7 @@ export default {
     };
   },
   computed: {
+    // 선택된 rack의 재고를 상세 검색어로 필터링해 반환한다
     filteredStocks() {
       if (!this.selectedRack) return [];
       if (!this.detailSearchText) return this.selectedRack.stocks;
@@ -551,6 +552,7 @@ export default {
           .includes(this.detailSearchText.toLowerCase()),
       );
     },
+    // 검색어에 자재가 포함된 rack id 배열을 반환한다
     matchedRackIds() {
       if (!this.searchText) return [];
       return this.racks
@@ -565,6 +567,7 @@ export default {
     },
   },
   watch: {
+    // 검색어 변경 시 첫 매칭 rack을 선택하고 스크롤한다
     searchText(val) {
       if (!val) return;
       const found = this.racks.find((rack) =>
@@ -579,6 +582,7 @@ export default {
     },
   },
   methods: {
+    // 창고별 고유 자재 종류 수를 계산한다
     getWarehouseTypes(id) {
       const wh = this.warehouses.find((w) => w.id === id);
       if (!wh || !wh.stocks) return 0;
@@ -588,16 +592,19 @@ export default {
       return unique.size;
     },
 
+    // 창고의 총 수량 합계를 계산한다
     getWarehouseQty(id) {
       const wh = this.warehouses.find((w) => w.id === id);
       if (!wh || !wh.stocks) return 0;
 
       return wh.stocks.reduce((sum, s) => sum + (s.quantity || 0), 0);
     },
+    // 포인트 배열을 SVG polygon용 문자열로 변환한다
     pointsToString(p) {
       if (!p || !p.length) return "";
       return p.map((v) => `${v.x},${v.y}`).join(" ");
     },
+    // 다각형 포인트들의 중심 좌표를 계산한다
     getCenter(p) {
       if (!p || !p.length) return { x: 0, y: 0 };
       return {
@@ -605,6 +612,7 @@ export default {
         y: p.reduce((a, b) => a + b.y, 0) / p.length,
       };
     },
+    // 선택/검색/재고 여부에 따른 rack 상태 문자열을 반환한다
     rackState(rack) {
       if (this.selectedRack?.id === rack.id) return "selected";
       if (this.searchText) {
@@ -612,6 +620,7 @@ export default {
       }
       return rack.stocks?.length ? "hasStock" : "empty";
     },
+    // 상태별 rack 채움 색상을 반환한다
     rackFill(rack) {
       const state = this.rackState(rack);
       if (state === "selected") return "#2563eb";
@@ -620,6 +629,7 @@ export default {
       if (state === "hasStock") return rack.color || "#1e293b";
       return "#f1f5f9";
     },
+    // 상태별 rack 테두리 색상을 반환한다
     rackStroke(rack) {
       const state = this.rackState(rack);
       if (state === "selected") return "#ffffff";
@@ -628,17 +638,21 @@ export default {
       if (state === "hasStock") return "#0f172a";
       return "#e2e8f0";
     },
+    // dimmed 상태일 때 투명도를 낮춰 반환한다
     rackOpacity(rack) {
       return this.rackState(rack) === "dimmed" ? 0.25 : 1;
     },
+    // 상태별 rack 라벨 색상을 반환한다
     rackTextColor(rack) {
       const state = this.rackState(rack);
       if (state === "empty" || state === "dimmed") return "#94a3b8";
       return "#ffffff";
     },
+    // 특정 rack의 총 재고 수량을 계산한다
     totalQty(rack) {
       return (rack.stocks || []).reduce((sum, v) => sum + v.qty, 0);
     },
+    // 창고 선택 시 뷰를 리셋하고 해당 창고 데이터를 로드한다
     async selectWarehouse(wh) {
       this.selectedWarehouse = wh;
       this.where.warehouse_id = wh.id;
@@ -646,11 +660,14 @@ export default {
       this.resetZoom();
       await this.loadData();
     },
+    // rack 선택 시 상세 검색 영역을 초기화한다
     selectRack(rack) {
       this.selectedRack = rack;
       this.detailSearchText = "";
     },
+    // 특정 rack으로 스크롤한다 (미구현)
     scrollToRack() {},
+    // 화면 좌표를 SVG viewBox 좌표로 변환한다
     svgPoint(e) {
       const svg = this.$refs.svg;
       if (!svg) return { x: 0, y: 0 };
@@ -662,6 +679,7 @@ export default {
       const p = pt.matrixTransform(ctm.inverse());
       return { x: p.x, y: p.y };
     },
+    // 휠 이벤트로 마우스 포인터 기준의 확대/축소를 수행한다
     handleWheel(e) {
       const scale = e.deltaY > 0 ? 1.15 : 1 / 1.15;
       const newW = Math.min(
@@ -677,12 +695,15 @@ export default {
         h: newW,
       };
     },
+    // 버튼으로 확대한다
     zoomIn() {
       this.zoomBy(1 / 1.25);
     },
+    // 버튼으로 축소한다
     zoomOut() {
       this.zoomBy(1.25);
     },
+    // 현재 중심을 기준으로 주어진 배율만큼 확대/축소한다
     zoomBy(scale) {
       const newW = Math.min(
         Math.max(this.viewBox.w * scale, this.minZoom),
@@ -697,9 +718,11 @@ export default {
         h: newW,
       };
     },
+    // 뷰박스를 초기 상태로 리셋한다
     resetZoom() {
       this.viewBox = { x: 0, y: 0, w: 1000, h: 1000 };
     },
+    // 배경 드래그 시작 시 팬 초기 상태를 저장한다
     handlePanStart(e) {
       if (e.target.closest("g")) return;
       this.isPanning = true;
@@ -710,6 +733,7 @@ export default {
         vy: this.viewBox.y,
       };
     },
+    // 팬 중 마우스 이동에 맞춰 뷰박스 좌표를 이동시킨다
     handlePanMove(e) {
       if (!this.isPanning) return;
       const svg = this.$refs.svg;
@@ -721,9 +745,11 @@ export default {
         y: this.panStart.vy - (e.clientY - this.panStart.y) * scale,
       };
     },
+    // 팬 종료 처리
     handlePanEnd() {
       this.isPanning = false;
     },
+    // 선택된 창고의 위치별 재고 맵 데이터를 로드한다
     async loadData() {
       try {
         const res = await api.post("/api/stock/locationStock", this.where);
@@ -734,6 +760,7 @@ export default {
         console.error(e);
       }
     },
+    // 창고 목록을 로드한다
     async loadWarehouses() {
       try {
         const res = await api.post("/api/warehouse/list");
@@ -744,6 +771,7 @@ export default {
       }
     },
   },
+  // 마운트 시 창고 목록을 로드한다
   mounted() {
     this.loadWarehouses();
   },

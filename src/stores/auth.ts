@@ -39,11 +39,13 @@ export const useAuthStore = defineStore("auth", {
 
 	getters: {
 
+		// 토큰 존재 여부로 로그인 상태를 반환한다
 		isLogin: (state): boolean => {
 			return !!state.token
 		},
 
 		// 🔥 권한 체크 (슈퍼 관리자 포함)
+		// 특정 권한 코드 보유 여부를 반환한다 (super는 항상 true)
 		hasPermission: (state) => {
 			return (code?: string) => {
 				// ❌ user 없으면 차단
@@ -64,6 +66,7 @@ export const useAuthStore = defineStore("auth", {
 
 	actions: {
 
+		// JWT 토큰의 만료 여부를 검사하고 만료 시 로그아웃 처리한다
 		checkToken () {
 			const token = this.token
 			if (!token) return false
@@ -84,6 +87,7 @@ export const useAuthStore = defineStore("auth", {
 			}
 		},
 
+		// 로그인 성공 응답을 받아 상태와 로컬스토리지에 저장한다
 		login (data: LoginResponse) {
 			this.token = data.token
 			this.user = data.user
@@ -93,6 +97,7 @@ export const useAuthStore = defineStore("auth", {
 			localStorage.setItem("user", JSON.stringify(data.user))
 		},
 
+		// 로그아웃 처리 및 로컬스토리지 토큰/유저 정보를 제거한다
 		logout () {
 			this.token = null
 			this.user = null
@@ -102,6 +107,7 @@ export const useAuthStore = defineStore("auth", {
 			localStorage.removeItem("user")
 		},
 
+		// 로컬스토리지의 토큰과 유저 정보를 복원하고 만료 시 로그아웃한다
 		restore () {
 			const token = localStorage.getItem("token")
 			const user = localStorage.getItem("user")

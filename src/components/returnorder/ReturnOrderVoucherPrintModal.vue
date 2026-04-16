@@ -143,6 +143,7 @@ export default {
   },
 
   computed: {
+    // 전표 품목 배열을 반환한다
     items() {
       return this.data?.items || [];
     },
@@ -176,6 +177,7 @@ export default {
       window.print();
     },
 
+    // 품목 수량×판매가를 합산해 총액을 계산한다
     totalAmount(data) {
       const list = data.items;
 
@@ -186,6 +188,7 @@ export default {
       this.total_amount = total;
     },
 
+    // 반품 전표 상세와 총액을 로드한다
     async loadData() {
       const res = await api.post(`/api/returnorder/${this.id}`, {
         id: this.id,
@@ -195,6 +198,7 @@ export default {
     },
   },
 
+  // 마운트 시 전표 상세를 로드한다
   mounted() {
     this.loadData();
   },

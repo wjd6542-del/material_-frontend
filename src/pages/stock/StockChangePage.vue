@@ -145,6 +145,7 @@ export default {
   },
 
   computed: {
+    // 재고 흐름 라인 차트의 ECharts 옵션을 반환한다
     chartOption() {
       const colorPalette = [
         "#3B82F6",
@@ -200,11 +201,13 @@ export default {
   },
 
   methods: {
+    // 자재 선택 옵션을 로드한다
     async loadMaterial() {
       const res = await api.post("/api/material/list");
       this.materials = res.data;
     },
 
+    // 기간 조건으로 재고 변동 이력을 로드하고 차트를 빌드한다
     async loadData() {
       const where = { ...this.where };
       if (this.dateRange?.start)
@@ -216,6 +219,7 @@ export default {
       this.buildChart();
     },
 
+    // 로드된 데이터를 기간 라벨과 자재별 series로 가공한다
     buildChart() {
       if (!this.chartData?.length) {
         this.labels = [];
@@ -248,6 +252,7 @@ export default {
       }));
     },
 
+    // 기간을 이번달로 초기화하고 자재 필터를 비운다
     resetFilters() {
       const now = new Date();
       this.dateRange = {
@@ -260,6 +265,7 @@ export default {
     },
   },
 
+  // 마운트 시 필터 초기화와 자재 로드를 수행한다
   mounted() {
     this.resetFilters();
     this.loadMaterial();

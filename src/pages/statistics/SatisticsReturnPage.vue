@@ -308,10 +308,12 @@ export default {
   },
 
   methods: {
+    // 숫자를 천단위 구분자 문자열로 포맷팅한다
     formatNumber(val) {
       return Number(val || 0).toLocaleString();
     },
 
+    // 지정 날짜의 반품 일별 통계를 서버에 갱신 요청한다
     async setData() {
       if (!this.set.date) {
         this.$toast.error("날짜를 입력하세요");
@@ -337,6 +339,7 @@ export default {
       }
     },
 
+    // 목록 데이터로 총수량/원가/매출/이익 요약을 계산해 반영한다
     setSummary(data_list = []) {
       this.summary = data_list.reduce(
         (acc, row) => {
@@ -356,6 +359,7 @@ export default {
       );
     },
 
+    // 반품 통계 차트 데이터를 로드한다
     async loadChartData() {
       const params = this.getParams();
       const res = await api.post("/api/stat/return/daily/totalAmount", params);
@@ -364,6 +368,7 @@ export default {
       this.chartRows = res.data;
     },
 
+    // 반품 통계 목록을 로드하고 요약을 갱신한다
     async loadList() {
       const params = this.getParams();
       const res = await api.post("/api/stat/returnList", params);
@@ -371,6 +376,7 @@ export default {
       this.setSummary(res.data);
     },
 
+    // 검색/기간을 결합해 API 파라미터 객체를 생성한다
     getParams() {
       const where = { ...this.where };
       if (this.dateRange?.start)
@@ -379,16 +385,19 @@ export default {
       return where;
     },
 
+    // 목록과 차트를 병렬로 조회한다
     async searchData() {
       await Promise.all([this.loadList(), this.loadChartData()]);
     },
 
+    // 자재 옵션 목록을 로드한다
     async loadMaterial() {
       const res = await api.post("/api/material/list");
       this.materials = res.data;
     },
   },
 
+  // 마운트 시 기본 기간(이번 달)을 세팅하고 통계를 조회한다
   mounted() {
     const now = new Date();
     this.dateRange = {

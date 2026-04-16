@@ -151,6 +151,7 @@ export default {
     modelValue: {
       immediate: true,
       deep: true,
+      // 외부 modelValue 변경 시 내부 값을 동기화한다
       handler(val) {
         if (!val) {
           this.innerValue.start = undefined;
@@ -165,6 +166,7 @@ export default {
   },
 
   computed: {
+    // 선택된 시작/종료 날짜를 표시용 문자열로 포맷팅한다
     formattedRange(): string {
       if (!this.innerValue?.start || !this.innerValue?.end) return "";
 
@@ -189,15 +191,18 @@ export default {
     },
   },
 
+  // 마운트 시 외부 클릭 리스너를 등록한다
   mounted() {
     document.addEventListener("click", this.handleOutside, true);
   },
 
+  // 언마운트 직전 외부 클릭 리스너를 제거한다
   beforeUnmount() {
     document.removeEventListener("click", this.handleOutside, true);
   },
 
   methods: {
+    // 선택된 기간을 초기화하고 이벤트를 emit한다
     clearRange() {
       this.innerValue.start = undefined;
       this.innerValue.end = undefined;
@@ -212,16 +217,19 @@ export default {
       this.openQuick = false;
     },
 
+    // 달력 열림 상태를 토글한다
     toggleCalendar() {
       this.openCalendar = !this.openCalendar;
       this.openQuick = false;
     },
 
+    // 빠른 선택 드롭다운을 토글한다
     toggleQuick() {
       this.openQuick = !this.openQuick;
       this.openCalendar = false;
     },
 
+    // 달력에서 날짜 범위 선택 시 호출되는 핸들러
     handleSelect(val: any) {
       if (this.mode === "date") {
         if (val.start) val.start.setHours(0, 0, 0, 0);
@@ -234,6 +242,7 @@ export default {
       this.$emit("change");
     },
 
+    // 빠른 버튼(오늘/어제/일주일/이번달)에 따라 날짜 범위를 설정한다
     setQuick(type: string) {
       const now = new Date();
       let start = new Date(now);
@@ -280,6 +289,7 @@ export default {
       this.openCalendar = false;
     },
 
+    // 컴포넌트 외부 클릭 시 달력/빠른 선택을 닫는다
     handleOutside(event: any) {
       if (!this.$el.contains(event.target)) {
         this.openCalendar = false;

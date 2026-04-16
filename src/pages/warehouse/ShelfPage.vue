@@ -409,12 +409,15 @@ export default {
     };
   },
   computed: {
+    // 한 셀의 픽셀 너비를 계산한다
     cellWidth() {
       return this.gridWidth / this.cols;
     },
+    // 한 셀의 픽셀 높이를 계산한다
     cellHeight() {
       return this.gridHeight / this.rows;
     },
+    // 현재 포커스된 선반 객체를 반환한다
     focusedRack() {
       if (!this.focusedRackId) return null;
       return (
@@ -424,15 +427,18 @@ export default {
     },
   },
   methods: {
+    // 선반 저장 여부에 따른 배경/테두리 색상을 반환한다
     getRackColor(rack) {
       if (!rack.id) {
         return { backgroundColor: "#9ca3af", borderColor: "#6b7280" };
       }
       return { backgroundColor: "#111827", borderColor: "#374151" };
     },
+    // 지정 선반에 포커스를 설정한다
     focusRack(id) {
       this.focusedRackId = id;
     },
+    // 창고 선택 시 관련 상태 초기화 및 위치 목록을 로드한다
     selectWarehouse(wh) {
       this.selectedWarehouse_id = wh.id;
       this.selectedLocation_id = null;
@@ -441,6 +447,7 @@ export default {
       this.focusedRackId = null;
       this.loadLocations();
     },
+    // 위치 선택 시 선반 데이터를 로드하고 그리드 크기를 갱신한다
     selectLocation(loc) {
       this.selectedLocation_id = loc.id;
       this.selectedLocationName = loc.name || loc.code;
@@ -449,6 +456,7 @@ export default {
       this.loadData();
       this.$nextTick(() => this.updateGridSize());
     },
+    // 그리드 컨테이너의 실제 픽셀 크기를 갱신한다
     updateGridSize() {
       if (this.$refs.grid) {
         const rect = this.$refs.grid.getBoundingClientRect();
@@ -456,6 +464,7 @@ export default {
         this.gridHeight = rect.height;
       }
     },
+    // 선반 블록의 absolute 포지션 스타일을 반환한다
     rackStyle(rack) {
       return {
         left: rack.x * this.cellWidth + "px",
@@ -464,6 +473,7 @@ export default {
         height: rack.height * this.cellHeight + "px",
       };
     },
+    // 신규 선반을 리스트에 추가하고 편집 모드를 켠다
     addRack() {
       if (!this.selectedLocation_id) return;
       const newRack = {
@@ -482,6 +492,7 @@ export default {
       this.focusedRackId = newRack.tempId;
       this.isEditMode = true;
     },
+    // 선반 드래그 시작 (이동 준비)
     startDrag(e, rack) {
       this.focusRack(rack.id || rack.tempId);
       this.dragging = rack;
@@ -490,6 +501,7 @@ export default {
       document.addEventListener("mousemove", this.onMove);
       document.addEventListener("mouseup", this.stopAction);
     },
+    // 드래그 중 마우스 이동에 맞춰 선반 위치를 갱신한다
     onMove(e) {
       if (!this.dragging) return;
       const rect = this.$refs.grid.getBoundingClientRect();
@@ -510,11 +522,13 @@ export default {
         ),
       );
     },
+    // 선반 리사이즈 시작
     startResize(e, rack) {
       this.resizing = rack;
       document.addEventListener("mousemove", this.onResize);
       document.addEventListener("mouseup", this.stopAction);
     },
+    // 리사이즈 중 마우스 이동에 맞춰 선반 크기를 갱신한다
     onResize(e) {
       if (!this.resizing) return;
       const rect = this.$refs.grid.getBoundingClientRect();
@@ -535,6 +549,7 @@ export default {
         ),
       );
     },
+    // 드래그/리사이즈 종료 및 이벤트 리스너를 제거한다
     stopAction() {
       this.dragging = null;
       this.resizing = null;
@@ -542,6 +557,7 @@ export default {
       document.removeEventListener("mousemove", this.onResize);
       document.removeEventListener("mouseup", this.stopAction);
     },
+    // 현재 선반 배치 전체를 서버에 일괄 저장한다
     async save() {
       if (!this.selectedLocation_id) return;
       this.isSaving = true;
@@ -556,6 +572,7 @@ export default {
         this.isSaving = false;
       }
     },
+    // 지정 선반을 삭제한다 (신규면 로컬만, 기존이면 서버 호출)
     async deleteData(rack) {
       if (!rack.id) {
         this.racks = this.racks.filter((r) => r !== rack);
@@ -575,28 +592,33 @@ export default {
         this.$toast.error(e.message);
       }
     },
+    // 선택된 위치의 선반 목록을 로드한다
     async loadData() {
       const res = await api.post("/api/shelf/list", {
         location_id: this.selectedLocation_id,
       });
       this.racks = res.data || [];
     },
+    // 선택된 창고의 위치 목록을 로드한다
     async loadLocations() {
       const res = await api.post("/api/location/list", {
         warehouse_id: this.selectedWarehouse_id,
       });
       this.locations = res.data || [];
     },
+    // 창고 목록을 로드한다
     async loadWarehouses() {
       const res = await api.post("/api/warehouse/list");
       this.warehouses = res.data || [];
     },
   },
+  // 마운트 시 그리드 크기 갱신과 창고 로드 및 리사이즈 리스너 등록
   mounted() {
     this.$nextTick(() => this.updateGridSize());
     this.loadWarehouses();
     window.addEventListener("resize", this.updateGridSize);
   },
+  // 언마운트 직전 윈도우 리사이즈 리스너를 제거한다
   beforeUnmount() {
     window.removeEventListener("resize", this.updateGridSize);
   },

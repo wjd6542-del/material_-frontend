@@ -363,11 +363,13 @@ export default {
     };
   },
 
+  // 마운트 시 사용자 목록을 로드한다
   mounted() {
     this.loadUsers();
   },
 
   computed: {
+    // 검색어로 필터링된 사용자 목록을 반환한다
     filteredUsers() {
       if (!this.search) return this.users;
       const s = this.search.toLowerCase();
@@ -376,6 +378,7 @@ export default {
           u.name.toLowerCase().includes(s) || u.email.toLowerCase().includes(s),
       );
     },
+    // 검색어로 필터링된 IP 목록을 반환한다
     filteredIpList() {
       if (!this.ipSearch) return this.ipList;
       const s = this.ipSearch.toLowerCase();
@@ -385,6 +388,7 @@ export default {
           (item.memo && item.memo.toLowerCase().includes(s)),
       );
     },
+    // 전체 IP 행이 선택되었는지 여부를 반환한다
     isAllSelected() {
       return (
         this.ipList.length > 0 &&
@@ -392,6 +396,7 @@ export default {
       );
     },
 
+    // 배경 도트 패턴 스타일 객체를 반환한다
     dotPattern() {
       return {
         backgroundImage: `radial-gradient(#3b82f6 1px, transparent 0)`,
@@ -420,6 +425,7 @@ export default {
       this.ipList = res.data;
     },
 
+    // 지정 키 행을 선택 상태에 추가한다
     autoSelectRow(key) {
       if (!this.selectedRows.includes(key)) {
         this.selectedRows.push(key);
@@ -427,6 +433,7 @@ export default {
     },
 
     // 로우 추가
+    // 신규 IP 행을 리스트 상단에 추가하고 선택한다
     addRow() {
       this.ipList.unshift({
         id: null,
@@ -438,6 +445,7 @@ export default {
       this.autoSelectRow(null || 0);
     },
 
+    // IP 목록의 전체 선택/해제를 토글한다
     toggleAll() {
       if (this.isAllSelected) {
         this.selectedRows = [];
