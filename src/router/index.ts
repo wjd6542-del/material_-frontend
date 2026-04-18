@@ -67,6 +67,9 @@ import ShelfPage from "@/pages/warehouse/ShelfPage.vue"
 import LogPage from "@/pages/log/LogPage.vue"
 import UserMyPage from "@/pages/user/UserMyPage.vue"
 
+// 사업자
+import BusinessPage from "@/pages/business/BusinessPage.vue"
+
 
 
 
@@ -236,6 +239,13 @@ const routes = [
 						path: "setting",
 						component: SettingPage,
 						meta: { title: "환경설정", auth: true, permission: "setting.view" },
+					},
+
+					// 사업자 정보
+					{
+						path: "business",
+						component: BusinessPage,
+						meta: { title: "사업자 정보", auth: true, permission: "business.view" },
 					},
 
 					// 계정

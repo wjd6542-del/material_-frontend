@@ -393,6 +393,12 @@ export default defineComponent({
           ],
         },
         {
+          to: "/business",
+          icon: "fa-building",
+          label: "사업자 정보",
+          permission: "business.view",
+        },
+        {
           to: "/notification",
           icon: "fa-bell",
           label: "알림",
