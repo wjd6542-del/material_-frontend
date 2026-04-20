@@ -70,6 +70,11 @@ import UserMyPage from "@/pages/user/UserMyPage.vue"
 // 사업자
 import BusinessPage from "@/pages/business/BusinessPage.vue"
 
+// 발주
+import PurchaseOrderListPage from "@/pages/purchaseorder/PurchaseOrderListPage.vue"
+import PurchaseOrderRegisterPage from "@/pages/purchaseorder/PurchaseOrderRegisterPage.vue"
+import PurchaseOrderDetailPage from "@/pages/purchaseorder/PurchaseOrderDetailPage.vue"
+
 
 
 
@@ -246,6 +251,23 @@ const routes = [
 						path: "business",
 						component: BusinessPage,
 						meta: { title: "사업자 정보", auth: true, permission: "business.view" },
+					},
+
+					// 발주 관리
+					{
+						path: "purchaseorder",
+						component: PurchaseOrderListPage,
+						meta: { title: "발주 목록", auth: true, permission: "purchaseorder.view" },
+					},
+					{
+						path: "purchaseorder/register",
+						component: PurchaseOrderRegisterPage,
+						meta: { title: "발주 등록", auth: true, permission: "purchaseorder.create" },
+					},
+					{
+						path: "purchaseorder/detail",
+						component: PurchaseOrderDetailPage,
+						meta: { title: "발주 세부내역", auth: true, permission: "purchaseorder.detail.view" },
 					},
 
 					// 계정

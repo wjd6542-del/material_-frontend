@@ -191,6 +191,28 @@ export default defineComponent({
           permission: "dashboard.view",
         },
         {
+          icon: "fa-clipboard-list",
+          label: "발주관리",
+          open: false,
+          children: [
+            {
+              to: "/purchaseorder",
+              label: "발주 목록",
+              permission: "purchaseorder.view",
+            },
+            {
+              to: "/purchaseorder/detail",
+              label: "발주 세부내역",
+              permission: "purchaseorder.detail.view",
+            },
+            {
+              to: "/purchaseorder/register",
+              label: "발주 등록",
+              permission: "purchaseorder.create",
+            },
+          ],
+        },
+        {
           icon: "fa-box",
           label: "자재관리",
           open: false,

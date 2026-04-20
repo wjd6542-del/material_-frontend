@@ -20,6 +20,24 @@
     <div class="flex items-center gap-2 md:gap-6 shrink-0">
       <!-- 알림 아이콘들: 태블릿 이상에서만 표시 -->
       <template v-if="authStore.hasPermission('notification.view')">
+        <!-- 발주 -->
+        <div
+          class="hidden md:flex relative cursor-pointer group"
+          @click="openNotification('PURCHASEORDER')"
+        >
+          <div
+            class="w-10 h-10 flex items-center justify-center rounded-xl bg-teal-50 text-teal-600 group-hover:bg-teal-100 transition"
+          >
+            <i class="fa-solid fa-clipboard-list"></i>
+          </div>
+          <span
+            v-if="noti.counts.PURCHASEORDER > 0"
+            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-teal-500 text-white rounded-full px-1"
+          >
+            {{ noti.counts.PURCHASEORDER }}
+          </span>
+        </div>
+
         <!-- 자재 -->
         <div
           class="hidden md:flex relative cursor-pointer group"
@@ -260,6 +278,7 @@ export default {
         (c.INBOUND || 0) +
         (c.OUTBOUND || 0) +
         (c.RETURNORDER || 0) +
+        (c.PURCHASEORDER || 0) +
         (c.STOCK || 0)
       );
     },

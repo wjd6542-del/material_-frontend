@@ -75,6 +75,8 @@
                   'bg-emerald-500 shadow-emerald-100': row.type === 'MATERIAL',
                   'bg-orange-500 shadow-emerald-100':
                     row.type === 'RETURNORDER',
+                  'bg-teal-500 shadow-emerald-100':
+                    row.type === 'PURCHASEORDER',
                   'bg-purple-500 shadow-emerald-100': row.type === 'STOCK',
                 }"
               >
@@ -84,6 +86,7 @@
                     'fa-solid fa-arrow-up': row.type === 'OUTBOUND',
                     'fa-solid fa-box': row.type === 'MATERIAL',
                     'fa-solid fa-rotate-left': row.type === 'RETURNORDER',
+                    'fa-solid fa-clipboard-list': row.type === 'PURCHASEORDER',
                     'fa-solid fa-boxes-stacked': row.type === 'STOCK',
                   }"
                 ></i>

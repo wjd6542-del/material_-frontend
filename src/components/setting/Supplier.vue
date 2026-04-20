@@ -1,5 +1,7 @@
 ﻿<template>
   <div>
+    <DaumPostcodeModal v-model="postcodeOpen" @select="applyAddress" />
+
     <!-- 🔎 검색 영역 -->
     <div class="bg-white border rounded-xl shadow-sm p-4 mb-4">
       <div
@@ -54,6 +56,7 @@
 <script>
 import api from "@/api/api";
 import { AgGridVue } from "ag-grid-vue3";
+import DaumPostcodeModal from "@/components/base/DaumPostcodeModal.vue";
 const statusMap = {
   true: "활성",
   false: "비활성",
@@ -61,7 +64,7 @@ const statusMap = {
 
 export default {
   name: "supplierTable",
-  components: { AgGridVue },
+  components: { AgGridVue, DaumPostcodeModal },
 
   data() {
     return {
@@ -72,6 +75,8 @@ export default {
       search: {
         keys: [],
       },
+      postcodeOpen: false,
+      targetRowId: null,
 
       rowData: [],
       columnDefs: [],
@@ -153,6 +158,30 @@ export default {
         },
 
         {
+          headerName: "우편번호",
+          field: "zipcode",
+          filter: "agTextColumnFilter",
+          editable: false,
+          flex: 0.4,
+          cellStyle: { cursor: "pointer" },
+          onCellClicked: (params) => this.openPostcode(params.data.id),
+        },
+        {
+          headerName: "기본주소",
+          field: "address",
+          filter: "agTextColumnFilter",
+          editable: false,
+          flex: 1,
+          cellStyle: { cursor: "pointer" },
+          onCellClicked: (params) => this.openPostcode(params.data.id),
+        },
+        {
+          headerName: "상세주소",
+          field: "address_detail",
+          filter: "agTextColumnFilter",
+          flex: 0.7,
+        },
+        {
           headerName: "메모",
           field: "memo",
           filter: "agTextColumnFilter",
@@ -165,6 +194,24 @@ export default {
           flex: 0.5,
         },
       ];
+    },
+
+    // 대상 행 ID를 저장하고 우편번호 모달을 연다
+    openPostcode(rowId) {
+      this.targetRowId = rowId;
+      this.postcodeOpen = true;
+    },
+
+    // 모달에서 선택한 주소 값을 대상 행에 반영한다
+    applyAddress({ zipcode, address, detailAddress }) {
+      if (this.targetRowId == null) return;
+      const node = this.gridApi.getRowNode(String(this.targetRowId));
+      if (!node) return;
+      node.setDataValue("zipcode", zipcode || "");
+      node.setDataValue("address", address || "");
+      node.setDataValue("address_detail", detailAddress || "");
+      node.setSelected(true);
+      this.targetRowId = null;
     },
 
     /* =========================
@@ -184,6 +231,9 @@ export default {
         name: "",
         phone: "",
         email: "",
+        zipcode: "",
+        address: "",
+        address_detail: "",
         memo: "",
         sort: maxSort + 1,
       };

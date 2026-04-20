@@ -127,6 +127,7 @@ import { useModalStore } from "@/stores/modal";
 import BaseImage from "@/components/base/BaseImage.vue";
 import CategoryTreeSelect from "@/components/base/CategoryTreeSelect.vue";
 import MultiCheck from "@/components/base/MultiCheck.vue";
+import SearchSelect from "@/components/base/SearchSelect.vue";
 import api from "@/api/api";
 
 export default {
@@ -136,6 +137,7 @@ export default {
     BaseImage,
     CategoryTreeSelect,
     MultiCheck,
+    SearchSelect,
   },
 
   props: {
@@ -162,7 +164,7 @@ export default {
         code: "MAT-" + Date.now(),
         category_id: 0,
         spec: "",
-        unit: "",
+        unit: "EA",
         safety_stock: 0,
         memo: "",
         is_active: true,
