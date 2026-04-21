@@ -1,19 +1,19 @@
 <template>
   <div class="relative w-full">
-    <div class="flex h-[40px] border rounded-lg overflow-hidden bg-white">
+    <div class="flex h-[30px] border border-gray-300 rounded-md overflow-hidden bg-white">
       <input
         :value="formattedDate"
         @click="toggleCalendar"
         readonly
         :placeholder="placeholder"
-        class="flex-1 px-3 py-2 text-sm outline-none cursor-pointer"
+        class="flex-1 px-2.5 text-xs outline-none cursor-pointer"
       />
 
       <button
         v-if="innerValue"
         type="button"
         @click.stop="clearDate"
-        class="px-3 h-[40px] border-l hover:bg-gray-100 text-red-500"
+        class="px-2 h-[30px] border-l hover:bg-gray-100 text-red-500 text-xs"
       >
         <i class="fa-solid fa-xmark"></i>
       </button>
@@ -21,7 +21,7 @@
       <button
         type="button"
         @click.stop="toggleCalendar"
-        class="px-3 h-[40px] border-l hover:bg-gray-100 text-gray-600"
+        class="px-2 h-[30px] border-l hover:bg-gray-100 text-gray-600 text-xs"
       >
         <i class="fa-regular fa-calendar"></i>
       </button>

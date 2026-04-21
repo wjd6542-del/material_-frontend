@@ -4,45 +4,45 @@
     <div v-if="showQuickButtons" class="relative">
       <button
         @click.stop="toggleQuick"
-        class="h-[40px] w-[40px] flex items-center justify-center border rounded hover:bg-gray-100 text-gray-600"
+        class="h-[30px] w-[30px] flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-100 text-gray-600 text-xs"
       >
         <i class="fa-solid fa-ellipsis-vertical"></i>
       </button>
 
       <div
         v-show="openQuick"
-        class="absolute left-0 mt-2 w-36 bg-white border rounded shadow-md z-50"
+        class="absolute left-0 mt-1 w-32 bg-white border rounded-md shadow-md z-50"
       >
         <button
-          class="flex items-center gap-2 w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+          class="flex items-center gap-2 w-full text-left px-2.5 py-1.5 text-xs hover:bg-gray-100"
           @click="setQuick('yesterday')"
         >
-          <i class="fa-regular fa-clock text-gray-400"></i>
+          <i class="fa-regular fa-clock text-gray-400 text-[10px]"></i>
           어제
         </button>
 
         <button
-          class="flex items-center gap-2 w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+          class="flex items-center gap-2 w-full text-left px-2.5 py-1.5 text-xs hover:bg-gray-100"
           @click="setQuick('today')"
         >
-          <i class="fa-regular fa-calendar-check text-blue-500"></i>
+          <i class="fa-regular fa-calendar-check text-blue-500 text-[10px]"></i>
           오늘
         </button>
 
         <button
-          class="flex items-center gap-2 w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+          class="flex items-center gap-2 w-full text-left px-2.5 py-1.5 text-xs hover:bg-gray-100"
           @click="setQuick('week')"
         >
-          <i class="fa-solid fa-calendar-week text-green-500"></i>
+          <i class="fa-solid fa-calendar-week text-green-500 text-[10px]"></i>
           일주일
         </button>
 
         <!-- ✅ 이번달 추가 -->
         <button
-          class="flex items-center gap-2 w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+          class="flex items-center gap-2 w-full text-left px-2.5 py-1.5 text-xs hover:bg-gray-100"
           @click="setQuick('month')"
         >
-          <i class="fa-solid fa-calendar-days text-purple-500"></i>
+          <i class="fa-solid fa-calendar-days text-purple-500 text-[10px]"></i>
           이번달
         </button>
       </div>
@@ -50,26 +50,26 @@
 
     <!-- 날짜 입력 -->
     <div class="relative flex-1">
-      <div class="flex h-[40px] border rounded-lg overflow-hidden bg-white">
+      <div class="flex h-[30px] border border-gray-300 rounded-md overflow-hidden bg-white">
         <input
           :value="formattedRange"
           @click="toggleCalendar"
           readonly
           :placeholder="placeholder"
-          class="flex-1 px-3 py-2 text-sm outline-none cursor-pointer"
+          class="flex-1 px-2.5 text-xs outline-none cursor-pointer"
         />
 
         <button
           v-if="innerValue.start || innerValue.end"
           @click.stop="clearRange"
-          class="px-3 h-[40px] border-l hover:bg-gray-100 text-red-500"
+          class="px-2 h-[30px] border-l hover:bg-gray-100 text-red-500 text-xs"
         >
           <i class="fa-solid fa-xmark"></i>
         </button>
 
         <button
           @click.stop="toggleCalendar"
-          class="px-3 h-[40px] border-l hover:bg-gray-100 text-gray-600"
+          class="px-2 h-[30px] border-l hover:bg-gray-100 text-gray-600 text-xs"
         >
           <i class="fa-regular fa-calendar"></i>
         </button>
@@ -78,7 +78,7 @@
       <!-- 달력 -->
       <div
         v-show="openCalendar"
-        class="absolute left-0 mt-2 z-50 bg-white border rounded-lg shadow-lg"
+        class="absolute left-0 mt-1 z-50 bg-white border rounded-md shadow-lg"
       >
         <DatePicker
           v-model.range="innerValue"

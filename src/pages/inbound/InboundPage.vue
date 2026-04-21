@@ -5,14 +5,14 @@
       class="lg:col-span-8 bg-white rounded-xl shadow border border-gray-200"
     >
       <div class="flex items-center justify-between px-5 py-4 border-b">
-        <h2 class="text-lg font-semibold text-gray-800">입고 목록</h2>
+        <h2 class="text-base font-semibold text-gray-800">입고 목록</h2>
       </div>
 
       <div class="p-4 pb-0 flex flex-wrap items-center gap-2">
         <button
           v-if="auth.hasPermission('inbound.create')"
           @click="openModal"
-          class="h-[40px] px-3 py-1.5 bg-green-500 text-white rounded-md text-sm hover:bg-green-600 shrink-0"
+          class="btn btn-primary shrink-0"
         >
           <i class="fa-solid fa-add"></i>
         </button>
@@ -20,7 +20,7 @@
         <button
           v-if="auth.hasPermission('inbound.delete')"
           @click="batchDelete"
-          class="h-[40px] px-3 py-1.5 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 flex items-center gap-1 shrink-0"
+          class="btn btn-danger flex items-center gap-1 shrink-0"
         >
           <i class="fa-solid fa-trash"></i>
         </button>

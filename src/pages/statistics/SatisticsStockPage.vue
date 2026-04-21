@@ -1,5 +1,5 @@
 ﻿<template>
-  <div class="p-6 bg-[#f8fafc] min-h-screen space-y-6">
+  <div class="p-4 lg:p-6 bg-[#f8fafc] min-h-screen space-y-4 lg:space-y-6">
     <!-- 1. KPI SUMMARY (상단 요약 카드) -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <!-- 최근 기준 총 재고 수량 -->

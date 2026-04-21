@@ -8,7 +8,7 @@
       </div>
 
       <div class="text-sm text-gray-500">
-        {{ formatDate(data.created_at) }}
+        <BaseDateText :value="data.created_at" show-time />
       </div>
     </div>
 
@@ -125,9 +125,14 @@
 <script>
 import { useModalStore } from "@/stores/modal";
 import api from "@/api/api";
+import BaseDateText from "@/components/base/BaseDateText.vue";
 
 export default {
   name: "OutboundVoucherPrint",
+
+  components: {
+    BaseDateText,
+  },
 
   props: {
     id: Number,
@@ -150,21 +155,6 @@ export default {
   },
 
   methods: {
-    // 날짜 포맷
-    formatDate(date) {
-      const d = new Date(date);
-
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, "0");
-      const dd = String(d.getDate()).padStart(2, "0");
-
-      const hh = String(d.getHours()).padStart(2, "0");
-      const mi = String(d.getMinutes()).padStart(2, "0");
-      const ss = String(d.getSeconds()).padStart(2, "0");
-
-      return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
-    },
-
     // 숫자 포맷
     formatNumber(num) {
       if (!num && num !== 0) return "0";

@@ -3,7 +3,7 @@
     class="p-4 lg:col-span-8 bg-white rounded-xl shadow border border-gray-200"
   >
     <!-- 탭 헤더 -->
-    <div class="flex border-b mb-4">
+    <div class="flex flex-wrap border-b mb-4 overflow-x-auto">
       <button
         v-for="(tab, idx) in tabs"
         :key="tab.key"

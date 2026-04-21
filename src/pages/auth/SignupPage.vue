@@ -1,13 +1,13 @@
 ﻿<template>
   <div
-    class="min-h-screen flex items-center justify-center bg-[#f8fafc] p-4 relative overflow-hidden"
+    class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-300 via-gray-200 to-gray-300 p-4 relative overflow-hidden"
   >
     <!-- 배경 장식 요소 (로그인 페이지와 동일한 아이덴티티) -->
     <div
-      class="absolute -top-24 -left-24 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"
+      class="absolute -top-24 -left-24 w-96 h-96 bg-gray-400 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob"
     ></div>
     <div
-      class="absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"
+      class="absolute -bottom-24 -right-24 w-96 h-96 bg-gray-500 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"
     ></div>
 
     <div

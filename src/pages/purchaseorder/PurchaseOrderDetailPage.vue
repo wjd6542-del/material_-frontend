@@ -2,17 +2,15 @@
   <div class="p-2 sm:p-4 md:p-6">
     <div class="bg-white rounded-xl shadow border border-gray-200">
       <div class="flex items-center justify-between px-5 py-4 border-b">
-        <h2 class="text-lg font-semibold text-gray-800">발주 세부내역</h2>
+        <h2 class="text-base font-semibold text-gray-800">발주 세부내역</h2>
       </div>
 
       <div class="p-4 bg-gray-50 border-b border-gray-100">
         <div
-          class="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap items-end gap-3"
+          class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5"
         >
-          <div class="sm:col-span-2 lg:flex-1 min-w-[280px]">
-            <label class="block text-xs font-medium text-gray-500 mb-1"
-              >조회 기간</label
-            >
+          <div class="sm:col-span-2 xl:col-span-2">
+            <label class="form-label">조회 기간</label>
             <DateRangePicker
               v-model="dateRange"
               :minuteStep="5"
@@ -22,10 +20,8 @@
             />
           </div>
 
-          <div class="lg:w-48">
-            <label class="block text-xs font-medium text-gray-500 mb-1"
-              >자재</label
-            >
+          <div>
+            <label class="form-label">자재</label>
             <SearchSelect
               v-model="where.material_id"
               :options="materials"
@@ -36,10 +32,8 @@
             />
           </div>
 
-          <div class="lg:w-48">
-            <label class="block text-xs font-medium text-gray-500 mb-1"
-              >거래처</label
-            >
+          <div>
+            <label class="form-label">거래처</label>
             <SearchSelect
               v-model="where.supplier_id"
               :options="suppliers"
@@ -50,14 +44,12 @@
             />
           </div>
 
-          <div class="lg:w-48">
-            <label class="block text-xs font-medium text-gray-500 mb-1"
-              >상태</label
-            >
+          <div>
+            <label class="form-label">상태</label>
             <select
               v-model="where.status"
               @change="loadList"
-              class="w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500"
+              class="field"
             >
               <option value="">전체</option>
               <option value="draft">임시저장</option>
@@ -67,10 +59,10 @@
             </select>
           </div>
 
-          <div class="flex items-center lg:ml-auto">
+          <div class="sm:col-span-2 lg:col-span-4 xl:col-span-5 flex justify-end">
             <button
               @click="resetFilters"
-              class="px-3 py-2 text-sm text-gray-600 hover:text-blue-600 flex items-center gap-1 transition-colors"
+              class="btn"
             >
               <i class="fa-solid fa-rotate-right"></i>
               초기화
@@ -103,6 +95,15 @@ import SearchSelect from "@/components/base/SearchSelect.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
 import api from "@/api/api";
 
+function formatDateOnly(v) {
+  if (!v) return "-";
+  const d = new Date(v);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 export default {
   name: "PurchaseOrderDetailPage",
 
@@ -129,12 +130,6 @@ export default {
           width: "160px",
         },
         {
-          key: "material_code",
-          label: "자재코드",
-          sortable: true,
-          width: "160px",
-        },
-        {
           key: "material_name",
           label: "자재명",
           sortable: true,
@@ -154,41 +149,34 @@ export default {
           width: "100px",
         },
         {
-          key: "unit_price",
+          key: "price",
           label: "단가",
           type: "currency",
           align: "right",
           width: "140px",
         },
         {
-          key: "amount",
-          label: "금액",
+          key: "supply_amount",
+          label: "판매가",
           type: "currency",
           align: "right",
           width: "150px",
         },
         {
-          key: "status_label",
-          label: "상태",
-          align: "center",
-          width: "100px",
-          sortable: true,
-        },
-        {
           key: "order_date",
           label: "발주일",
-          type: "date",
           align: "center",
           width: "140px",
           sortable: true,
+          formatter: formatDateOnly,
         },
         {
           key: "delivery_date",
           label: "납기일",
-          type: "date",
           align: "center",
           width: "140px",
           sortable: true,
+          formatter: formatDateOnly,
         },
         {
           key: "created_at",
@@ -234,8 +222,9 @@ export default {
               : this.dateRange.end.toISOString();
         }
 
-        const res = await api.post("/purchaseorder/detail/list", where);
+        const res = await api.post("/api/purchaseOrder/detail/list", where);
         this.rows = res.data;
+        console.log(res.data);
       } catch (e) {
         console.error("데이터 로드 실패:", e);
       }

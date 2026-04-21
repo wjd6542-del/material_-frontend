@@ -62,7 +62,7 @@
       >
         <!-- 발주 기본 정보 -->
         <section class="p-6 md:p-8 border-b border-slate-100">
-          <div class="flex items-center gap-3 mb-6">
+          <div class="flex items-center gap-3 mb-4">
             <div class="relative shrink-0">
               <div
                 class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/20"
@@ -84,7 +84,7 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label class="form-label">
                 발주번호 <span class="text-red-500">*</span>
@@ -107,7 +107,6 @@
                 labelKey="name"
                 valueKey="id"
                 placeholder="거래처 선택"
-                class="h-[42px] px-4 text-sm bg-white border border-slate-200 rounded-xl"
               />
             </div>
             <div>
@@ -152,7 +151,7 @@
 
         <!-- 발주 품목 -->
         <section class="p-6 md:p-8 bg-slate-50/40">
-          <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
               <div class="relative shrink-0">
                 <div
@@ -187,14 +186,14 @@
             </button>
           </div>
 
-          <div
-            class="rounded-2xl border border-slate-200 bg-white"
-          >
+          <div class="rounded-2xl border border-slate-200 bg-white">
             <table class="w-full text-sm">
               <thead class="bg-slate-50 text-slate-500">
                 <tr>
                   <th class="th">#</th>
-                  <th class="th text-left" style="min-width: 180px">자재번호</th>
+                  <th class="th text-left" style="min-width: 180px">
+                    자재번호
+                  </th>
                   <th class="th text-left">자재명</th>
                   <th class="th text-left">규격</th>
                   <th class="th text-right">수량</th>
@@ -228,7 +227,9 @@
                       <span class="truncate">
                         {{ it.material_code || "자재 선택" }}
                       </span>
-                      <i class="fa-solid fa-magnifying-glass text-xs text-slate-400 ml-2"></i>
+                      <i
+                        class="fa-solid fa-magnifying-glass text-[10px] text-slate-400 ml-2"
+                      ></i>
                     </button>
                   </td>
                   <td class="td text-slate-700">
@@ -274,16 +275,13 @@
                       class="cell-input text-right"
                       placeholder="0"
                     />
-                    <div
-                      v-else
-                      class="text-right font-mono text-slate-300"
-                    >
+                    <div v-else class="text-right font-mono text-slate-300">
                       -
                     </div>
                   </td>
                   <td class="td">
                     <input
-                      v-model="it.remark"
+                      v-model="it.memo"
                       type="text"
                       class="cell-input"
                       placeholder="적요"
@@ -295,7 +293,7 @@
                       @click="removeItem(i)"
                       class="text-red-400 hover:text-red-600 w-7 h-7 rounded-lg hover:bg-red-50 transition-all"
                     >
-                      <i class="fa-solid fa-trash-can text-xs"></i>
+                      <i class="fa-solid fa-trash-can text-[10px]"></i>
                     </button>
                   </td>
                 </tr>
@@ -313,7 +311,9 @@
                         <span
                           class="absolute -bottom-1.5 -right-1.5 w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm"
                         >
-                          <i class="fa-solid fa-plus text-[11px] text-blue-500"></i>
+                          <i
+                            class="fa-solid fa-plus text-[11px] text-blue-500"
+                          ></i>
                         </span>
                       </div>
                       <p
@@ -338,7 +338,10 @@
               </tbody>
               <tfoot v-if="form.items.length">
                 <tr class="border-t-2 border-slate-200 bg-slate-50">
-                  <td colspan="6" class="td text-right font-bold text-slate-600">
+                  <td
+                    colspan="6"
+                    class="td text-right font-bold text-slate-600"
+                  >
                     합계
                   </td>
                   <td class="td text-right font-black text-slate-900 font-mono">
@@ -480,7 +483,7 @@ export default {
         price: 0,
         supply_amount: 0,
         vat: 0,
-        remark: "",
+        memo: "",
       });
     },
 
@@ -507,7 +510,7 @@ export default {
         price: Number(m.price) || 0,
         supply_amount: 0,
         vat: 0,
-        remark: "",
+        memo: "",
       };
       this.recalcItem(it);
       return it;
@@ -532,7 +535,9 @@ export default {
           this.form.items.splice(idx + 1, 0, ...newRows);
         }
       } else {
-        list.forEach((m) => this.form.items.push(this.buildItemFromMaterial(m)));
+        list.forEach((m) =>
+          this.form.items.push(this.buildItemFromMaterial(m)),
+        );
       }
     },
 
@@ -576,12 +581,9 @@ export default {
       try {
         const payload = {
           ...this.form,
-          total_supply: this.totalSupply,
-          total_vat: this.totalVat,
-          total_amount: this.totalAmount,
         };
         if (!this.isEdit) payload.order_no = this.mkOrderNo();
-        await api.post("/purchaseorder/save", payload);
+        await api.post("/api/purchaseOrder/save", payload);
         this.$toast?.success("저장되었습니다.");
         this.goList();
       } catch (e) {
@@ -596,7 +598,7 @@ export default {
       const id = this.$route.query.id;
       if (!id) return;
       try {
-        const res = await api.post("/purchaseorder/detail", { id });
+        const res = await api.post("/api/purchaseOrder/info", { id });
         if (res.data) {
           Object.assign(this.form, res.data);
           if (!Array.isArray(this.form.items)) this.form.items = [];
@@ -613,6 +615,11 @@ export default {
     if (this.isEdit) {
       this.loadOrder();
     } else {
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      this.form.order_date = `${yyyy}-${mm}-${dd}`;
       this.form.order_no = this.mkOrderNo();
     }
   },
@@ -625,21 +632,24 @@ export default {
 }
 
 .form-input {
-  @apply w-full px-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl outline-none transition-all
+  @apply w-full h-[30px] px-2.5 text-xs bg-white border border-slate-200 rounded-md outline-none transition-all
          focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500
          placeholder:text-slate-300 text-slate-800 font-medium;
 }
+textarea.form-input {
+  @apply h-auto min-h-[30px] py-1.5;
+}
 
 .th {
-  @apply px-3 py-3 text-[11px] font-black uppercase tracking-wider;
+  @apply px-2 py-1.5 text-[10px] font-black uppercase tracking-wider;
 }
 
 .td {
-  @apply px-3 py-2 align-middle;
+  @apply px-2 py-1 align-middle;
 }
 
 .cell-input {
-  @apply w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none transition-all
+  @apply w-full px-2 py-1 text-xs bg-white border border-slate-200 rounded-md outline-none transition-all
          focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500
          placeholder:text-slate-300;
 }

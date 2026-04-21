@@ -1,18 +1,20 @@
-﻿<template>
-  <Transition name="modal">
+<template>
+  <TransitionGroup name="modal" tag="div">
     <div
-      v-if="modal.isOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      v-for="(entry, index) in modal.stack"
+      :key="index"
+      class="fixed inset-0 flex items-center justify-center bg-black/40"
+      :style="{ zIndex: 50 + index * 10 }"
     >
       <div
         class="bg-white rounded-xl shadow-xl p-4 md:p-6 w-full mx-4"
-        :class="sizeClass"
+        :class="sizeClass(entry.size)"
       >
         <!-- 동적 모달 컴포넌트 -->
-        <component :is="modal.component" v-bind="modal.props" />
+        <component :is="entry.component" v-bind="entry.props" />
       </div>
     </div>
-  </Transition>
+  </TransitionGroup>
 </template>
 
 <script>
@@ -24,10 +26,12 @@ export default {
     modal() {
       return useModalStore();
     },
+  },
 
+  methods: {
     // 모달 size 속성에 대응하는 Tailwind max-width 클래스를 반환한다
-    sizeClass() {
-      switch (this.modal.size) {
+    sizeClass(size) {
+      switch (size) {
         case "sm":
           return "max-w-sm";
         case "md":

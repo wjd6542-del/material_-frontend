@@ -1,7 +1,7 @@
 ﻿<template>
-  <div class="p-6 flex gap-6 min-h-[calc(100vh-64px)] bg-[#f8fafc]">
+  <div class="p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 min-h-[calc(100vh-64px)] bg-[#f8fafc]">
     <!-- 🟢 1. 좌측: 창고 + 위치 사이드바 -->
-    <div class="w-1/6 flex flex-col gap-4">
+    <div class="w-full lg:w-1/6 flex flex-col gap-4">
       <!-- 창고 리스트 (축소) -->
       <div
         class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden max-h-[40%] shrink-0"

@@ -1,6 +1,6 @@
 ﻿<template>
-  <div class="max-w-7xl mx-auto p-8 space-y-8 bg-gray-50/50 min-h-screen">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  <div class="max-w-7xl mx-auto p-4 lg:p-8 space-y-4 lg:space-y-8 bg-gray-50/50 min-h-screen">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
       <!-- [LEFT] 1. 계정 정보 카드 -->
       <div class="lg:col-span-1 space-y-6">
         <section
@@ -75,7 +75,7 @@
                 v-model="passwordForm.oldPassword"
                 type="password"
                 placeholder="기존 비밀번호"
-                class="w-full mt-1 px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                class="field mt-1"
               />
             </div>
 
@@ -87,7 +87,7 @@
                 v-model="passwordForm.newPassword"
                 type="password"
                 placeholder="신규 비밀번호"
-                class="w-full mt-1 px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                class="field mt-1"
               />
             </div>
 

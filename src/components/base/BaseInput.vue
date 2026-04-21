@@ -1,7 +1,7 @@
 ﻿<template>
   <div class="w-full">
     <!-- label -->
-    <label v-if="label" class="block text-sm font-medium text-gray-700 mb-1">
+    <label v-if="label" class="block text-[11px] font-semibold text-slate-600 mb-1">
       {{ label }}
       <span v-if="required" class="text-red-500 ml-1">*</span>
     </label>
@@ -13,12 +13,12 @@
       :placeholder="placeholder"
       :disabled="disabled"
       @input="updateValue"
-      class="w-full rounded-lg border px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+      class="w-full h-[30px] rounded-md border px-2.5 text-xs transition focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
       :class="error ? 'border-red-500' : 'border-gray-300'"
     />
 
     <!-- error -->
-    <p v-if="error" class="text-xs text-red-500 mt-1">
+    <p v-if="error" class="text-[11px] text-red-500 mt-1">
       {{ error }}
     </p>
   </div>

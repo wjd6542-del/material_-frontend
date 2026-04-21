@@ -1,12 +1,12 @@
 ﻿<template>
-  <div class="flex h-screen bg-gray-100">
+  <div class="flex flex-col lg:flex-row lg:h-[calc(100vh-4rem)] gap-3 bg-gray-100">
     <!-- 좌측 계정 리스트 -->
-    <div class="w-1/4 bg-white border-r flex flex-col rounded-3xl">
+    <div class="w-full lg:w-1/4 bg-white border-r flex flex-col rounded-3xl">
       <!-- 헤더 -->
       <div class="p-4 border-b">
         <div class="flex items-center gap-2 mb-3">
           <i class="fa-solid fa-users text-blue-500"></i>
-          <h2 class="text-lg font-semibold">계정 목록</h2>
+          <h2 class="text-base font-semibold">계정 목록</h2>
         </div>
 
         <!-- 검색 -->
@@ -15,7 +15,7 @@
             v-model="search"
             type="text"
             placeholder="계정 검색..."
-            class="w-full pl-9 pr-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+            class="field pl-9"
           />
           <i
             class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-sm"
@@ -95,7 +95,7 @@
     </div>
 
     <!-- 우측 권한 설정 -->
-    <div class="flex-1 ps-3">
+    <div class="flex-1 min-w-0">
       <transition name="page">
         <UserManagerPermissionBoard
           v-if="selectedUser"

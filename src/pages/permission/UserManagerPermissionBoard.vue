@@ -33,8 +33,8 @@
         </button>
       </div>
 
-      <div class="p-8 bg-slate-50/30">
-        <div class="grid grid-cols-[1fr,80px,1fr] gap-6 items-center">
+      <div class="p-4 lg:p-8 bg-slate-50/30">
+        <div class="grid grid-cols-1 lg:grid-cols-[1fr,80px,1fr] gap-4 lg:gap-6 items-center">
           <div class="flex flex-col gap-3">
             <div class="flex items-center justify-between px-2">
               <span
@@ -98,18 +98,18 @@
             </div>
           </div>
 
-          <div class="flex flex-col justify-center items-center gap-4">
+          <div class="flex flex-row lg:flex-col justify-center items-center gap-4">
             <button
               @click="addAll"
               class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-400 hover:bg-blue-600 hover:text-white hover:border-blue-600 shadow-sm transition-all hover:-translate-y-1 active:scale-90"
             >
-              <i class="fa-solid fa-angles-right"></i>
+              <i class="fa-solid fa-angles-right rotate-90 lg:rotate-0"></i>
             </button>
             <button
               @click="removeAll"
               class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-400 hover:bg-red-500 hover:text-white hover:border-red-500 shadow-sm transition-all hover:translate-y-1 active:scale-90"
             >
-              <i class="fa-solid fa-angles-left"></i>
+              <i class="fa-solid fa-angles-left rotate-90 lg:rotate-0"></i>
             </button>
           </div>
 

@@ -1,5 +1,5 @@
 ﻿<template>
-  <div class="p-6 bg-[#f8fafc] min-h-screen space-y-6">
+  <div class="p-4 lg:p-6 bg-[#f8fafc] min-h-screen space-y-4 lg:space-y-6">
     <!-- 1. KPI SUMMARY (금액 지표 중심 최적화) -->
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
       <!-- 총 반품 수량 -->

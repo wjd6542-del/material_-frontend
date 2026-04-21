@@ -21,7 +21,7 @@
               <span class="p-2 bg-blue-50 rounded-xl">
                 <i class="fa-regular fa-bell text-blue-600"></i>
               </span>
-              알림 센터
+              알림센터 - {{ typeLabel(notificationStore.type) }}
             </h3>
 
             <button
@@ -31,12 +31,6 @@
               <i class="fa-solid fa-xmark text-lg"></i>
             </button>
           </div>
-          <p class="text-xs text-slate-400 ml-1">
-            <span class="text-blue-500 font-semibold">{{
-              notificationStore.type
-            }}</span>
-            관련 최신 소식입니다.
-          </p>
         </div>
 
         <div class="flex-1 overflow-y-auto custom-scrollbar">
@@ -116,7 +110,7 @@
                     class="text-[11px] text-slate-400 flex items-center gap-1"
                   >
                     <i class="fa-regular fa-clock opacity-70"></i>
-                    {{ row.created_at }}
+                    <BaseDateText :value="row.created_at" show-time />
                   </span>
 
                   <button
@@ -148,9 +142,14 @@
 
 <script lang="ts">
 import { useNotificationStore } from "@/stores/notification";
+import BaseDateText from "@/components/base/BaseDateText.vue";
 
 export default {
   name: "NotificationPanel",
+
+  components: {
+    BaseDateText,
+  },
 
   data() {
     return {
@@ -159,6 +158,19 @@ export default {
   },
 
   methods: {
+    // 타입 코드를 한글 라벨로 변환
+    typeLabel(type) {
+      const map = {
+        INBOUND: "입고",
+        OUTBOUND: "출고",
+        MATERIAL: "자재",
+        PURCHASEORDER: "발주",
+        RETURNORDER: "반품",
+        STOCK: "재고",
+      };
+      return map[type] || type;
+    },
+
     // 읽기 처리
     read(row) {
       try {

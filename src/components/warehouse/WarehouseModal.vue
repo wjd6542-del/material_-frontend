@@ -1,11 +1,9 @@
 ﻿<template>
-  <div class="p-1 space-y-6">
+  <div class="p-1 space-y-4">
     <!-- 상단 헤더 섹션 -->
-    <div class="flex items-end justify-between border-b border-gray-50 pb-6">
+    <div class="flex items-end justify-between border-b border-gray-50 pb-4">
       <div>
-        <h2
-          class="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2"
-        >
+        <h2 class="text-base font-semibold mb-3 flex items-center gap-2">
           <span class="w-2 h-7 bg-blue-600 rounded-full"></span>
           창고 등록
         </h2>
@@ -16,9 +14,9 @@
 
       <button
         @click="addRow"
-        class="flex items-center gap-2 px-4 h-10 bg-blue-50 hover:bg-blue-100 text-blue-600 text-sm font-semibold rounded-xl transition-all active:scale-95"
+        class="btn btn-primary"
       >
-        <i class="fa-solid fa-plus text-xs"></i>
+        <i class="fa-solid fa-plus text-[10px]"></i>
         행 추가하기
       </button>
     </div>
@@ -131,16 +129,16 @@
       <div class="text-[13px] text-gray-400 italic">
         * 총 {{ rows.length }}개의 창고 정보가 입력되었습니다.
       </div>
-      <div class="flex gap-3">
+      <div class="flex gap-2">
         <button
-          class="px-6 h-11 rounded-xl text-sm font-bold text-gray-500 hover:bg-gray-100 transition-colors"
+          class="btn"
           @click="modal.closeModal()"
         >
           취소
         </button>
 
         <button
-          class="px-10 h-11 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 flex items-center gap-2"
+          class="btn btn-primary"
           @click="save"
         >
           저장 완료

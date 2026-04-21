@@ -10,11 +10,11 @@
         {{ selectedLabel || placeholder }}
       </div>
 
-      <div class="flex items-center gap-2 ml-2 h-full">
+      <div class="flex items-center gap-1 ml-1.5 h-full">
         <button
           v-if="modelValue !== null && modelValue !== ''"
           @click.stop="clear"
-          class="text-gray-400 hover:text-red-500 transition-colors flex items-center justify-center"
+          class="text-gray-400 hover:text-red-500 transition-colors flex items-center justify-center text-[10px]"
         >
           <i class="fa-solid fa-xmark"></i>
         </button>
@@ -23,7 +23,7 @@
           class="fa-solid fa-chevron-down transition-transform duration-200 flex items-center justify-center"
           :class="[
             open ? 'rotate-180 text-blue-500' : 'text-gray-400',
-            isLargeSize ? 'text-xl' : 'text-[10px]',
+            isLargeSize ? 'text-xl' : 'text-[9px]',
           ]"
         ></i>
       </div>
@@ -32,24 +32,24 @@
     <!-- 드롭다운: 트리거 바로 아래 강제 고정 -->
     <div
       v-if="open"
-      class="absolute left-0 w-full bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden"
+      class="absolute left-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden"
       style="top: calc(100% + 4px); z-index: 9999"
     >
-      <div class="p-3 bg-gray-50 border-b">
+      <div class="p-2 bg-gray-50 border-b">
         <input
           ref="searchInput"
           v-model="keyword"
           type="text"
           :placeholder="searchPlaceholder"
-          class="w-full px-3 py-2 text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          class="w-full px-2 py-1.5 text-xs border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
         />
       </div>
 
-      <div class="max-h-64 overflow-y-auto">
+      <div class="max-h-56 overflow-y-auto">
         <div
           v-for="item in filteredOptions"
           :key="item[valueKey]"
-          class="px-4 py-3 text-base hover:bg-blue-50 cursor-pointer flex justify-between items-center group transition-colors"
+          class="px-3 py-1.5 text-xs hover:bg-blue-50 cursor-pointer flex justify-between items-center group transition-colors"
           @click="select(item)"
         >
           <span class="text-gray-700 group-hover:text-blue-700 font-medium">
@@ -57,12 +57,12 @@
           </span>
           <i
             v-if="item[valueKey] === modelValue"
-            class="fa-solid fa-check text-blue-500"
+            class="fa-solid fa-check text-blue-500 text-[10px]"
           ></i>
         </div>
         <div
           v-if="filteredOptions.length === 0"
-          class="px-4 py-8 text-gray-400 text-center"
+          class="px-3 py-5 text-gray-400 text-center text-xs"
         >
           {{ emptyText }}
         </div>
@@ -118,18 +118,21 @@ export default {
       const hasBorder = /border/.test(parentClass);
       const hasRounded = /rounded/.test(parentClass);
 
+      const hasText = /text-/.test(parentClass);
+
       return [
         "flex justify-between items-center cursor-pointer transition-all box-border relative",
         // 기본값 세팅 (주입된 클래스가 없을 때만)
-        !hasHeight && !hasPadding && "h-10 px-3",
-        !hasPadding && hasHeight && "px-3",
+        !hasHeight && !hasPadding && "h-[30px] px-2",
+        !hasPadding && hasHeight && "px-2",
         !hasBorder && "border border-gray-300",
-        !hasRounded && "rounded",
+        !hasRounded && "rounded-md",
+        !hasText && "text-xs",
         // 부모 주입 클래스
         parentClass,
         // 상태값
         this.open
-          ? "ring-4 ring-blue-50 border-blue-500"
+          ? "ring-2 ring-blue-100 border-blue-500"
           : "hover:border-gray-400",
       ];
     },

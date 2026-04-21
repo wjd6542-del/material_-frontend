@@ -17,114 +17,35 @@
     </div>
 
     <!-- right -->
-    <div class="flex items-center gap-2 md:gap-6 shrink-0">
+    <div class="flex items-center gap-2 md:gap-3 shrink-0">
       <!-- 알림 아이콘들: 태블릿 이상에서만 표시 -->
       <template v-if="authStore.hasPermission('notification.view')">
-        <!-- 발주 -->
+        <!-- 데스크탑: 타입별 아이콘 (호버 시 라벨 툴팁) -->
         <div
+          v-for="t in notiTypes"
+          :key="t.type"
           class="hidden md:flex relative cursor-pointer group"
-          @click="openNotification('PURCHASEORDER')"
+          @click="openNotification(t.type)"
         >
           <div
-            class="w-10 h-10 flex items-center justify-center rounded-xl bg-teal-50 text-teal-600 group-hover:bg-teal-100 transition"
+            class="w-10 h-10 flex items-center justify-center rounded-xl transition"
+            :class="[t.bg, t.text, t.hoverBg]"
           >
-            <i class="fa-solid fa-clipboard-list"></i>
+            <i class="fa-solid" :class="t.icon"></i>
           </div>
           <span
-            v-if="noti.counts.PURCHASEORDER > 0"
-            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-teal-500 text-white rounded-full px-1"
+            v-if="noti.counts[t.type] > 0"
+            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] text-white rounded-full px-1"
+            :class="t.badge"
           >
-            {{ noti.counts.PURCHASEORDER }}
+            {{ noti.counts[t.type] > 99 ? "99+" : noti.counts[t.type] }}
           </span>
-        </div>
 
-        <!-- 자재 -->
-        <div
-          class="hidden md:flex relative cursor-pointer group"
-          @click="openNotification('MATERIAL')"
-        >
-          <div
-            class="w-10 h-10 flex items-center justify-center rounded-xl bg-green-50 text-green-600 group-hover:bg-green-100 transition"
-          >
-            <i class="fa-solid fa-box"></i>
-          </div>
+          <!-- 호버 툴팁 -->
           <span
-            v-if="noti.counts.MATERIAL > 0"
-            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-green-500 text-white rounded-full px-1"
+            class="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-[11px] font-semibold text-white bg-gray-800 rounded-md shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-50"
           >
-            {{ noti.counts.MATERIAL }}
-          </span>
-        </div>
-
-        <!-- 입고 -->
-        <div
-          class="hidden md:flex relative cursor-pointer group"
-          @click="openNotification('INBOUND')"
-        >
-          <div
-            class="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 group-hover:bg-blue-100 transition"
-          >
-            <i class="fa-solid fa-arrow-down"></i>
-          </div>
-          <span
-            v-if="noti.counts.INBOUND > 0"
-            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-blue-500 text-white rounded-full px-1"
-          >
-            {{ noti.counts.INBOUND }}
-          </span>
-        </div>
-
-        <!-- 출고 -->
-        <div
-          class="hidden md:flex relative cursor-pointer group"
-          @click="openNotification('OUTBOUND')"
-        >
-          <div
-            class="w-10 h-10 flex items-center justify-center rounded-xl bg-red-50 text-red-600 group-hover:bg-red-100 transition"
-          >
-            <i class="fa-solid fa-arrow-up"></i>
-          </div>
-          <span
-            v-if="noti.counts.OUTBOUND > 0"
-            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-red-500 text-white rounded-full px-1"
-          >
-            {{ noti.counts.OUTBOUND }}
-          </span>
-        </div>
-
-        <!-- 반품 -->
-        <div
-          class="hidden md:flex relative cursor-pointer group"
-          @click="openNotification('RETURNORDER')"
-        >
-          <div
-            class="w-10 h-10 flex items-center justify-center rounded-xl bg-orange-50 text-orange-600 group-hover:bg-orange-100 transition"
-          >
-            <i class="fa-solid fa-rotate-left"></i>
-          </div>
-          <span
-            v-if="noti.counts.RETURNORDER > 0"
-            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-orange-500 text-white rounded-full px-1 border-2 border-white"
-          >
-            {{ noti.counts.RETURNORDER }}
-          </span>
-        </div>
-
-        <!-- 재고 -->
-        <div
-          class="hidden md:flex relative cursor-pointer group"
-          @click="openNotification('STOCK')"
-        >
-          <div
-            class="w-10 h-10 flex items-center justify-center rounded-xl bg-purple-50 text-purple-600 group-hover:bg-red-100 transition"
-          >
-            <i class="fa-solid fa-boxes-stacked"></i>
-          </div>
-          <span
-            v-if="noti.counts.STOCK > 0"
-            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-purple-500 text-white rounded-full px-1"
-          >
-            {{ noti.counts.STOCK }}
+            {{ t.label }}
           </span>
         </div>
 
@@ -134,25 +55,79 @@
           @click="openBookmark"
         >
           <div
-            class="w-10 h-10 flex items-center justify-center rounded-xl bg-purple-50 text-gray-600 group-hover:bg-red-100 transition"
+            class="w-10 h-10 flex items-center justify-center rounded-xl bg-purple-50 text-purple-600 group-hover:bg-purple-100 transition"
           >
             <i class="fa-solid fa-bookmark"></i>
           </div>
+
+          <!-- 호버 툴팁 -->
+          <span
+            class="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-[11px] font-semibold text-white bg-gray-800 rounded-md shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-50"
+          >
+            북마크
+          </span>
         </div>
 
-        <!-- 모바일: 알림 통합 버튼 -->
-        <button
-          class="md:hidden relative w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-600 hover:bg-gray-100 transition"
-          @click="openNotification('MATERIAL')"
-        >
-          <i class="fa-solid fa-bell"></i>
-          <span
-            v-if="totalNotifications > 0"
-            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-red-500 text-white rounded-full px-1"
+        <!-- 모바일: 알림 통합 버튼 + 드롭다운 -->
+        <div class="md:hidden relative">
+          <button
+            class="relative w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-600 hover:bg-gray-100 transition"
+            @click.stop="toggleNotiMenu"
           >
-            {{ totalNotifications > 99 ? "99+" : totalNotifications }}
-          </span>
-        </button>
+            <i class="fa-solid fa-bell"></i>
+            <span
+              v-if="totalNotifications > 0"
+              class="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[11px] bg-red-500 text-white rounded-full px-1"
+            >
+              {{ totalNotifications > 99 ? "99+" : totalNotifications }}
+            </span>
+          </button>
+
+          <!-- 드롭다운 -->
+          <div
+            v-if="notiMenu"
+            class="absolute right-0 mt-2 w-56 bg-white border rounded-2xl shadow-xl py-2 z-50"
+          >
+            <button
+              v-for="t in notiTypes"
+              :key="t.type"
+              class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center justify-between gap-3"
+              @click="selectNotiType(t.type)"
+            >
+              <div class="flex items-center gap-3 min-w-0">
+                <div
+                  class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                  :class="t.bg"
+                >
+                  <i class="fa-solid text-sm" :class="[t.icon, t.text]"></i>
+                </div>
+                <span class="text-gray-700 font-medium truncate">{{ t.label }}</span>
+              </div>
+              <span
+                v-if="noti.counts[t.type] > 0"
+                class="min-w-[20px] h-[20px] flex items-center justify-center text-[11px] text-white rounded-full px-1.5"
+                :class="t.badge"
+              >
+                {{ noti.counts[t.type] > 99 ? "99+" : noti.counts[t.type] }}
+              </span>
+            </button>
+
+            <!-- 북마크 -->
+            <div class="border-t mt-1 pt-1">
+              <button
+                class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-3"
+                @click="selectBookmark"
+              >
+                <div
+                  class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-purple-50"
+                >
+                  <i class="fa-solid fa-bookmark text-sm text-purple-600"></i>
+                </div>
+                <span class="text-gray-700 font-medium">북마크</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </template>
 
       <!-- 사용자 드롭다운 -->
@@ -266,6 +241,65 @@ export default {
     return {
       modal: useModalStore(),
       userMenu: false,
+      notiMenu: false,
+
+      // 알림 타입별 메타 (데스크탑 헤더 + 모바일 드롭다운 공용)
+      notiTypes: [
+        {
+          type: "PURCHASEORDER",
+          label: "발주",
+          icon: "fa-clipboard-list",
+          bg: "bg-teal-50",
+          text: "text-teal-600",
+          hoverBg: "group-hover:bg-teal-100",
+          badge: "bg-teal-500",
+        },
+        {
+          type: "MATERIAL",
+          label: "자재",
+          icon: "fa-box",
+          bg: "bg-green-50",
+          text: "text-green-600",
+          hoverBg: "group-hover:bg-green-100",
+          badge: "bg-green-500",
+        },
+        {
+          type: "INBOUND",
+          label: "입고",
+          icon: "fa-arrow-down",
+          bg: "bg-blue-50",
+          text: "text-blue-600",
+          hoverBg: "group-hover:bg-blue-100",
+          badge: "bg-blue-500",
+        },
+        {
+          type: "OUTBOUND",
+          label: "출고",
+          icon: "fa-arrow-up",
+          bg: "bg-red-50",
+          text: "text-red-600",
+          hoverBg: "group-hover:bg-red-100",
+          badge: "bg-red-500",
+        },
+        {
+          type: "RETURNORDER",
+          label: "반품",
+          icon: "fa-rotate-left",
+          bg: "bg-orange-50",
+          text: "text-orange-600",
+          hoverBg: "group-hover:bg-orange-100",
+          badge: "bg-orange-500",
+        },
+        {
+          type: "STOCK",
+          label: "재고",
+          icon: "fa-boxes-stacked",
+          bg: "bg-purple-50",
+          text: "text-purple-600",
+          hoverBg: "group-hover:bg-purple-100",
+          badge: "bg-purple-500",
+        },
+      ],
     };
   },
 
@@ -288,12 +322,32 @@ export default {
     // 사용자 드롭다운 메뉴 열림 상태를 토글한다
     toggleUserMenu() {
       this.userMenu = !this.userMenu;
+      if (this.userMenu) this.notiMenu = false;
     },
 
-    // 헤더 외부 클릭 시 사용자 메뉴를 닫는다
+    // 모바일 알림 드롭다운 열림 상태를 토글한다
+    toggleNotiMenu() {
+      this.notiMenu = !this.notiMenu;
+      if (this.notiMenu) this.userMenu = false;
+    },
+
+    // 모바일 알림 드롭다운에서 타입 선택 시 패널을 연다
+    selectNotiType(type) {
+      this.notiMenu = false;
+      this.openNotification(type);
+    },
+
+    // 모바일 알림 드롭다운에서 북마크 선택 시
+    selectBookmark() {
+      this.notiMenu = false;
+      this.openBookmark();
+    },
+
+    // 헤더 외부 클릭 시 드롭다운 메뉴들을 닫는다
     handleOutside(e) {
       if (!this.$el.contains(e.target)) {
         this.userMenu = false;
+        this.notiMenu = false;
       }
     },
 

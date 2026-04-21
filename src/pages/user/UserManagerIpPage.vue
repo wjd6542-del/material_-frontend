@@ -1,8 +1,8 @@
 ﻿<template>
-  <div class="flex h-screen bg-gray-100 p-4 gap-4">
+  <div class="flex flex-col lg:flex-row lg:h-[calc(100vh-4rem)] bg-gray-100 p-4 gap-4">
     <!-- 좌측 계정 리스트 -->
     <div
-      class="w-80 bg-white border flex flex-col rounded-3xl shadow-sm overflow-hidden"
+      class="w-full lg:w-80 bg-white border flex flex-col rounded-3xl shadow-sm overflow-hidden"
     >
       <!-- 헤더 -->
       <div class="p-5 border-b bg-white">
@@ -12,7 +12,7 @@
           >
             <i class="fa-solid fa-users text-blue-500"></i>
           </div>
-          <h2 class="text-lg font-bold text-gray-800">계정 목록</h2>
+          <h2 class="text-base font-bold text-gray-800">계정 목록</h2>
         </div>
 
         <!-- 검색 -->
@@ -21,7 +21,7 @@
             v-model="search"
             type="text"
             placeholder="계정 검색..."
-            class="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-all"
+            class="field pl-10"
           />
           <i
             class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-gray-400 text-sm"
@@ -113,13 +113,13 @@
             <div class="flex items-center gap-2">
               <button
                 @click="addRow"
-                class="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 text-sm font-bold transition flex items-center gap-2 shadow-sm"
+                class="btn"
               >
                 <i class="fa-solid fa-plus text-blue-500"></i> 추가
               </button>
               <button
                 @click="saveIps"
-                class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 text-sm font-bold transition shadow-blue-200 shadow-lg flex items-center gap-2"
+                class="btn btn-primary"
               >
                 <i class="fa-solid fa-floppy-disk"></i> 일괄 저장
               </button>
@@ -127,7 +127,7 @@
               <button
                 @click="deleteSelected"
                 :disabled="selectedRows.length === 0"
-                class="px-4 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 text-sm font-bold transition disabled:opacity-30 disabled:grayscale flex items-center gap-2"
+                class="btn btn-danger"
               >
                 <i class="fa-solid fa-trash-can"></i> 삭제 ({{
                   selectedRows.length
@@ -197,7 +197,7 @@
                       @input="autoSelectRow(item.id || index)"
                       type="text"
                       placeholder="0.0.0.0"
-                      class="w-full bg-transparent border-none focus:ring-2 focus:ring-blue-200 rounded px-2 py-1 text-sm font-mono font-medium text-gray-700 transition-all"
+                      class="cell-input font-mono font-medium text-gray-700"
                     />
                   </td>
                   <td class="p-4">
@@ -206,7 +206,7 @@
                       @input="autoSelectRow(item.id || index)"
                       type="text"
                       placeholder="메모 입력"
-                      class="w-full bg-transparent border-none focus:ring-2 focus:ring-blue-200 rounded px-2 py-1 text-sm text-gray-600 transition-all"
+                      class="cell-input text-gray-600"
                     />
                   </td>
                   <td class="p-4">

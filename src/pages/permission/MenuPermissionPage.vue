@@ -1,12 +1,32 @@
 ﻿<template>
-  <div class="flex h-screen bg-gray-100">
+  <div class="flex flex-col lg:flex-row lg:h-[calc(100vh-4rem)] gap-3 bg-gray-100">
     <!-- 좌측 Role 리스트 -->
-    <div class="w-1/4 bg-white border-r flex flex-col rounded-3xl">
+    <div class="w-full lg:w-1/4 bg-white border-r flex flex-col rounded-3xl">
       <!-- 헤더 -->
       <div class="p-4 border-b">
-        <div class="flex items-center gap-2 mb-3">
-          <i class="fa-solid fa-shield-halved text-blue-500"></i>
-          <h2 class="text-lg font-semibold">권한 그룹</h2>
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-shield-halved text-blue-500"></i>
+            <h2 class="text-base font-semibold">권한 그룹</h2>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <button
+              @click="openRoleSeedModal"
+              class="flex items-center gap-1.5 text-xs font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition"
+            >
+              <i class="fa-solid fa-user-shield text-[11px]"></i>
+              역할 셋팅
+            </button>
+
+            <button
+              @click="openSeedModal"
+              class="flex items-center gap-1.5 text-xs font-bold bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition"
+            >
+              <i class="fa-solid fa-database text-[11px]"></i>
+              권한 셋팅
+            </button>
+          </div>
         </div>
 
         <!-- 검색 -->
@@ -15,7 +35,7 @@
             v-model="search"
             type="text"
             placeholder="Role 검색..."
-            class="w-full pl-9 pr-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+            class="field pl-9"
           />
           <i
             class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-sm"
@@ -94,7 +114,7 @@
     </div>
 
     <!-- 우측 권한 설정 -->
-    <div class="flex-1 ps-3">
+    <div class="flex-1 min-w-0">
       <transition name="page">
         <MenuPermissionBoard v-if="selectedRole" :role-id="selectedRole.id" />
       </transition>
@@ -136,6 +156,9 @@
 
 <script>
 import MenuPermissionBoard from "./MenuPermissionBoard.vue";
+import PermissionSeedModal from "@/components/permission/PermissionSeedModal.vue";
+import RoleSeedModal from "@/components/permission/RoleSeedModal.vue";
+import { useModalStore } from "@/stores/modal";
 import api from "@/api/api";
 
 export default {
@@ -144,6 +167,7 @@ export default {
 
   data() {
     return {
+      modal: useModalStore(),
       search: "",
       roles: [],
       selectedRole: null,
@@ -180,6 +204,24 @@ export default {
     // 역할 선택 시 선택 상태를 갱신한다
     selectRole(role) {
       this.selectedRole = role;
+    },
+
+    // 권한 초기 셋팅 모달을 연다
+    openSeedModal() {
+      this.modal.openModal(
+        PermissionSeedModal,
+        { onSaved: this.loadRoles },
+        "lg",
+      );
+    },
+
+    // 역할 초기 셋팅 모달을 연다
+    openRoleSeedModal() {
+      this.modal.openModal(
+        RoleSeedModal,
+        { onSaved: this.loadRoles },
+        "md",
+      );
     },
   },
 };

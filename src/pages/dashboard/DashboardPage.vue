@@ -1,5 +1,5 @@
 ﻿<template>
-  <div class="p-6 space-y-6 bg-gray-50/50 min-h-screen font-sans text-gray-900">
+  <div class="p-4 lg:p-6 space-y-4 lg:space-y-6 bg-gray-50/50 min-h-screen font-sans text-gray-900">
     <!-- 1. 상단 물류 KPI 섹션 -->
     <div class="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
       <div
@@ -248,7 +248,7 @@
             <div
               class="col-span-3 text-right text-gray-400 font-mono tracking-tighter"
             >
-              {{ formatDate(log.created_at) }}
+              <BaseDateText :value="log.created_at" show-time />
             </div>
           </div>
           <div
@@ -277,6 +277,7 @@ import {
 import { CanvasRenderer } from "echarts/renderers";
 
 import { useAuthStore } from "@/stores/auth";
+import BaseDateText from "@/components/base/BaseDateText.vue";
 
 echarts.use([
   LineChart,
@@ -289,7 +290,7 @@ echarts.use([
 ]);
 
 export default {
-  components: { "v-chart": VueECharts },
+  components: { "v-chart": VueECharts, BaseDateText },
   data() {
     return {
       auth: useAuthStore(),
@@ -531,21 +532,7 @@ export default {
     formatNumber(v) {
       return new Intl.NumberFormat().format(v || 0);
     },
-    // 날짜 값을 YYYY-MM-DD HH:mm:ss 형식으로 포맷팅한다
-    formatDate(v) {
-      const d = new Date(v);
-
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, "0");
-      const dd = String(d.getDate()).padStart(2, "0");
-
-      const hh = String(d.getHours()).padStart(2, "0");
-      const mi = String(d.getMinutes()).padStart(2, "0");
-      const ss = String(d.getSeconds()).padStart(2, "0");
-
-      return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
-    },
-    // 처리 구분별 배지 색상 클래스를 반환한다
+// 처리 구분별 배지 색상 클래스를 반환한다
     getActionClass(a) {
       const m = {
         입고: "bg-blue-100 text-blue-700",

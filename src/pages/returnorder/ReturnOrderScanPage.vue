@@ -64,7 +64,7 @@
             class="px-3 py-2 hover:bg-blue-50 cursor-pointer flex justify-between items-center border-b last:border-b-0 transition"
           >
             <span class="font-medium text-gray-700">
-              {{ formatDate(m.created_at) }} - {{ m.material?.name }}
+              <BaseDateText :value="m.created_at" /> - {{ m.material?.name }}
             </span>
 
             <span class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
@@ -184,9 +184,10 @@ import api from "@/api/api";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import { AgGridVue } from "ag-grid-vue3";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
+import BaseDateText from "@/components/base/BaseDateText.vue";
 
 export default {
-  components: { SearchSelect, AgGridVue, DateRangePicker },
+  components: { SearchSelect, AgGridVue, DateRangePicker, BaseDateText },
   data() {
     return {
       tempId: -1,
@@ -258,17 +259,7 @@ export default {
   computed: {},
 
   methods: {
-    // 날짜 값을 YYYY-MM-DD 형식으로 포맷팅한다
-    formatDate(value) {
-      const d = new Date(value);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, "0");
-      const dd = String(d.getDate()).padStart(2, "0");
-
-      return `${yyyy}-${mm}-${dd}`;
-    },
-
-    // 현재 시각 기반의 반품 전표번호를 생성한다
+// 현재 시각 기반의 반품 전표번호를 생성한다
     mk_out_no() {
       this.outbound_no = "RET-" + Date.now();
     },

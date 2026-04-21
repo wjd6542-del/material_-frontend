@@ -1,7 +1,7 @@
-﻿<template>
+<template>
   <div class="p-1">
-    <div class="flex items-center justify-between mb-6 border-b pb-4">
-      <h2 class="text-xl font-bold text-gray-800">
+    <div class="flex items-center justify-between mb-4 border-b pb-4">
+      <h2 class="text-base font-semibold mb-3">
         {{ id ? "사용자 정보 수정" : "신규 사용자 등록" }}
       </h2>
       <button
@@ -26,77 +26,65 @@
     </div>
 
     <div class="space-y-5">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >아이디</label
-          >
+          <label class="form-label">아이디</label>
           <input
             v-model="form.username"
             type="text"
             placeholder="example_user"
             :disabled="id > 0"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:bg-gray-50"
+            class="field"
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >이름</label
-          >
+          <label class="form-label">이름</label>
           <input
             v-model="form.name"
             type="text"
             placeholder="홍길동"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            class="field"
           />
         </div>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1"
-          >이메일 주소</label
-        >
+        <label class="form-label">이메일 주소</label>
         <input
           v-model="form.email"
           type="email"
           placeholder="user@example.com"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+          class="field"
         />
       </div>
 
       <div
         v-if="!is_edit"
-        class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100"
+        class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-gray-50 p-4 rounded-xl border border-gray-100"
       >
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >비밀번호</label
-          >
+          <label class="form-label">비밀번호</label>
           <input
             type="password"
             v-model="form.password"
             placeholder="••••••••"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+            class="field"
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >비밀번호 확인</label
-          >
+          <label class="form-label">비밀번호 확인</label>
           <input
             type="password"
             v-model="form.passwordConfirm"
             placeholder="••••••••"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+            class="field"
           />
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >권한(Role)</label
-          >
+          <label class="form-label">권한(Role)</label>
           <SearchSelect
             v-model="form.role_id"
             :options="roles"
@@ -107,12 +95,10 @@
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >계정 활성 상태</label
-          >
+          <label class="form-label">계정 활성 상태</label>
           <select
             v-model="form.is_active"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none appearance-none bg-white"
+            class="field"
           >
             <option :value="true">✅ 활성 (사용 가능)</option>
             <option :value="false">🚫 비활성 (접근 제한)</option>
@@ -121,16 +107,16 @@
       </div>
     </div>
 
-    <div class="flex justify-end gap-3 mt-8 pt-5 border-t">
+    <div class="flex justify-end gap-2 mt-4 pt-5 border-t">
       <button
-        class="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+        class="btn"
         @click="modal.closeModal()"
       >
         취소
       </button>
 
       <button
-        class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:bg-blue-800 font-semibold shadow-md shadow-blue-100 transition-all"
+        class="btn btn-primary"
         @click="save"
       >
         {{ id ? "정보 업데이트" : "사용자 등록 완료" }}

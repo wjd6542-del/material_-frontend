@@ -9,12 +9,16 @@ import AuthLayout from "@/layouts/AuthLayout.vue"
 // 데시보드
 import DashboardPage from "@/pages/dashboard/DashboardPage.vue"
 
+// 발주
+import PurchaseOrderListPage from "@/pages/purchaseorder/PurchaseOrderListPage.vue"
+import PurchaseOrderRegisterPage from "@/pages/purchaseorder/PurchaseOrderRegisterPage.vue"
+import PurchaseOrderDetailPage from "@/pages/purchaseorder/PurchaseOrderDetailPage.vue"
+
 // 자재
 import MaterialListPage from "@/pages/material/MaterialListPage.vue"
 import MaterialPrintPage from "@/pages/material/MaterialPrintPage.vue"
 import MaterialCategoryPage from "@/pages/material/MaterialCategoryPage.vue"
 import MaterialCategoryColumnPage from "@/pages/material/MaterialCategoryColumnPage.vue"
-
 
 // 입고
 import InboundPage from "@/pages/inbound/InboundPage.vue"
@@ -47,8 +51,6 @@ import SatisticsOutboundPage from "@/pages/statistics/SatisticsOutboundPage.vue"
 import SatisticsStockPage from "@/pages/statistics/SatisticsStockPage.vue"
 import SatisticsReturnPage from "@/pages/statistics/SatisticsReturnPage.vue"
 
-
-
 // 기타
 import SettingPage from "@/pages/setting/SettingPage.vue"
 import UserManagerPage from "@/pages/user/UserManagerPage.vue"
@@ -58,11 +60,9 @@ import UserManagerPermissionPage from "@/pages/permission/UserManagerPermissionP
 import MenuPermissionPage from "@/pages/permission/MenuPermissionPage.vue"
 import NotificationPage from "@/pages/notification/NotificationPage.vue"
 
-
 import WarehousePage from "@/pages/warehouse/WarehousePage.vue"
 import LocationPage from "@/pages/warehouse/LocationPage.vue"
 import ShelfPage from "@/pages/warehouse/ShelfPage.vue"
-
 
 import LogPage from "@/pages/log/LogPage.vue"
 import UserMyPage from "@/pages/user/UserMyPage.vue"
@@ -70,10 +70,6 @@ import UserMyPage from "@/pages/user/UserMyPage.vue"
 // 사업자
 import BusinessPage from "@/pages/business/BusinessPage.vue"
 
-// 발주
-import PurchaseOrderListPage from "@/pages/purchaseorder/PurchaseOrderListPage.vue"
-import PurchaseOrderRegisterPage from "@/pages/purchaseorder/PurchaseOrderRegisterPage.vue"
-import PurchaseOrderDetailPage from "@/pages/purchaseorder/PurchaseOrderDetailPage.vue"
 
 
 

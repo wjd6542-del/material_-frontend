@@ -1,5 +1,5 @@
 ﻿<template>
-  <div class="p-6 bg-[#f8fafc] min-h-screen space-y-6">
+  <div class="p-4 lg:p-6 bg-[#f8fafc] min-h-screen space-y-4 lg:space-y-6">
     <!-- 1. KPI SUMMARY (입고 현황 요약) -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <!-- 총 입고 수량 -->

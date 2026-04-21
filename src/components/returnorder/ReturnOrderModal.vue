@@ -1,24 +1,24 @@
-﻿<template>
+<template>
   <div class="w-full">
     <!-- 타이틀 수정 -->
-    <h2 class="text-lg font-semibold mb-4">반품 전표 처리</h2>
+    <h2 class="text-base font-semibold mb-3">반품 전표 처리</h2>
 
     <!-- 전표 정보 -->
-    <div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="grid grid-cols-2 gap-3 mb-4">
       <div>
-        <label class="font-medium text-gray-600">반품번호</label>
+        <label class="form-label">반품번호</label>
         <input
           v-model="form.return_no"
-          class="mt-1 w-full border rounded px-3 py-2 bg-gray-100"
+          class="field mt-1 bg-slate-50"
           readonly
         />
       </div>
 
       <div>
-        <label class="font-medium text-gray-600">메모</label>
+        <label class="form-label">메모</label>
         <input
           v-model="form.memo"
-          class="mt-1 w-full border rounded px-3 py-2"
+          class="field mt-1"
           placeholder="메모 입력"
         />
       </div>
@@ -26,23 +26,23 @@
 
     <!-- 품목 리스트 -->
     <div class="mb-3 flex justify-between items-center">
-      <h3 class="font-medium">반품 품목</h3>
+      <h3 class="text-xs font-semibold text-slate-700">반품 품목</h3>
     </div>
 
     <div class="border rounded">
       <table class="w-full text-sm">
         <thead class="bg-gray-100">
           <tr>
-            <th class="px-2 py-2 border">자재</th>
-            <th class="px-2 py-2 border w-32">위치</th>
-            <th class="px-2 py-2 border w-24">수량</th>
-            <th class="px-2 py-2 border w-32">원가</th>
-            <th class="px-2 py-2 border w-32">판매가</th>
+            <th class="th">자재</th>
+            <th class="th w-32">위치</th>
+            <th class="th w-24">수량</th>
+            <th class="th w-32">원가</th>
+            <th class="th w-32">판매가</th>
             <!-- 반품 사유 추가 -->
-            <th class="px-2 py-2 border w-32">반품사유</th>
-            <th class="px-2 py-2 border w-16">
+            <th class="th w-32">반품사유</th>
+            <th class="th w-16">
               <button
-                class="px-3 py-1 text-sm bg-blue-600 text-white rounded"
+                class="btn btn-primary"
                 @click="addItem"
               >
                 +
@@ -54,7 +54,7 @@
         <tbody>
           <tr v-for="(item, i) in form.items" :key="i">
             <!-- 자재 -->
-            <td class="border px-2">
+            <td class="td">
               <SearchSelect
                 v-model="item.material_id"
                 :options="materials"
@@ -65,7 +65,7 @@
             </td>
 
             <!-- 위치 -->
-            <td class="border px-2">
+            <td class="td">
               <SearchSelect
                 v-model="item.location_id"
                 :options="locations"
@@ -76,37 +76,37 @@
               />
             </td>
             <!-- 수량 -->
-            <td class="border px-2">
+            <td class="td">
               <input
                 type="number"
                 v-model.number="item.quantity"
-                class="w-full border rounded px-2 py-1 text-right"
+                class="cell-input text-right"
               />
             </td>
 
             <!-- 원가 -->
-            <td class="border px-2">
+            <td class="td">
               <input
                 type="text"
                 v-model.number="item.cost_price"
-                class="w-full border rounded px-2 py-1 text-right"
+                class="cell-input text-right"
               />
             </td>
 
             <!-- 판매가 -->
-            <td class="border px-2">
+            <td class="td">
               <input
                 type="text"
                 v-model.number="item.sale_price"
-                class="w-full border rounded px-2 py-1 text-right"
+                class="cell-input text-right"
               />
             </td>
 
             <!-- 반품 사유 (항목 추가) -->
-            <td class="border px-2">
+            <td class="td">
               <select
                 v-model="item.reasonType"
-                class="w-full border rounded px-2 py-1"
+                class="cell-input"
               >
                 <option value="단순변심">단순변심</option>
                 <option value="오발송">오발송</option>
@@ -116,7 +116,7 @@
             </td>
 
             <!-- 삭제 -->
-            <td class="border text-center">
+            <td class="td text-center">
               <button class="text-red-500 text-sm" @click="removeItem(i)">
                 삭제
               </button>
@@ -133,12 +133,12 @@
     </div>
 
     <!-- 버튼 -->
-    <div class="flex justify-end gap-2 mt-6">
-      <button class="px-3 py-1.5 border rounded" @click="modal.closeModal()">
+    <div class="flex justify-end gap-2 mt-4">
+      <button class="btn" @click="modal.closeModal()">
         취소
       </button>
 
-      <button class="px-3 py-1.5 bg-blue-600 text-white rounded" @click="save">
+      <button class="btn btn-primary" @click="save">
         저장
       </button>
     </div>

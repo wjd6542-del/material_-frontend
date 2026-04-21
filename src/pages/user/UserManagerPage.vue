@@ -5,13 +5,13 @@
       class="lg:col-span-8 bg-white rounded-xl shadow border border-gray-200"
     >
       <div class="flex items-center justify-between px-5 py-4 border-b">
-        <h2 class="text-lg font-semibold text-gray-800">계정 리스트</h2>
+        <h2 class="text-base font-semibold text-gray-800">계정 리스트</h2>
       </div>
 
       <div class="p-4 pb-0 flex flex-wrap items-center gap-2">
         <button
           @click="openModal"
-          class="h-[40px] px-3 py-1.5 bg-green-500 text-white rounded-md text-sm hover:bg-green-600 shrink-0"
+          class="btn btn-primary shrink-0"
         >
           <i class="fa-solid fa-add"></i>
         </button>

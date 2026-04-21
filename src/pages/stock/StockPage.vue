@@ -6,7 +6,7 @@
         class="lg:col-span-8 bg-white rounded-xl shadow border border-gray-200"
       >
         <div class="flex items-center justify-between px-5 py-4 border-b">
-          <h2 class="text-lg font-semibold text-gray-800">재고현황</h2>
+          <h2 class="text-base font-semibold text-gray-800">재고현황</h2>
         </div>
 
         <div class="p-4 pb-0 flex flex-wrap items-center gap-2">
@@ -53,7 +53,7 @@
         <div class="p-4 pb-0 flex items-center gap-1">
           <button
             @click="openModal"
-            class="h-[40px] px-3 py-1.5 bg-green-500 text-white rounded-md text-sm hover:bg-green-600"
+            class="btn btn-primary"
           >
             <i class="fa-solid fa-clipboard-list"></i>
             현재고 전표
@@ -143,7 +143,7 @@
                     {{ row.name }}
                   </span>
                   <span class="text-xs text-gray-400">
-                    {{ formatDate(row.created_at) }}
+                    <BaseDateText :value="row.created_at" show-time />
                   </span>
                 </div>
               </div>
@@ -169,6 +169,7 @@
 import BaseTable from "@/components/base/BaseTable.vue";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
+import BaseDateText from "@/components/base/BaseDateText.vue";
 
 import { useModalStore } from "@/stores/modal";
 import StockPrintModal from "@/components/stock/StockPrintModal.vue";
@@ -184,6 +185,7 @@ export default {
     BaseTable,
     SearchSelect,
     DateRangePicker,
+    BaseDateText,
   },
 
   data() {
@@ -283,20 +285,6 @@ export default {
       return new Intl.NumberFormat().format(v || 0);
     },
 
-    // 날짜 값을 YYYY-MM-DD HH:mm:ss 형식으로 포맷팅한다
-    formatDate(value) {
-      const d = new Date(value);
-
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, "0");
-      const dd = String(d.getDate()).padStart(2, "0");
-
-      const hh = String(d.getHours()).padStart(2, "0");
-      const mi = String(d.getMinutes()).padStart(2, "0");
-      const ss = String(d.getSeconds()).padStart(2, "0");
-
-      return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
-    },
 
     // 데이터 로드 처리
     // 검색 조건을 반영해 재고 목록을 로드한다

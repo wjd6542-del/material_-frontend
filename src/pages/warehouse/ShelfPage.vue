@@ -1,10 +1,10 @@
 <template>
   <div
-    class="flex h-screen bg-slate-50 font-sans text-slate-900 select-none overflow-hidden"
+    class="flex flex-col lg:flex-row lg:h-[calc(100vh-4rem)] bg-slate-50 font-sans text-slate-900 select-none"
   >
     <!-- 좌측 사이드바 -->
     <div
-      class="w-80 bg-white border-r border-slate-200 flex flex-col shadow-sm z-10"
+      class="w-full lg:w-80 bg-white border-r border-slate-200 flex flex-col shadow-sm z-10 lg:overflow-y-auto"
     >
       <!-- 헤더 -->
       <div class="p-6 border-b border-slate-100">

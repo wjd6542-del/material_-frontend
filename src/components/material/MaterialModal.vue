@@ -1,43 +1,43 @@
-﻿<template>
+<template>
   <div>
-    <h2 class="text-lg font-semibold mb-4">
+    <h2 class="text-base font-semibold mb-3">
       자재 {{ isEdit ? "수정" : "등록" }}
     </h2>
 
     <div class="space-y-3">
       <div>
-        <label class="text-sm text-gray-600">자재명</label>
+        <label class="form-label">자재명</label>
         <input
           v-model="form.name"
           placeholder="자재명 입력"
-          class="mt-1 w-full border rounded px-3 py-2"
+          class="field mt-1"
         />
       </div>
 
       <div>
-        <label class="text-sm text-gray-600">카테고리</label>
+        <label class="form-label">카테고리</label>
         <CategoryTreeSelect v-model="form.category_id" />
       </div>
 
       <div>
-        <label class="text-sm text-gray-600">자재코드</label>
+        <label class="form-label">자재코드</label>
         <input
           v-model="form.code"
-          class="mt-1 w-full border rounded px-3 py-2"
+          class="field mt-1"
           :disabled="isEdit"
         />
       </div>
 
       <div>
-        <label class="text-sm text-gray-600">규격</label>
+        <label class="form-label">규격</label>
         <input
           v-model="form.spec"
-          class="mt-1 w-full border rounded px-3 py-2"
+          class="field mt-1"
         />
       </div>
 
       <div>
-        <label class="text-sm text-gray-600">단위</label>
+        <label class="form-label">단위</label>
         <SearchSelect
           v-model="form.unit"
           :options="selects"
@@ -47,11 +47,11 @@
       </div>
 
       <div>
-        <label class="text-sm text-gray-600">안전재고</label>
+        <label class="form-label">안전재고</label>
         <input
           v-model="form.safety_stock"
           type="number"
-          class="mt-1 w-full border rounded px-3 py-2"
+          class="field mt-1"
         />
       </div>
 
@@ -70,15 +70,15 @@
       </div>
 
       <div>
-        <label class="text-sm text-gray-600">메모</label>
+        <label class="form-label">메모</label>
         <textarea
           v-model="form.memo"
-          class="mt-1 w-full border rounded px-3 py-2"
+          class="field mt-1"
         ></textarea>
       </div>
 
       <div>
-        <label class="text-sm text-gray-600">이미지</label>
+        <label class="form-label">이미지</label>
         <BaseImage :multiple="false" @change="handleFiles" />
 
         <div class="flex gap-2 flex-wrap mt-2">
@@ -104,16 +104,16 @@
       </div>
     </div>
 
-    <div class="flex justify-end gap-2 mt-6">
+    <div class="flex justify-end gap-2 mt-4">
       <button
-        class="px-3 py-1.5 border rounded hover:bg-gray-50"
+        class="btn"
         @click="modal.closeModal()"
       >
         취소
       </button>
 
       <button
-        class="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700"
+        class="btn btn-primary"
         @click="save"
       >
         {{ isEdit ? "수정하기" : "저장하기" }}

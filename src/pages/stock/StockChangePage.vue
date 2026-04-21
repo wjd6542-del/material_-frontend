@@ -1,7 +1,7 @@
 ﻿<template>
-  <div class="flex gap-6 h-full p-6 bg-gray-50/50 text-slate-800">
+  <div class="flex flex-col lg:flex-row gap-4 lg:gap-6 h-full p-4 lg:p-6 bg-gray-50/50 text-slate-800">
     <aside
-      class="w-1/5 bg-white border border-gray-200 shadow-sm rounded-2xl p-5 flex flex-col gap-6"
+      class="w-full lg:w-1/5 bg-white border border-gray-200 shadow-sm rounded-2xl p-5 flex flex-col gap-6"
     >
       <div>
         <h3
@@ -49,7 +49,7 @@
             <input
               v-model="where.searchText"
               placeholder="자재명 또는 코드를 입력..."
-              class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-blue-50 focus:border-blue-400 outline-none transition-all placeholder:text-gray-300"
+              class="field"
               @keyup.enter="loadData"
             />
           </div>

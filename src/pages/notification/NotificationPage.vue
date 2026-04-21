@@ -5,7 +5,7 @@
       class="lg:col-span-8 bg-white rounded-xl shadow border border-gray-200"
     >
       <div class="flex items-center justify-between px-5 py-4 border-b">
-        <h2 class="text-lg font-semibold text-gray-800">알림 리스트</h2>
+        <h2 class="text-base font-semibold text-gray-800">알림 리스트</h2>
       </div>
 
       <div class="p-4 pb-0 flex items-center gap-1">
@@ -37,17 +37,17 @@
       <div class="px-5 py-3 border-b flex gap-2 bg-white">
         <button
           @click="readRows"
-          class="px-4 py-2 text-sm rounded-lg bg-green-500 text-white hover:bg-green-600 shadow-sm transition flex items-center gap-2"
+          class="btn btn-primary"
         >
-          <i class="fa-solid fa-save"></i>
+          <i class="fa-solid fa-save text-[10px]"></i>
           읽기 처리
         </button>
 
         <button
           @click="deleteRows"
-          class="px-4 py-2 text-sm rounded-lg bg-red-500 text-white hover:bg-red-600 shadow-sm transition flex items-center gap-2"
+          class="btn btn-danger"
         >
-          <i class="fa-solid fa-trash"></i>
+          <i class="fa-solid fa-trash text-[10px]"></i>
           삭제
         </button>
       </div>
@@ -99,6 +99,7 @@ export default {
       ],
 
       typeArr: [
+        { text: "발주", value: "PURCHASEORDER" },
         { text: "입고", value: "INBOUND" },
         { text: "출고", value: "OUTBOUND" },
         { text: "반품", value: "RETURNORDER" },
