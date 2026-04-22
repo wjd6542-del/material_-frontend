@@ -1,11 +1,11 @@
 ﻿<template>
   <div class="w-full">
-    <h2 class="text-base font-semibold mb-3">입고 전표 등록</h2>
+    <h2 class="text-base font-semibold mb-3">구매 전표 등록</h2>
 
     <!-- 전표 정보 -->
     <div class="grid grid-cols-2 gap-3 mb-4">
       <div>
-        <label class="form-label">입고번호</label>
+        <label class="form-label">구매번호</label>
         <input v-model="form.inbound_no" class="field bg-slate-50" readonly />
       </div>
 
@@ -17,7 +17,7 @@
 
     <!-- 품목 리스트 -->
     <div class="mb-2 flex justify-between items-center">
-      <h3 class="text-xs font-semibold text-slate-700">입고 품목</h3>
+      <h3 class="text-xs font-semibold text-slate-700">구매 품목</h3>
       <button type="button" class="btn btn-primary" @click="openMaterialSelect()">
         <i class="fa-solid fa-plus text-[10px]"></i>
         자재 선택
@@ -178,7 +178,7 @@ export default {
       );
     },
 
-    // 자재 정보를 신규 입고 품목 행 객체로 변환한다
+    // 자재 정보를 신규 구매 품목 행 객체로 변환한다
     buildItemFromMaterial(m: any) {
       return {
         id: 0,
@@ -253,7 +253,7 @@ export default {
       try {
         await api.post("/api/inbound/save", this.form);
         this.modal.closeModal();
-        this.$toast.success("입고처리가 완료 되었습니다");
+        this.$toast.success("구매처리가 완료되었습니다");
         if (this.onSaved) {
           this.onSaved();
         }
@@ -262,7 +262,7 @@ export default {
       }
     },
 
-    // 현재 시각 기반의 입고번호 문자열을 생성한다
+    // 현재 시각 기반의 구매번호 문자열을 생성한다
     mk_in_no() {
       return "IN-" + Date.now();
     },
@@ -276,7 +276,7 @@ export default {
     },
 
     // 데이터 로드
-    // 수정 대상 입고 전표의 상세 데이터를 로드한다
+    // 수정 대상 구매 전표의 상세 데이터를 로드한다
     async loadData() {
       const res = await api.post(`/api/inbound/${this.id}`, { id: this.id });
       this.mapping_data(res.data);
@@ -289,9 +289,9 @@ export default {
     },
   },
 
-  // 마운트 시 입고번호 생성 및 참조 데이터들을 로드한다
+  // 마운트 시 구매번호 생성 및 참조 데이터들을 로드한다
   mounted() {
-    // 입고번호 자동생성
+    // 구매번호 자동생성
     this.form.inbound_no = this.mk_in_no();
     this.loadSupplier();
 

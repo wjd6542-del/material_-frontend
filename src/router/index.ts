@@ -20,13 +20,13 @@ import MaterialPrintPage from "@/pages/material/MaterialPrintPage.vue"
 import MaterialCategoryPage from "@/pages/material/MaterialCategoryPage.vue"
 import MaterialCategoryColumnPage from "@/pages/material/MaterialCategoryColumnPage.vue"
 
-// 입고
+// 구매
 import InboundPage from "@/pages/inbound/InboundPage.vue"
 import InboundRegisterPage from "@/pages/inbound/InboundRegisterPage.vue"
 import InboundDetailPage from "@/pages/inbound/InboundDetailPage.vue"
 import InboundScanPage from "@/pages/inbound/InboundScanPage.vue"
 
-// 출고
+// 판매
 import OutboundPage from "@/pages/outbound/OutboundPage.vue"
 import OutboundRegisterPage from "@/pages/outbound/OutboundRegisterPage.vue"
 import OutboundDetailPage from "@/pages/outbound/OutboundDetailPage.vue"
@@ -127,48 +127,48 @@ const routes = [
 						meta: { title: "자재 카테고리 (가로)", auth: true, permission: "material.category.view" },
 					},
 
-					// 입고
+					// 구매
 					{
 						path: "inbound",
 						component: InboundPage,
-						meta: { title: "입고관리", auth: true, permission: "inbound.view" },
+						meta: { title: "구매관리", auth: true, permission: "inbound.view" },
 					},
 					{
 						path: "inbound/register",
 						component: InboundRegisterPage,
-						meta: { title: "입고 등록", auth: true, permission: "inbound.create" },
+						meta: { title: "구매 등록", auth: true, permission: "inbound.create" },
 					},
 					{
 						path: "inbound/detail",
 						component: InboundDetailPage,
-						meta: { title: "입고 세부내역", auth: true, permission: "inbound.detail.view" },
+						meta: { title: "구매 세부내역", auth: true, permission: "inbound.detail.view" },
 					},
 					{
 						path: "inbound/scan",
 						component: InboundScanPage,
-						meta: { title: "입고 스캔", auth: true, permission: "inbound.scan.view" },
+						meta: { title: "구매 스캔", auth: true, permission: "inbound.scan.view" },
 					},
 
-					// 출고
+					// 판매
 					{
 						path: "outbound",
 						component: OutboundPage,
-						meta: { title: "출고목록", auth: true, permission: "outbound.view" },
+						meta: { title: "판매목록", auth: true, permission: "outbound.view" },
 					},
 					{
 						path: "outbound/register",
 						component: OutboundRegisterPage,
-						meta: { title: "출고 등록", auth: true, permission: "outbound.create" },
+						meta: { title: "판매 등록", auth: true, permission: "outbound.create" },
 					},
 					{
 						path: "outbound/detail",
 						component: OutboundDetailPage,
-						meta: { title: "출고 세부내역", auth: true, permission: "outbound.detail.view" },
+						meta: { title: "판매 세부내역", auth: true, permission: "outbound.detail.view" },
 					},
 					{
 						path: "outbound/scan",
 						component: OutboundScanPage,
-						meta: { title: "출고 스캔", auth: true, permission: "outbound.scan.view" },
+						meta: { title: "판매 스캔", auth: true, permission: "outbound.scan.view" },
 					},
 
 					// 반품
@@ -228,12 +228,12 @@ const routes = [
 					{
 						path: "statistics/inbound",
 						component: SatisticsInboundPage,
-						meta: { title: "입고통계", auth: true, permission: "statistics.inbound.view" },
+						meta: { title: "구매통계", auth: true, permission: "statistics.inbound.view" },
 					},
 					{
 						path: "statistics/outbound",
 						component: SatisticsOutboundPage,
-						meta: { title: "출고통계", auth: true, permission: "statistics.outbound.view" },
+						meta: { title: "판매통계", auth: true, permission: "statistics.outbound.view" },
 					},
 					{
 						path: "statistics/stock",

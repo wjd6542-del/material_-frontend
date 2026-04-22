@@ -7,7 +7,7 @@
       <!-- 타이틀 -->
       <h2 class="font-semibold text-gray-700 flex items-center gap-2 text-base">
         <i class="fa-solid fa-box-open text-blue-500"></i>
-        출고 처리
+        판매 처리
       </h2>
 
       <!-- QR 스캔 카드 -->
@@ -86,14 +86,14 @@
       </div>
     </div>
 
-    <!-- 우측 출고 목록 -->
+    <!-- 우측 판매 목록 -->
     <div class="col-span-8 bg-white border rounded-xl shadow-sm flex flex-col">
       <!-- header -->
       <div class="p-4 border-b flex justify-between items-center">
         <!-- 타이틀 -->
         <h2 class="font-semibold text-gray-700 flex items-center gap-2 text-base">
           <i class="fa-solid fa-list text-gray-500"></i>
-          출고 번호 : {{ outbound_no }}
+          판매 번호 : {{ outbound_no }}
         </h2>
 
         <div class="text-xs text-gray-500">총 {{ totalCount }} 개</div>
@@ -172,13 +172,13 @@
             전체 삭제
           </button>
 
-          <!-- 출고 확정 -->
+          <!-- 판매 확정 -->
           <button
             @click="saveOutbound"
             class="btn btn-primary flex items-center gap-2 bg-green-600 hover:bg-green-700"
           >
             <i class="fa-solid fa-check"></i>
-            출고 확정
+            판매 확정
           </button>
         </div>
       </div>
@@ -255,7 +255,7 @@ export default {
   computed: {},
 
   methods: {
-    // 현재 시각 기반의 출고번호를 생성해 설정한다
+    // 현재 시각 기반의 판매번호를 생성해 설정한다
     mk_out_no() {
       this.outbound_no = "OUT-" + Date.now();
     },
@@ -414,14 +414,14 @@ export default {
     },
 
     // 저장 처리
-    // 선택된 행들을 출고 전표로 저장하고 번호를 새로 발급한다
+    // 선택된 행들을 판매 전표로 저장하고 번호를 새로 발급한다
     async saveOutbound() {
       try {
         const rows = this.gridApi.getSelectedRows();
 
         const ok = await this.$confirm(
-          `출고항목 총${rows.length}개  처리하시겠습니까?`,
-          "출고 확인",
+          `판매항목 총${rows.length}개  처리하시겠습니까?`,
+          "판매 확인",
         );
         if (!ok) return;
 
@@ -432,7 +432,7 @@ export default {
           items: rows,
         });
 
-        this.$toast.success("출고 처리가 완료 되었습니다");
+        this.$toast.success("판매 처리가 완료되었습니다");
 
         this.mk_out_no();
         this.updateFooter();

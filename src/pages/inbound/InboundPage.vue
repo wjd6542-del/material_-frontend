@@ -5,7 +5,7 @@
       class="lg:col-span-8 bg-white rounded-xl shadow border border-gray-200"
     >
       <div class="flex items-center justify-between px-5 py-4 border-b">
-        <h2 class="text-base font-semibold text-gray-800">입고 목록</h2>
+        <h2 class="text-base font-semibold text-gray-800">구매 목록</h2>
       </div>
 
       <div class="p-4 pb-0 flex flex-wrap items-center gap-2">
@@ -35,7 +35,7 @@
         <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[200px] sm:max-w-[450px]">
           <BaseInput
             v-model="where.inbound_no"
-            placeholder="입고번호 입력"
+            placeholder="구매번호 입력"
             @change="loadList"
           />
         </div>
@@ -99,7 +99,7 @@ export default {
         },
         {
           key: "inbound_no",
-          label: "입고번호",
+          label: "구매번호",
           width: "200px",
           align: "center",
           sortable: true,
@@ -137,7 +137,7 @@ export default {
 
   methods: {
     // 삭제
-    // 선택된 입고 전표들을 사용자 확인 후 일괄 삭제한다
+    // 선택된 구매 전표들을 사용자 확인 후 일괄 삭제한다
     async batchDelete() {
       const rows = this.$refs.inboundTable.getSelectedRows();
       if (!rows.length) {
@@ -166,13 +166,13 @@ export default {
       }
     },
 
-    // 입고 등록 페이지로 이동한다
+    // 구매 등록 페이지로 이동한다
     goRegister() {
       this.$router.push("/inbound/register");
     },
 
     // 데이터 로드 처리
-    // 검색 조건을 반영해 입고 목록을 로드한다
+    // 검색 조건을 반영해 구매 목록을 로드한다
     async loadList() {
       this.rows = [];
 
@@ -213,7 +213,7 @@ export default {
       }
     },
   },
-  // 마운트 시 입고 목록을 로드한다
+  // 마운트 시 구매 목록을 로드한다
   mounted() {
     this.loadList();
   },

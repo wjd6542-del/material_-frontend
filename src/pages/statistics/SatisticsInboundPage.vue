@@ -1,14 +1,14 @@
 ﻿<template>
   <div class="p-4 lg:p-6 bg-[#f8fafc] min-h-screen space-y-4 lg:space-y-6">
-    <!-- 1. KPI SUMMARY (입고 현황 요약) -->
+    <!-- 1. KPI SUMMARY (구매 현황 요약) -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <!-- 총 입고 수량 -->
+      <!-- 총 구매 수량 -->
       <div
         class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group"
       >
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-slate-500 mb-1">총 입고 수량</p>
+            <p class="text-sm font-medium text-slate-500 mb-1">총 구매 수량</p>
             <div class="flex items-baseline gap-1">
               <span class="text-3xl font-bold text-blue-600">{{
                 formatNumber(summary?.total_qty)
@@ -24,13 +24,13 @@
         </div>
       </div>
 
-      <!-- 총 입고 금액 -->
+      <!-- 총 구매 금액 -->
       <div
         class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group"
       >
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-slate-500 mb-1">총 입고 금액</p>
+            <p class="text-sm font-medium text-slate-500 mb-1">총 구매 금액</p>
             <div class="flex items-baseline gap-1">
               <span class="text-3xl font-bold text-emerald-600">{{
                 formatNumber(summary?.total_cost)
@@ -46,13 +46,13 @@
         </div>
       </div>
 
-      <!-- 입고 건수 -->
+      <!-- 구매 건수 -->
       <div
         class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group"
       >
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-slate-500 mb-1">입고 건수</p>
+            <p class="text-sm font-medium text-slate-500 mb-1">구매 건수</p>
             <div class="flex items-baseline gap-1">
               <span class="text-3xl font-bold text-slate-700">{{
                 formatNumber(summary?.count)
@@ -83,7 +83,7 @@
             <div class="flex items-center gap-2">
               <div class="w-1.5 h-5 bg-blue-500 rounded-full"></div>
               <span class="font-bold text-slate-800 text-base"
-                >입고 통계 상세</span
+                >구매 통계 상세</span
               >
             </div>
             <span
@@ -159,7 +159,7 @@
             <div class="flex items-center gap-2">
               <div class="w-1.5 h-5 bg-emerald-500 rounded-full"></div>
               <span class="font-bold text-slate-800 text-base"
-                >입고 금액 추이 (Spline)</span
+                >구매 금액 추이 (Spline)</span
               >
             </div>
           </div>
@@ -171,7 +171,7 @@
                 :rows="chartRows"
                 :start="dateRange.start"
                 :end="dateRange.end"
-                name="입고금액"
+                name="구매금액"
                 column="total_cost"
                 type="line"
                 :smooth="true"
@@ -226,7 +226,7 @@ export default {
         },
         {
           key: "total_qty",
-          label: "입고 수량",
+          label: "구매 수량",
           type: "number",
           width: "120px",
           align: "right",
@@ -234,7 +234,7 @@ export default {
         },
         {
           key: "total_cost",
-          label: "입고 금액",
+          label: "구매 금액",
           type: "currency",
           width: "150px",
           align: "right",
@@ -262,7 +262,7 @@ export default {
       return Number(val || 0).toLocaleString();
     },
 
-    // 지정 날짜의 입고 일별 통계를 서버에 갱신 요청한다
+    // 지정 날짜의 구매 일별 통계를 서버에 갱신 요청한다
     async setData() {
       if (!this.set.date) {
         this.$toast.error("통계 저장할 날짜를 입력하세요");
@@ -301,14 +301,14 @@ export default {
       this.summary = { ...summary, count: data_list.length };
     },
 
-    // 입고 통계 차트 데이터를 로드한다
+    // 구매 통계 차트 데이터를 로드한다
     async loadChartData() {
       const where = this.buildParams();
       const res = await api.post("/api/stat/inbound/daily/totalAmount", where);
       this.chartRows = res.data;
     },
 
-    // 입고 통계 목록을 로드하고 요약을 갱신한다
+    // 구매 통계 목록을 로드하고 요약을 갱신한다
     async loadList() {
       const where = this.buildParams();
       const res = await api.post("/api/stat/inboundList", where);

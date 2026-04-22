@@ -311,7 +311,7 @@ export default {
         },
         {
           type: "INBOUND",
-          label: "입고",
+          label: "구매",
           icon: "fa-arrow-down",
           bg: "bg-blue-50",
           text: "text-blue-600",
@@ -320,7 +320,7 @@ export default {
         },
         {
           type: "OUTBOUND",
-          label: "출고",
+          label: "판매",
           icon: "fa-arrow-up",
           bg: "bg-red-50",
           text: "text-red-600",

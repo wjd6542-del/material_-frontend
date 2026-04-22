@@ -4,7 +4,7 @@
     <div class="flex justify-between items-center border-b pb-4 mb-6">
       <div class="flex items-center gap-2 text-2xl font-bold">
         <i class="fa-solid fa-truck-arrow-right text-blue-600"></i>
-        입고 전표
+        구매 전표
       </div>
 
       <div class="text-sm text-gray-500">
@@ -187,7 +187,7 @@ export default {
       this.total_amount = total;
     },
 
-    // 입고 전표 상세와 총액을 로드한다
+    // 구매 전표 상세와 총액을 로드한다
     async loadData() {
       const res = await api.post(`/api/inbound/${this.id}`, { id: this.id });
       this.data = res.data;

@@ -153,8 +153,8 @@ export default {
       dateRange: { start: null, end: null },
 
       typeArr: [
-        { text: "입고", value: "INBOUND" },
-        { text: "출고", value: "OUTBOUND" },
+        { text: "구매", value: "INBOUND" },
+        { text: "판매", value: "OUTBOUND" },
         { text: "조정", value: "ADJUST" },
       ],
 

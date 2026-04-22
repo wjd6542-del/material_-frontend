@@ -112,34 +112,34 @@ export const permissions: PermissionGroup[] = [
 
 	{
 		group: "inbound",
-		label: "입고관리",
+		label: "구매관리",
 		icon: "fa-arrow-down",
 		pages: [
 			{
 				code: "inbound.view",
-				name: "입고목록",
+				name: "구매목록",
 				action: "view",
 				path: "/inbound",
 				actions: [
 					{
 						code: "inbound.create",
-						name: "입고 등록",
+						name: "구매 등록",
 						action: "create",
 						path: "/inbound/register",
 					},
-					{ code: "inbound.update", name: "입고 수정", action: "update" },
-					{ code: "inbound.delete", name: "입고 삭제", action: "delete" },
+					{ code: "inbound.update", name: "구매 수정", action: "update" },
+					{ code: "inbound.delete", name: "구매 삭제", action: "delete" },
 				],
 			},
 			{
 				code: "inbound.detail.view",
-				name: "입고 세부내역",
+				name: "구매 세부내역",
 				action: "view",
 				path: "/inbound/detail",
 			},
 			{
 				code: "inbound.scan.view",
-				name: "입고 스캔",
+				name: "구매 스캔",
 				action: "view",
 				path: "/inbound/scan",
 			},
@@ -148,34 +148,34 @@ export const permissions: PermissionGroup[] = [
 
 	{
 		group: "outbound",
-		label: "출고관리",
+		label: "판매관리",
 		icon: "fa-arrow-up",
 		pages: [
 			{
 				code: "outbound.view",
-				name: "출고목록",
+				name: "판매목록",
 				action: "view",
 				path: "/outbound",
 				actions: [
 					{
 						code: "outbound.create",
-						name: "출고 등록",
+						name: "판매 등록",
 						action: "create",
 						path: "/outbound/register",
 					},
-					{ code: "outbound.update", name: "출고 수정", action: "update" },
-					{ code: "outbound.delete", name: "출고 삭제", action: "delete" },
+					{ code: "outbound.update", name: "판매 수정", action: "update" },
+					{ code: "outbound.delete", name: "판매 삭제", action: "delete" },
 				],
 			},
 			{
 				code: "outbound.detail.view",
-				name: "출고 세부내역",
+				name: "판매 세부내역",
 				action: "view",
 				path: "/outbound/detail",
 			},
 			{
 				code: "outbound.scan.view",
-				name: "출고 스캔",
+				name: "판매 스캔",
 				action: "view",
 				path: "/outbound/scan",
 			},
@@ -314,13 +314,13 @@ export const permissions: PermissionGroup[] = [
 		pages: [
 			{
 				code: "statistics.inbound.view",
-				name: "입고 통계",
+				name: "구매 통계",
 				action: "view",
 				path: "/statistics/inbound",
 			},
 			{
 				code: "statistics.outbound.view",
-				name: "출고 통계",
+				name: "판매 통계",
 				action: "view",
 				path: "/statistics/outbound",
 			},

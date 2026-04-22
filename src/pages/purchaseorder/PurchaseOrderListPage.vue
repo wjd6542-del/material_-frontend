@@ -216,7 +216,7 @@ export default {
             ({
               draft: "임시저장",
               ordered: "발주완료",
-              received: "입고완료",
+              received: "구매완료",
               canceled: "취소",
             })[v] || v,
         },
@@ -239,7 +239,7 @@ export default {
       statusOptions: [
         { text: "임시저장", value: "draft" },
         { text: "발주완료", value: "ordered" },
-        { text: "입고완료", value: "received" },
+        { text: "구매완료", value: "received" },
         { text: "취소", value: "canceled" },
       ],
       where: {

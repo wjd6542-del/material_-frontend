@@ -130,10 +130,10 @@
         </div>
         <div class="flex gap-4 px-2 text-[11px] font-bold text-gray-500">
           <div class="flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 bg-blue-500 rounded-full"></span> 입고
+            <span class="w-2.5 h-2.5 bg-blue-500 rounded-full"></span> 구매
           </div>
           <div class="flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 bg-green-500 rounded-full"></span> 출고
+            <span class="w-2.5 h-2.5 bg-green-500 rounded-full"></span> 판매
           </div>
           <div class="flex items-center gap-1.5">
             <span class="w-2.5 h-2.5 bg-red-500 rounded-full"></span> 반품
@@ -310,7 +310,7 @@ export default {
       logs: [],
       kpiConfig: {
         in: {
-          label: "오늘 입고",
+          label: "오늘 구매",
           key: "today_inbound",
           border: "border-l-blue-500",
           text: "text-blue-600",
@@ -319,7 +319,7 @@ export default {
           icon: "fa-solid fa-arrow-down",
         },
         out: {
-          label: "오늘 출고",
+          label: "오늘 판매",
           key: "today_outbound",
           border: "border-l-green-500",
           text: "text-green-600",
@@ -459,7 +459,7 @@ export default {
 
         series: [
           {
-            name: "입고",
+            name: "구매",
             type: "line",
             smooth: 0.4,
             showSymbol: false,
@@ -475,7 +475,7 @@ export default {
           },
 
           {
-            name: "출고",
+            name: "판매",
             type: "line",
             smooth: 0.4,
             showSymbol: false,
@@ -535,8 +535,8 @@ export default {
 // 처리 구분별 배지 색상 클래스를 반환한다
     getActionClass(a) {
       const m = {
-        입고: "bg-blue-100 text-blue-700",
-        출고: "bg-green-100 text-green-700",
+        구매: "bg-blue-100 text-blue-700",
+        판매: "bg-green-100 text-green-700",
         반품: "bg-red-100 text-red-700",
         이동: "bg-orange-100 text-orange-700",
       };

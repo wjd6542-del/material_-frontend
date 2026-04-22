@@ -172,7 +172,7 @@
     <div class="flex items-center justify-between pt-2 border-t">
       <p class="text-xs text-slate-500">
         체크한 발주 <span class="font-bold text-indigo-600">{{ checkedIds.size }}</span>개의
-        품목을 입고 품목에 추가합니다
+        품목을 구매 품목에 추가합니다
       </p>
       <div class="flex items-center gap-2">
         <button
@@ -222,7 +222,7 @@ export default {
         { text: "전체", value: "" },
         { text: "임시저장", value: "draft" },
         { text: "발주완료", value: "ordered" },
-        { text: "입고완료", value: "received" },
+        { text: "구매완료", value: "received" },
         { text: "취소", value: "canceled" },
       ],
 
@@ -352,7 +352,7 @@ export default {
       this.checkedIds = next;
     },
 
-    // 체크된 모든 발주의 품목을 모아 입고 아이템 형식으로 변환 후 콜백 호출
+    // 체크된 모든 발주의 품목을 모아 구매 아이템 형식으로 변환 후 콜백 호출
     async confirm() {
       if (!this.checkedIds.size) return;
       this.applying = true;

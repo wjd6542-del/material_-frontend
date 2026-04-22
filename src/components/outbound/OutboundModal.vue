@@ -1,12 +1,12 @@
 <template>
   <div class="w-full">
-    <h2 class="text-base font-semibold mb-3">출고 전표 처리</h2>
+    <h2 class="text-base font-semibold mb-3">판매 전표 처리</h2>
 
     <!-- 전표 정보 -->
 
     <div class="grid grid-cols-2 gap-3 mb-4">
       <div>
-        <label class="form-label">출고번호</label>
+        <label class="form-label">판매번호</label>
         <input
           v-model="form.outbound_no"
           class="field mt-1 bg-slate-50"
@@ -27,7 +27,7 @@
     <!-- 품목 리스트 -->
 
     <div class="mb-3 flex justify-between items-center">
-      <h3 class="text-xs font-semibold text-slate-700">출고 품목</h3>
+      <h3 class="text-xs font-semibold text-slate-700">판매 품목</h3>
     </div>
 
     <div class="border rounded">
@@ -179,7 +179,7 @@ export default {
   },
 
   methods: {
-    // 신규 출고 품목 행을 리스트에 추가한다
+    // 신규 판매 품목 행을 리스트에 추가한다
     addItem() {
       this.form.items.push({
         id: 0,
@@ -219,7 +219,7 @@ export default {
 
         this.modal.closeModal();
 
-        this.$toast.success("입고처리가 완료 되었습니다");
+        this.$toast.success("판매처리가 완료되었습니다");
         if (this.onSaved) {
           this.onSaved();
         }
@@ -228,7 +228,7 @@ export default {
       }
     },
 
-    // 현재 시각 기반의 출고번호를 생성한다
+    // 현재 시각 기반의 판매번호를 생성한다
     mk_in_no() {
       return "OUT-" + Date.now();
     },
@@ -248,7 +248,7 @@ export default {
     },
 
     // 데이터 로드
-    // 수정 대상 출고 전표의 상세 데이터를 로드한다
+    // 수정 대상 판매 전표의 상세 데이터를 로드한다
     async loadData() {
       const res = await api.post(`/api/outbound/${this.id}`, { id: this.id });
       this.mapping_data(res.data);
@@ -279,9 +279,9 @@ export default {
     },
   },
 
-  // 마운트 시 출고번호 생성 및 참조 데이터들을 로드한다
+  // 마운트 시 판매번호 생성 및 참조 데이터들을 로드한다
   mounted() {
-    // 입고번호 자동생성
+    // 판매번호 자동생성
     this.form.outbound_no = this.mk_in_no();
     this.loadWarehouse();
     this.loadMaterial();

@@ -7,7 +7,7 @@
       <!-- 타이틀 -->
       <h2 class="font-semibold text-gray-700 flex items-center gap-2 text-base">
         <i class="fa-solid fa-box-open text-blue-500"></i>
-        입고 처리
+        구매 처리
       </h2>
 
       <!-- 자재 검색 카드 -->
@@ -70,14 +70,14 @@
       </div>
     </div>
 
-    <!-- 우측 입고 목록 -->
+    <!-- 우측 구매 목록 -->
     <div class="col-span-8 bg-white border rounded-xl shadow-sm flex flex-col">
       <!-- header -->
       <div class="p-4 border-b flex justify-between items-center">
         <!-- 타이틀 -->
         <h2 class="font-semibold text-gray-700 flex items-center gap-2 text-base">
           <i class="fa-solid fa-list text-gray-500"></i>
-          입고 번호 : {{ inbound_no }}
+          구매 번호 : {{ inbound_no }}
         </h2>
 
         <div class="text-xs text-gray-500">총 {{ totalCount }} 개</div>
@@ -145,13 +145,13 @@
             전체 삭제
           </button>
 
-          <!-- 입고 확정 -->
+          <!-- 구매 확정 -->
           <button
             @click="saveOutbound"
             class="btn btn-primary flex items-center gap-2 bg-green-600 hover:bg-green-700"
           >
             <i class="fa-solid fa-check"></i>
-            입고 확정
+            구매 확정
           </button>
         </div>
       </div>
@@ -228,7 +228,7 @@ export default {
   computed: {},
 
   methods: {
-    // 현재 시각 기반의 입고번호를 생성해 설정한다
+    // 현재 시각 기반의 구매번호를 생성해 설정한다
     mk_number() {
       this.inbound_no = "IN-" + Date.now();
     },
@@ -369,14 +369,14 @@ export default {
     },
 
     // 저장 처리
-    // 선택된 행들을 입고 전표로 저장한다
+    // 선택된 행들을 구매 전표로 저장한다
     async saveOutbound() {
       try {
         const rows = this.gridApi.getSelectedRows();
 
         const ok = await this.$confirm(
-          `입고항목 총${rows.length}개  처리하시겠습니까?`,
-          "입고 확인",
+          `구매항목 총${rows.length}개  처리하시겠습니까?`,
+          "구매 확인",
         );
         if (!ok) return;
 
@@ -389,7 +389,7 @@ export default {
           items: rows,
         });
 
-        this.$toast.success("입고 처리가 완료 되었습니다");
+        this.$toast.success("구매 처리가 완료되었습니다");
       } catch (e) {
         this.$toast.error(e.message);
       }

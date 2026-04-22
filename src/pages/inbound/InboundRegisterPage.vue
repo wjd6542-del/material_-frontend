@@ -28,10 +28,10 @@
                 Inbound Voucher
               </div>
               <h2 class="text-xl md:text-2xl font-black text-white tracking-tight">
-                {{ isEdit ? "입고 수정" : "입고 등록" }}
+                {{ isEdit ? "구매 수정" : "구매 등록" }}
               </h2>
               <p class="text-xs text-slate-400 mt-1">
-                입고할 자재·창고 위치·수량·단가를 입력하여 전표를 생성합니다.
+                구매할 자재·창고 위치·수량·단가를 입력하여 전표를 생성합니다.
               </p>
             </div>
           </div>
@@ -78,10 +78,10 @@
             </div>
             <div>
               <h3 class="text-[15px] font-black text-slate-800 tracking-tight">
-                입고 기본 정보
+                구매 기본 정보
               </h3>
               <p class="text-[11px] text-slate-400 mt-0.5">
-                입고번호와 메모를 입력합니다
+                구매번호와 메모를 입력합니다
               </p>
             </div>
           </div>
@@ -89,7 +89,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label class="form-label">
-                입고번호 <span class="text-red-500">*</span>
+                구매번호 <span class="text-red-500">*</span>
               </label>
               <input
                 v-model="form.inbound_no"
@@ -111,7 +111,7 @@
           </div>
         </section>
 
-        <!-- 입고 품목 -->
+        <!-- 구매 품목 -->
         <section class="p-6 md:p-8 bg-slate-50/40">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
@@ -128,10 +128,10 @@
               </div>
               <div>
                 <h3 class="text-[15px] font-black text-slate-800 tracking-tight">
-                  입고 품목
+                  구매 품목
                 </h3>
                 <p class="text-[11px] text-slate-400 mt-0.5">
-                  입고할 자재와 거래처·창고위치·수량·단가를 입력합니다
+                  구매할 자재와 거래처·창고위치·수량·단가를 입력합니다
                 </p>
               </div>
             </div>
@@ -284,7 +284,7 @@
                         등록된 품목이 없습니다
                       </p>
                       <p class="text-xs text-slate-400 mb-4">
-                        입고할 자재를 추가해 주세요.
+                        구매할 자재를 추가해 주세요.
                       </p>
                       <button
                         type="button"
@@ -410,7 +410,7 @@ export default {
       );
     },
 
-    // 발주에서 가져온 품목 리스트를 입고 품목에 주입한다
+    // 발주에서 가져온 품목 리스트를 구매 품목에 주입한다
     applyPurchaseOrderItems(list) {
       if (!Array.isArray(list) || !list.length) return;
       list.forEach((it) => this.form.items.push(it));
@@ -439,7 +439,7 @@ export default {
       );
     },
 
-    // 자재 정보를 신규 입고 품목 행 객체로 변환한다
+    // 자재 정보를 신규 구매 품목 행 객체로 변환한다
     buildItemFromMaterial(m) {
       return {
         id: 0,
@@ -502,7 +502,7 @@ export default {
     async clearAllItems() {
       if (!this.form.items.length) return;
       const ok = await this.$confirm?.(
-        "입고 품목을 전체 삭제하시겠습니까?",
+        "구매 품목을 전체 삭제하시겠습니까?",
         "전체 삭제 확인",
       );
       if (ok === false) return;
@@ -514,7 +514,7 @@ export default {
       this.$router.push("/inbound");
     },
 
-    // 입고번호 생성
+    // 구매번호 생성
     mkInboundNo() {
       return "IN-" + Date.now();
     },
@@ -540,14 +540,14 @@ export default {
           if (!Array.isArray(this.form.items)) this.form.items = [];
         }
       } catch (e) {
-        this.$toast?.error("입고 전표를 불러오지 못했습니다.");
+        this.$toast?.error("구매 전표를 불러오지 못했습니다.");
       }
     },
 
-    // 입고 전표 저장
+    // 구매 전표 저장
     async save() {
       if (!this.form.items.length) {
-        this.$toast?.error("입고 품목을 최소 1개 이상 등록하세요.");
+        this.$toast?.error("구매 품목을 최소 1개 이상 등록하세요.");
         return;
       }
 
@@ -555,7 +555,7 @@ export default {
       try {
         await api.post("/api/inbound/save", this.form);
         this.$toast?.success(
-          this.isEdit ? "수정되었습니다." : "입고처리가 완료 되었습니다",
+          this.isEdit ? "수정되었습니다." : "구매처리가 완료되었습니다",
         );
         this.goList();
       } catch (e) {

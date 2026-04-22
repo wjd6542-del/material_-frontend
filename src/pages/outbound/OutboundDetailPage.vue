@@ -82,7 +82,7 @@
       class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden"
     >
       <div class="flex items-center justify-between px-5 py-4 border-b">
-        <h2 class="text-base font-semibold text-gray-800">출고 세부내역</h2>
+        <h2 class="text-base font-semibold text-gray-800">판매 세부내역</h2>
       </div>
 
       <div class="p-4 bg-gray-50 border-b border-gray-100">
@@ -171,7 +171,7 @@ export default {
         },
         {
           key: "outbound_code",
-          label: "출고번호",
+          label: "판매번호",
           width: "180px",
           align: "center",
           sortable: true,
@@ -278,7 +278,7 @@ export default {
       this.group = res.data.groupCount;
       this.summary = res.data.summary;
     },
-    // 검색 조건으로 출고 세부 내역을 로드한다
+    // 검색 조건으로 판매 세부 내역을 로드한다
     async loadList() {
       this.rows = [];
       const where = { ...this.where };

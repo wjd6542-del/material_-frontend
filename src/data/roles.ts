@@ -20,7 +20,7 @@ const DEFAULT_ROLES: Array<Omit<RoleSeed, "id" | "sort">> = [
 	{ name: "MASTER", description: "관리자", is_super: true },
 	{ name: "MANAGER", description: "매니저", is_super: false },
 	{ name: "USER", description: "직원", is_super: false },
-	{ name: "INOUT", description: "입고,출고", is_super: false },
+	{ name: "INOUT", description: "구매,판매", is_super: false },
 	{ name: "PICKING", description: "피킹", is_super: false },
 ]
 

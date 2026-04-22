@@ -122,7 +122,7 @@
               <select v-model="form.status" class="form-input">
                 <option value="draft">임시저장</option>
                 <option value="ordered">발주완료</option>
-                <option value="received">입고완료</option>
+                <option value="received">구매완료</option>
                 <option value="canceled">취소</option>
               </select>
             </div>

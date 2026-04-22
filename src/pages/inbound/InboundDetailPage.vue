@@ -2,7 +2,7 @@
   <div class="p-2 sm:p-4 md:p-6">
     <div class="bg-white rounded-xl shadow border border-gray-200">
       <div class="flex items-center justify-between px-5 py-4 border-b">
-        <h2 class="text-base font-semibold text-gray-800">입고 목록</h2>
+        <h2 class="text-base font-semibold text-gray-800">구매 목록</h2>
       </div>
 
       <div class="p-4 bg-gray-50 border-b border-gray-100">
@@ -126,7 +126,7 @@ export default {
         },
         {
           key: "inbound_code",
-          label: "입고번호",
+          label: "구매번호",
           width: "200px",
           align: "center",
           sortable: true,
@@ -216,7 +216,7 @@ export default {
   },
 
   methods: {
-    // 검색 조건으로 입고 세부 내역을 로드한다
+    // 검색 조건으로 구매 세부 내역을 로드한다
     async loadList() {
       try {
         const where = { ...this.where };

@@ -82,6 +82,7 @@
 import BaseTable from "@/components/base/BaseTable.vue";
 import { useModalStore } from "@/stores/modal";
 import MaterialModal from "@/components/material/MaterialModal.vue";
+import MaterialPriceHistoryModal from "@/components/material/MaterialPriceHistoryModal.vue";
 import BaseInput from "@/components/base/BaseInput.vue";
 import MultiCheck from "@/components/base/MultiCheck.vue";
 
@@ -111,6 +112,13 @@ export default {
       auth: useAuthStore(),
       modal: useModalStore(),
       columns: [
+        {
+          key: "price_history",
+          label: "이력",
+          type: "button",
+          width: "90px",
+          align: "center",
+        },
         {
           key: "qrcode",
           label: "QR",
@@ -292,8 +300,17 @@ export default {
         if (!data.value) {
           return;
         }
-        console.log(data.image);
         this.modal.openModal(ImageModal, { image: data.value });
+      } else if (data.key == "price_history") {
+        this.modal.openModal(
+          MaterialPriceHistoryModal,
+          {
+            material_id: data.row.id,
+            material_code: data.row.code,
+            material_name: data.row.name,
+          },
+          "full",
+        );
       }
     },
 

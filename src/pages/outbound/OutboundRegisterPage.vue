@@ -28,10 +28,10 @@
                 Outbound Voucher
               </div>
               <h2 class="text-xl md:text-2xl font-black text-white tracking-tight">
-                {{ isEdit ? "출고 수정" : "출고 등록" }}
+                {{ isEdit ? "판매 수정" : "판매 등록" }}
               </h2>
               <p class="text-xs text-slate-400 mt-1">
-                출고할 자재·거래처·창고 위치·수량·단가를 입력하여 전표를 생성합니다.
+                판매할 자재·거래처·창고 위치·수량·단가를 입력하여 전표를 생성합니다.
               </p>
             </div>
           </div>
@@ -70,10 +70,10 @@
             </div>
             <div>
               <h3 class="text-[15px] font-black text-slate-800 tracking-tight">
-                출고 기본 정보
+                판매 기본 정보
               </h3>
               <p class="text-[11px] text-slate-400 mt-0.5">
-                출고번호와 메모를 입력합니다
+                판매번호와 메모를 입력합니다
               </p>
             </div>
           </div>
@@ -81,7 +81,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label class="form-label">
-                출고번호 <span class="text-red-500">*</span>
+                판매번호 <span class="text-red-500">*</span>
               </label>
               <input
                 v-model="form.outbound_no"
@@ -103,7 +103,7 @@
           </div>
         </section>
 
-        <!-- 출고 품목 -->
+        <!-- 판매 품목 -->
         <section class="p-6 md:p-8 bg-slate-50/40">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
@@ -120,10 +120,10 @@
               </div>
               <div>
                 <h3 class="text-[15px] font-black text-slate-800 tracking-tight">
-                  출고 품목
+                  판매 품목
                 </h3>
                 <p class="text-[11px] text-slate-400 mt-0.5">
-                  출고할 자재와 거래처·창고위치·수량·단가를 입력합니다
+                  판매할 자재와 거래처·창고위치·수량·단가를 입력합니다
                 </p>
               </div>
             </div>
@@ -290,7 +290,7 @@
                         등록된 품목이 없습니다
                       </p>
                       <p class="text-xs text-slate-400 mb-4">
-                        출고할 자재를 추가해 주세요.
+                        판매할 자재를 추가해 주세요.
                       </p>
                       <button
                         type="button"
@@ -499,7 +499,7 @@ export default {
     async clearAllItems() {
       if (!this.form.items.length) return;
       const ok = await this.$confirm?.(
-        "출고 품목을 전체 삭제하시겠습니까?",
+        "판매 품목을 전체 삭제하시겠습니까?",
         "전체 삭제 확인",
       );
       if (ok === false) return;
@@ -511,7 +511,7 @@ export default {
       this.$router.push("/outbound");
     },
 
-    // 출고번호 생성
+    // 판매번호 생성
     mkOutboundNo() {
       return "OUT-" + Date.now();
     },
@@ -537,14 +537,14 @@ export default {
           if (!Array.isArray(this.form.items)) this.form.items = [];
         }
       } catch (e) {
-        this.$toast?.error("출고 전표를 불러오지 못했습니다.");
+        this.$toast?.error("판매 전표를 불러오지 못했습니다.");
       }
     },
 
     // 저장
     async save() {
       if (!this.form.items.length) {
-        this.$toast?.error("출고 품목을 최소 1개 이상 등록하세요.");
+        this.$toast?.error("판매 품목을 최소 1개 이상 등록하세요.");
         return;
       }
       const missing = this.form.items.findIndex((it) => !it.supplier_id);
@@ -557,7 +557,7 @@ export default {
       try {
         await api.post("/api/outbound/save", this.form);
         this.$toast?.success(
-          this.isEdit ? "수정되었습니다." : "출고처리가 완료 되었습니다",
+          this.isEdit ? "수정되었습니다." : "판매처리가 완료되었습니다",
         );
         this.goList();
       } catch (e) {

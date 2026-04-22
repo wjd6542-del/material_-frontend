@@ -2,8 +2,8 @@
 // 재고 변동 타입 라벨 맵을 반환한다
 export function StockType () {
 	return {
-		INBOUND: "입고",
-		OUTBOUND: "출고",
+		INBOUND: "구매",
+		OUTBOUND: "판매",
 		ADJUST: "재고 조정",
 	}
 }

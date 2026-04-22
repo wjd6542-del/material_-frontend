@@ -161,8 +161,8 @@ export default {
     // 타입 코드를 한글 라벨로 변환
     typeLabel(type) {
       const map = {
-        INBOUND: "입고",
-        OUTBOUND: "출고",
+        INBOUND: "구매",
+        OUTBOUND: "판매",
         MATERIAL: "자재",
         PURCHASEORDER: "발주",
         RETURNORDER: "반품",

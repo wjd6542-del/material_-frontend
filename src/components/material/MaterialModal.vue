@@ -55,6 +55,104 @@
         />
       </div>
 
+      <!-- 금액 정보 -->
+      <div class="p-3 rounded-lg border border-slate-200 bg-slate-50/50">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600">
+            <i class="fa-solid fa-won-sign text-blue-500"></i>
+            금액 정보
+          </div>
+          <span class="text-[10px] text-slate-400">
+            판매 단가 1 변경 시 비율로 나머지 단가 자동계산
+          </span>
+        </div>
+
+        <!-- 구매 단가 -->
+        <div class="grid grid-cols-[1fr_auto] gap-2 items-end mb-2">
+          <div>
+            <label class="form-label">구매 단가 (원가)</label>
+            <input
+              :value="form.inbound_price"
+              @input="onPriceInput('inbound_price', $event)"
+              type="number"
+              min="0"
+              class="field mt-1 text-right"
+              placeholder="0"
+            />
+          </div>
+          <div class="w-[90px] shrink-0 invisible">
+            <!-- 레이아웃 정렬용 -->
+          </div>
+        </div>
+
+        <!-- 판매 단가 1 (기준) + 원가 대비 비율 -->
+        <div class="grid grid-cols-[1fr_auto] gap-2 items-end mb-2">
+          <div>
+            <label class="form-label">
+              판매 단가 1
+              <span class="ml-1 text-[9px] font-bold text-blue-500">BASE</span>
+            </label>
+            <input
+              :value="form.outbound_price1"
+              @input="onPriceInput('outbound_price1', $event)"
+              type="number"
+              min="0"
+              class="field mt-1 text-right"
+              placeholder="0"
+            />
+          </div>
+          <div class="w-[90px] shrink-0">
+            <label class="form-label">원가 대비</label>
+            <div class="relative mt-1">
+              <input
+                :value="pct('outbound_rate1')"
+                @input="onRateInput('outbound_rate1', $event)"
+                type="number"
+                min="0"
+                step="0.01"
+                class="field text-right pr-6"
+                placeholder="0"
+              />
+              <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 판매 2, 도매 1/2, 온라인 (판매1 대비 비율) -->
+        <div
+          v-for="row in dependentPriceRows"
+          :key="row.price"
+          class="grid grid-cols-[1fr_auto] gap-2 items-end mb-2"
+        >
+          <div>
+            <label class="form-label">{{ row.label }}</label>
+            <input
+              :value="form[row.price]"
+              @input="onPriceInput(row.price, $event)"
+              type="number"
+              min="0"
+              class="field mt-1 text-right"
+              placeholder="0"
+            />
+          </div>
+          <div class="w-[90px] shrink-0">
+            <label class="form-label">BASE 대비</label>
+            <div class="relative mt-1">
+              <input
+                :value="pct(row.rate)"
+                @input="onRateInput(row.rate, $event)"
+                type="number"
+                min="0"
+                step="0.01"
+                class="field text-right pr-6"
+                placeholder="0"
+              />
+              <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div>
         <MultiCheck
           v-model="form.tags"
@@ -168,9 +266,31 @@ export default {
         safety_stock: 0,
         memo: "",
         is_active: true,
+        // 가격 정보
+        inbound_price: 0,
+        outbound_price1: 0,
+        outbound_price2: 0,
+        wholesale_price1: 0,
+        wholesale_price2: 0,
+        online_price: 0,
+        // 비율 정보 (decimal)
+        // outbound_rate1: 원가 대비, 나머지: outbound_price1(BASE) 대비
+        outbound_rate1: 0,
+        outbound_rate2: 0,
+        wholesale_rate1: 0,
+        wholesale_rate2: 0,
+        online_rate: 0,
         images: [] as any[],
         tags: [] as any[],
       } as any,
+
+      // 템플릿 반복용 (output2/도매1/2/온라인)
+      dependentPriceRows: [
+        { label: "판매 단가 2", price: "outbound_price2", rate: "outbound_rate2" },
+        { label: "도매 단가 1", price: "wholesale_price1", rate: "wholesale_rate1" },
+        { label: "도매 단가 2", price: "wholesale_price2", rate: "wholesale_rate2" },
+        { label: "온라인 단가", price: "online_price", rate: "online_rate" },
+      ],
 
       categorys: [] as any[],
       tagItems: [] as any[],
@@ -184,6 +304,88 @@ export default {
   },
 
   methods: {
+    // 숫자 반올림 (단가: 정수, 비율: 소수 4자리까지)
+    roundPrice(v) {
+      return Math.round(Number(v) || 0);
+    },
+    roundRate(v) {
+      return Math.round((Number(v) || 0) * 10000) / 10000;
+    },
+
+    // 비율을 퍼센트(0~)로 표시 (9999.99 최대)
+    pct(key) {
+      const v = Number(this.form[key]) || 0;
+      if (!v) return 0;
+      // 소수 2자리까지 반올림해서 편집 친화적으로 노출
+      return Math.round(v * 10000) / 100;
+    },
+
+    // 단가 입력 핸들러 - 연관 비율과 종속 단가를 자동 계산한다
+    onPriceInput(key, e) {
+      const val = this.roundPrice(e?.target?.value);
+      (this.form as any)[key] = val;
+      this.recalcFromPrice(key);
+    },
+
+    // 비율 입력 핸들러 - 연관 단가를 자동 계산한다
+    onRateInput(key, e) {
+      const pctVal = Number(e?.target?.value) || 0;
+      const decimal = this.roundRate(pctVal / 100);
+      (this.form as any)[key] = decimal;
+      this.recalcFromRate(key);
+    },
+
+    // 단가 변경 시 관련 비율/종속 단가 재계산
+    recalcFromPrice(key) {
+      const f: any = this.form;
+      const base = Number(f.outbound_price1) || 0;
+      const cost = Number(f.inbound_price) || 0;
+
+      if (key === "inbound_price") {
+        // 원가 변경 → 원가 대비 비율만 재계산 (base 유지)
+        f.outbound_rate1 = cost > 0 ? this.roundRate(base / cost) : 0;
+      } else if (key === "outbound_price1") {
+        // BASE 변경 → 원가 대비 비율 재계산 + 종속 단가 4종 재계산
+        f.outbound_rate1 = cost > 0 ? this.roundRate(base / cost) : 0;
+        this.dependentPriceRows.forEach((row) => {
+          const r = Number(f[row.rate]) || 0;
+          f[row.price] = this.roundPrice(base * r);
+        });
+      } else {
+        // 종속 단가 변경 → 해당 비율만 재계산 (base 유지)
+        const row = this.dependentPriceRows.find((r) => r.price === key);
+        if (row) {
+          const price = Number(f[row.price]) || 0;
+          f[row.rate] = base > 0 ? this.roundRate(price / base) : 0;
+        }
+      }
+    },
+
+    // 비율 변경 시 관련 단가 재계산
+    recalcFromRate(key) {
+      const f: any = this.form;
+      const cost = Number(f.inbound_price) || 0;
+
+      if (key === "outbound_rate1") {
+        // 원가 대비 비율 변경 → BASE 재계산 + 종속 단가 재계산
+        const rate = Number(f.outbound_rate1) || 0;
+        const newBase = this.roundPrice(cost * rate);
+        f.outbound_price1 = newBase;
+        this.dependentPriceRows.forEach((row) => {
+          const r = Number(f[row.rate]) || 0;
+          f[row.price] = this.roundPrice(newBase * r);
+        });
+      } else {
+        // 종속 비율 변경 → 해당 단가만 재계산
+        const base = Number(f.outbound_price1) || 0;
+        const row = this.dependentPriceRows.find((r) => r.rate === key);
+        if (row) {
+          const r = Number(f[row.rate]) || 0;
+          f[row.price] = this.roundPrice(base * r);
+        }
+      }
+    },
+
     // 서버 데이터(이미지/태그 포함)를 폼 필드에 매핑한다
     mappingData(data) {
       for (const key in this.form) {
@@ -310,6 +512,17 @@ export default {
           "category_id",
           "is_active",
           "safety_stock",
+          "inbound_price",
+          "outbound_price1",
+          "outbound_price2",
+          "wholesale_price1",
+          "wholesale_price2",
+          "online_price",
+          "outbound_rate1",
+          "outbound_rate2",
+          "wholesale_rate1",
+          "wholesale_rate2",
+          "online_rate",
         ];
         fields.forEach((field) => {
           formData.append(field, String(this.form[field]));

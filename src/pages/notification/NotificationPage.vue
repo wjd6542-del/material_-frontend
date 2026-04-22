@@ -100,8 +100,8 @@ export default {
 
       typeArr: [
         { text: "발주", value: "PURCHASEORDER" },
-        { text: "입고", value: "INBOUND" },
-        { text: "출고", value: "OUTBOUND" },
+        { text: "구매", value: "INBOUND" },
+        { text: "판매", value: "OUTBOUND" },
         { text: "반품", value: "RETURNORDER" },
         { text: "자재", value: "MATERIAL" },
       ],

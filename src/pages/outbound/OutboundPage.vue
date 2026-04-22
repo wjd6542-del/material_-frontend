@@ -5,7 +5,7 @@
       class="lg:col-span-8 bg-white rounded-xl shadow border border-gray-200"
     >
       <div class="flex items-center justify-between px-5 py-4 border-b">
-        <h2 class="text-base font-semibold text-gray-800">출고 목록</h2>
+        <h2 class="text-base font-semibold text-gray-800">판매 목록</h2>
       </div>
 
       <div class="p-4 pb-0 flex flex-wrap items-center gap-2">
@@ -39,7 +39,7 @@
         >
           <BaseInput
             v-model="where.outbound_no"
-            placeholder="출고번호 입력"
+            placeholder="판매번호 입력"
             @change="loadList"
           />
         </div>
@@ -103,7 +103,7 @@ export default {
         },
         {
           key: "outbound_no",
-          label: "출고번호",
+          label: "판매번호",
           width: "200px",
           align: "center",
           sortable: true,
@@ -141,7 +141,7 @@ export default {
 
   methods: {
     // 삭제
-    // 선택된 출고 전표들을 사용자 확인 후 일괄 삭제한다
+    // 선택된 판매 전표들을 사용자 확인 후 일괄 삭제한다
     async batchDelete() {
       const rows = this.$refs.outboundTable.getSelectedRows();
       if (!rows.length) {
@@ -170,13 +170,13 @@ export default {
       }
     },
 
-    // 출고 등록 페이지로 이동한다
+    // 판매 등록 페이지로 이동한다
     goRegister() {
       this.$router.push("/outbound/register");
     },
 
     // 데이터 로드 처리
-    // 검색 조건을 반영해 출고 목록을 로드한다
+    // 검색 조건을 반영해 판매 목록을 로드한다
     async loadList() {
       this.rows = [];
 
@@ -216,7 +216,7 @@ export default {
       }
     },
   },
-  // 마운트 시 출고 목록을 로드한다
+  // 마운트 시 판매 목록을 로드한다
   mounted() {
     this.loadList();
   },

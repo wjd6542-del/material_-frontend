@@ -50,7 +50,7 @@
       <div class="bg-gray-50 border rounded-xl p-4 space-y-3 flex flex-col">
         <div class="flex items-center gap-2 text-sm font-medium text-gray-700">
           <i class="fa-solid fa-boxes-stacked text-blue-500"></i>
-          출고 목록
+          판매 목록
         </div>
 
         <div
@@ -287,7 +287,7 @@ export default {
     },
 
     // 검색 진행
-    // 출고 이력에서 반품 가능 항목을 검색하고 스캔 1건 자동 추가한다
+    // 판매 이력에서 반품 가능 항목을 검색하고 스캔 1건 자동 추가한다
     async search() {
       this.materials = [];
 

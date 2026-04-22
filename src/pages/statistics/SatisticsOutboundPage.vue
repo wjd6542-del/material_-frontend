@@ -2,14 +2,14 @@
   <div class="p-4 lg:p-6 bg-[#f8fafc] min-h-screen space-y-4 lg:space-y-6">
     <!-- 1. KPI SUMMARY (금액 지표 중심 최적화) -->
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-      <!-- 총 출고 수량 -->
+      <!-- 총 판매 수량 -->
       <div
         class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all group"
       >
         <p
           class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2"
         >
-          총 출고 수량
+          총 판매 수량
         </p>
         <div class="flex items-center justify-between">
           <h3 class="text-2xl font-bold text-blue-600">
@@ -86,14 +86,14 @@
         </div>
       </div>
 
-      <!-- 출고 건수 -->
+      <!-- 판매 건수 -->
       <div
         class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all group"
       >
         <p
           class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2"
         >
-          출고 건수
+          판매 건수
         </p>
         <div class="flex items-center justify-between">
           <h3 class="text-2xl font-bold text-slate-800">
@@ -122,7 +122,7 @@
             <div class="flex items-center gap-2">
               <div class="w-1.5 h-5 bg-blue-500 rounded-full"></div>
               <span class="font-bold text-slate-800 text-base"
-                >출고 통계 상세</span
+                >판매 통계 상세</span
               >
             </div>
           </div>
@@ -192,7 +192,7 @@
             <div class="flex items-center gap-2">
               <div class="w-1.5 h-5 bg-purple-500 rounded-full"></div>
               <span class="font-bold text-slate-800 text-base"
-                >출고 금액 변동 추이 (Spline)</span
+                >판매 금액 변동 추이 (Spline)</span
               >
             </div>
           </div>
@@ -204,7 +204,7 @@
                 :rows="chartRows"
                 :start="dateRange.start"
                 :end="dateRange.end"
-                name="출고원가"
+                name="판매원가"
                 column="total_sales"
                 type="line"
                 :smooth="true"
@@ -310,7 +310,7 @@ export default {
       return Number(val || 0).toLocaleString();
     },
 
-    // 지정 날짜의 출고 일별 통계를 서버에 갱신 요청한다
+    // 지정 날짜의 판매 일별 통계를 서버에 갱신 요청한다
     async setData() {
       if (!this.set.date) {
         this.$toast.error("날짜를 입력하세요");
@@ -355,7 +355,7 @@ export default {
       );
     },
 
-    // 출고 통계 차트 데이터를 로드한다
+    // 판매 통계 차트 데이터를 로드한다
     async loadChartData() {
       const params = this.getParams();
       const res = await api.post(
@@ -365,7 +365,7 @@ export default {
       this.chartRows = res.data;
     },
 
-    // 출고 통계 목록을 로드하고 요약을 갱신한다
+    // 판매 통계 목록을 로드하고 요약을 갱신한다
     async loadList() {
       const params = this.getParams();
       const res = await api.post("/api/stat/outboundList", params);
