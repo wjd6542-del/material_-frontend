@@ -121,7 +121,12 @@ export const permissions: PermissionGroup[] = [
 				action: "view",
 				path: "/inbound",
 				actions: [
-					{ code: "inbound.create", name: "입고 등록", action: "create" },
+					{
+						code: "inbound.create",
+						name: "입고 등록",
+						action: "create",
+						path: "/inbound/register",
+					},
 					{ code: "inbound.update", name: "입고 수정", action: "update" },
 					{ code: "inbound.delete", name: "입고 삭제", action: "delete" },
 				],
@@ -152,7 +157,12 @@ export const permissions: PermissionGroup[] = [
 				action: "view",
 				path: "/outbound",
 				actions: [
-					{ code: "outbound.create", name: "출고 등록", action: "create" },
+					{
+						code: "outbound.create",
+						name: "출고 등록",
+						action: "create",
+						path: "/outbound/register",
+					},
 					{ code: "outbound.update", name: "출고 수정", action: "update" },
 					{ code: "outbound.delete", name: "출고 삭제", action: "delete" },
 				],

@@ -82,7 +82,7 @@
       class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden"
     >
       <div class="flex items-center justify-between px-5 py-4 border-b">
-        <h2 class="text-lg font-semibold text-gray-800">출고 세부내역</h2>
+        <h2 class="text-base font-semibold text-gray-800">출고 세부내역</h2>
       </div>
 
       <div class="p-4 bg-gray-50 border-b border-gray-100">
@@ -244,7 +244,10 @@ export default {
           sortable: true,
         },
       ],
-      dateRange: { start: null, end: null },
+      dateRange: {
+        start: new Date(new Date().setHours(0, 0, 0, 0)),
+        end: new Date(new Date().setHours(23, 59, 59, 999)),
+      },
       where: {
         material_id: "",
         warehouse_id: "",

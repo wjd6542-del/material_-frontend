@@ -24,6 +24,8 @@ import BaseModal from "@/components/base/BaseModal.vue";
 import { alertStore } from "@/plugins/alert.store";
 import AlertModal from "@/components/base/AlertModal.vue";
 import { useNotificationStore } from "@/stores/notification";
+import { useChatStore } from "@/stores/chat";
+import { watch } from "vue";
 
 export default {
   components: { BaseModal, AlertModal },
@@ -40,6 +42,29 @@ export default {
 
     const noti = useNotificationStore();
     noti.startAutoRefresh();
+
+    const chat = useChatStore();
+
+    // 로그인 상태 변화에 따라 소켓 연결/해제
+    const syncChat = async (isLogin: boolean) => {
+      if (isLogin) {
+        chat.connect();
+        await chat.ensurePublicRoom();
+        await chat.loadRooms();
+        await chat.loadUnreadCount();
+      } else {
+        chat.disconnect();
+      }
+    };
+
+    // 최초 복원 후 즉시 동기화
+    syncChat(auth.isLogin);
+
+    // 로그인 상태 변화 감지
+    watch(
+      () => auth.isLogin,
+      (isLogin) => syncChat(isLogin),
+    );
   },
 };
 </script>

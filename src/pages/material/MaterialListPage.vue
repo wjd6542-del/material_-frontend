@@ -193,7 +193,10 @@ export default {
       categorys: [],
       tags: [],
 
-      dateRange: { start: null, end: null },
+      dateRange: {
+        start: new Date(new Date().setHours(0, 0, 0, 0)),
+        end: new Date(new Date().setHours(23, 59, 59, 999)),
+      },
       where: {
         category_id: "",
         keyword: "",

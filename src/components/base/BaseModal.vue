@@ -4,14 +4,16 @@
       v-for="(entry, index) in modal.stack"
       :key="index"
       class="fixed inset-0 flex items-center justify-center bg-black/40"
-      :style="{ zIndex: 50 + index * 10 }"
+      :style="{ zIndex: 200 + index * 10 }"
     >
       <div
-        class="bg-white rounded-xl shadow-xl p-4 md:p-6 w-full mx-4"
+        class="bg-white rounded-xl shadow-xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col"
         :class="sizeClass(entry.size)"
       >
-        <!-- 동적 모달 컴포넌트 -->
-        <component :is="entry.component" v-bind="entry.props" />
+        <!-- 동적 모달 컴포넌트 - 바디 영역만 스크롤 -->
+        <div class="p-4 md:p-6 overflow-y-auto flex-1 min-h-0">
+          <component :is="entry.component" v-bind="entry.props" />
+        </div>
       </div>
     </div>
   </TransitionGroup>

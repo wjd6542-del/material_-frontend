@@ -28,7 +28,7 @@
             v-model="searchKeyword"
             type="text"
             placeholder="자재명 또는 창고 검색..."
-            class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-blue-50 transition-all"
+            class="field w-full pl-9 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-50 transition-all"
           />
         </div>
       </div>
@@ -104,7 +104,7 @@
           </p>
           <button
             @click="searchKeyword = ''"
-            class="px-4 py-1.5 text-[11px] font-bold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+            class="btn btn-xs text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors"
           >
             초기화
           </button>

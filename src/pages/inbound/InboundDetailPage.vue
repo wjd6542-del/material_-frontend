@@ -2,7 +2,7 @@
   <div class="p-2 sm:p-4 md:p-6">
     <div class="bg-white rounded-xl shadow border border-gray-200">
       <div class="flex items-center justify-between px-5 py-4 border-b">
-        <h2 class="text-lg font-semibold text-gray-800">입고 목록</h2>
+        <h2 class="text-base font-semibold text-gray-800">입고 목록</h2>
       </div>
 
       <div class="p-4 bg-gray-50 border-b border-gray-100">
@@ -10,9 +10,7 @@
           class="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap items-end gap-3"
         >
           <div class="sm:col-span-2 lg:flex-1 min-w-[280px]">
-            <label class="block text-xs font-medium text-gray-500 mb-1"
-              >조회 기간</label
-            >
+            <label class="form-label">조회 기간</label>
             <DateRangePicker
               v-model="dateRange"
               :minuteStep="5"
@@ -23,9 +21,7 @@
           </div>
 
           <div class="lg:w-48">
-            <label class="block text-xs font-medium text-gray-500 mb-1"
-              >자재</label
-            >
+            <label class="form-label">자재</label>
             <SearchSelect
               v-model="where.material_id"
               :options="materials"
@@ -37,9 +33,7 @@
           </div>
 
           <div class="lg:w-48">
-            <label class="block text-xs font-medium text-gray-500 mb-1"
-              >거래처</label
-            >
+            <label class="form-label">거래처</label>
             <SearchSelect
               v-model="where.supplier_id"
               :options="suppliers"
@@ -51,9 +45,7 @@
           </div>
 
           <div class="lg:w-60">
-            <label class="block text-xs font-medium text-gray-500 mb-1"
-              >창고</label
-            >
+            <label class="form-label">창고</label>
             <SearchSelect
               v-model="where.warehouse_id"
               :options="warehouses"
@@ -65,9 +57,7 @@
           </div>
 
           <div class="lg:w-60">
-            <label class="block text-xs font-medium text-gray-500 mb-1"
-              >선반 위치</label
-            >
+            <label class="form-label">선반 위치</label>
             <SearchSelect
               v-model="where.location_id"
               :options="locations"
@@ -81,7 +71,7 @@
           <div class="flex items-center lg:ml-auto">
             <button
               @click="resetFilters"
-              class="px-3 py-2 text-sm text-gray-600 hover:text-blue-600 flex items-center gap-1 transition-colors"
+              class="btn btn-xs text-gray-600 hover:text-blue-600 flex items-center gap-1 transition-colors"
             >
               <i class="fa-solid fa-rotate-right"></i>
               초기화
@@ -202,7 +192,10 @@ export default {
         },
       ],
 
-      dateRange: { start: null, end: null },
+      dateRange: {
+        start: new Date(new Date().setHours(0, 0, 0, 0)),
+        end: new Date(new Date().setHours(23, 59, 59, 999)),
+      },
 
       where: {
         material_id: "",

@@ -9,16 +9,16 @@
       <div class="flex-1 truncate leading-none">
         {{ selectedLabel || placeholder }}
       </div>
-      <div class="flex items-center gap-2 ml-2 h-full">
+      <div class="flex items-center gap-1 ml-1.5 h-full">
         <button
           v-if="modelValue"
           @click.stop="clear"
-          class="text-gray-400 hover:text-red-500 transition-colors flex items-center justify-center"
+          class="text-gray-400 hover:text-red-500 transition-colors flex items-center justify-center text-[10px]"
         >
           <i class="fa-solid fa-xmark"></i>
         </button>
         <i
-          class="fa-solid fa-chevron-down transition-transform duration-200 flex items-center justify-center text-[10px]"
+          class="fa-solid fa-chevron-down transition-transform duration-200 flex items-center justify-center text-[9px]"
           :class="open ? 'rotate-180 text-blue-500' : 'text-gray-400'"
         ></i>
       </div>
@@ -31,11 +31,11 @@
       style="top: calc(100% + 4px); z-index: 9999; min-width: 280px"
     >
       <!-- 검색 -->
-      <div class="p-3 bg-gray-50 border-b flex items-center gap-2">
+      <div class="p-2 bg-gray-50 border-b flex items-center gap-1.5">
         <button
           type="button"
           @click.stop="toggleExpandAll"
-          class="flex-shrink-0 w-9 h-9 flex items-center justify-center border rounded-lg bg-white hover:bg-gray-100 text-gray-600 transition-colors"
+          class="flex-shrink-0 w-[30px] h-[30px] flex items-center justify-center border rounded-md bg-white hover:bg-gray-100 text-gray-600 text-xs transition-colors"
           :title="allExpanded ? '전체 닫기' : '전체 열기'"
         >
           <i
@@ -48,7 +48,7 @@
           v-model="keyword"
           type="text"
           placeholder="카테고리 검색..."
-          class="flex-1 px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          class="flex-1 h-[30px] px-2.5 text-xs border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
         />
       </div>
 
@@ -178,15 +178,17 @@ export default {
       const hasHeight = /h-/.test(parentClass);
       const hasBorder = /border/.test(parentClass);
       const hasRounded = /rounded/.test(parentClass);
+      const hasText = /text-/.test(parentClass);
       return [
         "flex justify-between items-center cursor-pointer transition-all box-border relative",
-        !hasHeight && !hasPadding && "h-10 px-3",
-        !hasPadding && hasHeight && "px-3",
+        !hasHeight && !hasPadding && "h-[30px] px-2",
+        !hasPadding && hasHeight && "px-2",
         !hasBorder && "border border-gray-300",
-        !hasRounded && "rounded",
+        !hasRounded && "rounded-md",
+        !hasText && "text-xs",
         parentClass,
         this.open
-          ? "ring-4 ring-blue-50 border-blue-500"
+          ? "ring-2 ring-blue-100 border-blue-500"
           : "hover:border-gray-400",
       ];
     },

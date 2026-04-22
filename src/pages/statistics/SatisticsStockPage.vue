@@ -62,7 +62,7 @@
           >
             <div class="flex items-center gap-2">
               <div class="w-1.5 h-5 bg-blue-500 rounded-full"></div>
-              <span class="font-bold text-slate-800 text-lg"
+              <span class="font-bold text-slate-800 text-base"
                 >재고 통계 상세</span
               >
             </div>
@@ -87,7 +87,6 @@
                 mode="date"
                 :showQuickButtons="true"
                 @change="searchData"
-                class="shadow-sm"
               />
             </div>
 
@@ -107,17 +106,15 @@
               />
             </div>
 
-            <div
-              class="flex items-center gap-0.5 shadow-sm rounded-lg overflow-hidden border border-slate-200"
-            >
+            <div class="flex items-center gap-1">
               <input
                 v-model="set.date"
                 type="date"
-                class="px-3 h-[38px] text-sm bg-white focus:outline-none border-none w-[140px]"
+                class="field w-[140px]"
               />
               <button
                 @click="setData"
-                class="px-4 h-[38px] bg-slate-800 text-white hover:bg-black transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                class="btn btn-primary"
               >
                 <i class="fa-solid fa-bolt"></i> 생성
               </button>
@@ -141,7 +138,7 @@
           >
             <div class="flex items-center gap-2">
               <div class="w-1.5 h-5 bg-indigo-500 rounded-full"></div>
-              <span class="font-bold text-slate-800 text-lg"
+              <span class="font-bold text-slate-800 text-base"
                 >재고 변동 추이 (Spline)</span
               >
             </div>

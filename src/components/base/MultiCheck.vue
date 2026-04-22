@@ -3,12 +3,12 @@
     <!-- 라벨 -->
     <label
       v-if="label"
-      class="block mb-1 text-sm font-medium text-gray-700 flex items-center gap-1"
+      class="mb-1 text-[11px] font-semibold text-slate-600 flex items-center gap-1"
     >
       {{ label }}
       <span
         v-if="selectedItems.length"
-        class="text-xs text-blue-500 font-normal"
+        class="text-[10px] text-blue-500 font-normal"
       >
         ({{ selectedItems.length }})
       </span>
@@ -17,7 +17,7 @@
     <!-- 선택 영역 -->
     <div
       @click="toggle"
-      class="border rounded px-3 py-2 cursor-pointer flex items-center justify-between min-h-[42px]"
+      class="border border-gray-300 rounded-md px-2 py-0.5 cursor-pointer flex items-center justify-between min-h-[30px] text-xs"
     >
       <!-- 선택 값 표시 -->
       <div class="flex flex-wrap gap-1 flex-1">
@@ -25,7 +25,7 @@
           <span
             v-for="item in selectedItems"
             :key="item[idKey]"
-            class="flex items-center gap-1 px-2 py-1 text-xs bg-blue-500 text-white rounded"
+            class="flex items-center gap-1 px-1.5 py-0.5 text-[10px] bg-blue-500 text-white rounded"
           >
             <i v-if="item.icon" :class="item.icon"></i>
             {{ item[textKey] }}
@@ -34,28 +34,28 @@
               class="hover:text-red-200"
               @click.stop="removeItem(item[idKey])"
             >
-              <i class="fa-solid fa-xmark text-[10px]"></i>
+              <i class="fa-solid fa-xmark text-[9px]"></i>
             </button>
           </span>
         </template>
 
-        <span v-else class="text-gray-400 text-sm">
+        <span v-else class="text-gray-400 text-xs">
           {{ placeholder }}
         </span>
       </div>
 
       <!-- 우측 버튼 -->
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1 ml-1.5">
         <button
           v-if="selectedItems.length"
           @click.stop="clearAll"
-          class="text-gray-400 hover:text-red-500 text-sm"
+          class="text-gray-400 hover:text-red-500 text-[10px]"
         >
           <i class="fa-solid fa-xmark"></i>
         </button>
 
         <i
-          class="fa-solid fa-chevron-down text-xs transition-transform duration-200"
+          class="fa-solid fa-chevron-down text-[9px] transition-transform duration-200"
           :class="open ? 'rotate-180 text-blue-500' : 'text-gray-400'"
         ></i>
       </div>
@@ -64,26 +64,26 @@
     <!-- 드롭다운 -->
     <div
       v-if="open"
-      class="absolute z-50 mt-1 w-full bg-white border rounded shadow"
+      class="absolute z-50 mt-1 w-full bg-white border rounded-md shadow-lg"
     >
       <!-- 검색 -->
-      <div class="p-3 bg-gray-50 border-b">
+      <div class="p-2 bg-gray-50 border-b">
         <div class="relative">
           <i
-            class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
+            class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"
           ></i>
           <input
             ref="searchInput"
             v-model="keyword"
             type="text"
             :placeholder="searchPlaceholder"
-            class="w-full text-base border rounded-lg pl-9 pr-9 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full h-[30px] text-xs border rounded-md pl-7 pr-7 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             @keydown.esc="open = false"
           />
           <button
             v-if="keyword"
             type="button"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 text-[10px]"
             @click="keyword = ''"
           >
             <i class="fa-solid fa-xmark"></i>
@@ -94,12 +94,12 @@
       <!-- 액션 바 -->
       <div
         v-if="filteredItems.length"
-        class="flex items-center justify-between px-4 py-2 border-b bg-gray-50 text-sm text-gray-600"
+        class="flex items-center justify-between px-3 py-1.5 border-b bg-gray-50 text-[11px] text-gray-600"
       >
         <span>
           {{ keyword ? `검색결과 ${filteredItems.length}건` : `전체 ${items.length}건` }}
         </span>
-        <div class="flex gap-3">
+        <div class="flex gap-2">
           <button
             type="button"
             class="text-blue-600 hover:underline font-medium"
@@ -118,15 +118,15 @@
       </div>
 
       <!-- 리스트 -->
-      <div class="max-h-64 overflow-y-auto">
+      <div class="max-h-56 overflow-y-auto">
         <label
           v-for="item in filteredItems"
           :key="item[idKey]"
-          class="flex items-center gap-2 px-4 py-3 text-base hover:bg-blue-50 cursor-pointer"
+          class="flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-blue-50 cursor-pointer"
         >
           <input
             type="checkbox"
-            class="w-4 h-4"
+            class="w-3.5 h-3.5"
             :checked="isChecked(item[idKey])"
             @change="toggleItem(item[idKey])"
           />
@@ -137,14 +137,14 @@
 
           <span
             v-if="subTextKey && item[subTextKey]"
-            class="text-xs text-gray-400"
+            class="text-[10px] text-gray-400"
             v-html="highlight(String(item[subTextKey]))"
           ></span>
         </label>
 
         <div
           v-if="!filteredItems.length && !canQuickAdd"
-          class="text-center text-sm text-gray-400 py-6"
+          class="text-center text-xs text-gray-400 py-5"
         >
           검색 결과 없음
         </div>
@@ -152,10 +152,10 @@
         <button
           v-if="canQuickAdd"
           type="button"
-          class="w-full flex items-center gap-2 px-4 py-3 text-base text-blue-600 hover:bg-blue-50 border-t"
+          class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-blue-600 hover:bg-blue-50 border-t"
           @click="quickAdd"
         >
-          <i class="fa-solid fa-plus"></i>
+          <i class="fa-solid fa-plus text-[10px]"></i>
           <span>
             "<strong>{{ keyword.trim() }}</strong>" 추가
           </span>

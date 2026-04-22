@@ -44,7 +44,7 @@
             <button
               type="button"
               @click.stop="toggleExpandAll"
-              class="flex-shrink-0 w-9 h-9 flex items-center justify-center border rounded-lg bg-white hover:bg-gray-100 text-gray-600 transition-colors"
+              class="flex-shrink-0 h-[30px] w-[30px] flex items-center justify-center border rounded-md bg-white hover:bg-gray-100 text-gray-600 transition-colors text-xs"
               :title="allExpanded ? '전체 닫기' : '전체 열기'"
             >
               <i
@@ -57,7 +57,7 @@
               v-model="keyword"
               type="text"
               placeholder="카테고리 검색..."
-              class="flex-1 px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              class="flex-1 field focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 

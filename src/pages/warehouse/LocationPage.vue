@@ -61,7 +61,15 @@
         </button>
       </div>
 
-      <div class="p-4 border-t border-slate-100">
+      <div class="p-4 border-t border-slate-100 space-y-2">
+        <button
+          @click="openPrintModal"
+          :disabled="!selectedWarehouseId || !shapes.length"
+          class="w-full py-3 px-4 rounded-xl font-bold bg-white border-2 border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-print"></i>
+          도면 프린트
+        </button>
         <button
           @click="saveAll"
           :disabled="isSaving || !selectedWarehouseId"
@@ -300,6 +308,8 @@
 <script>
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import api from "@/api/api";
+import { useModalStore } from "@/stores/modal";
+import LocationPrintModal from "@/components/warehouse/LocationPrintModal.vue";
 
 export default {
   components: {
@@ -308,6 +318,7 @@ export default {
 
   data() {
     return {
+      modal: useModalStore(),
       warehouses: [],
       selectedWarehouseId: "",
       // 로컬 shape 객체: { _localId, id, warehouse_id, name, code, sort, points, rotation, color }
@@ -571,6 +582,21 @@ export default {
       } catch (err) {
         console.error("위치 데이터 로드 실패", err);
       }
+    },
+
+    // 도면 프린트 모달을 연다
+    openPrintModal() {
+      if (!this.selectedWarehouseId || !this.shapes.length) return;
+      const warehouse =
+        this.warehouses.find((w) => w.id === this.selectedWarehouseId) || {};
+      this.modal.openModal(
+        LocationPrintModal,
+        {
+          warehouse,
+          locations: this.shapes,
+        },
+        "full",
+      );
     },
 
     // 현재 위치 shape 목록 전체를 순차 저장하고 신규 항목에 서버 id를 반영한다

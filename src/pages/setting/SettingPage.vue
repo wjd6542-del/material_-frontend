@@ -3,12 +3,12 @@
     class="p-4 lg:col-span-8 bg-white rounded-xl shadow border border-gray-200"
   >
     <!-- 탭 헤더 -->
-    <div class="flex flex-wrap border-b mb-4 overflow-x-auto">
+    <div class="flex flex-wrap border-b mb-3 overflow-x-auto">
       <button
         v-for="(tab, idx) in tabs"
         :key="tab.key"
         @click="changeTab(tab.key, idx)"
-        class="px-4 py-2 text-sm border-b-2 -mb-px transition"
+        class="h-[30px] px-3 text-xs border-b-2 -mb-px transition inline-flex items-center"
         :class="
           activeTab === tab.key
             ? 'border-blue-500 text-blue-600 font-medium'

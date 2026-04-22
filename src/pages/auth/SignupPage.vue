@@ -103,26 +103,26 @@
             <!-- 이름 -->
             <div class="group">
               <label
-                class="block text-sm font-semibold text-gray-700 mb-1 group-focus-within:text-blue-600 transition-colors"
+                class="form-label group-focus-within:text-blue-600 transition-colors"
                 >이름</label
               >
               <input
                 v-model="name"
                 type="text"
-                class="w-full px-4 py-2.5 border-gray-200 border rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                class="field w-full focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                 placeholder="홍길동"
               />
             </div>
             <!-- 아이디 -->
             <div class="group">
               <label
-                class="block text-sm font-semibold text-gray-700 mb-1 group-focus-within:text-blue-600 transition-colors"
+                class="form-label group-focus-within:text-blue-600 transition-colors"
                 >아이디</label
               >
               <input
                 v-model="username"
                 type="text"
-                class="w-full px-4 py-2.5 border-gray-200 border rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                class="field w-full focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                 placeholder="admin01"
               />
             </div>
@@ -131,13 +131,13 @@
           <!-- 이메일 -->
           <div class="group">
             <label
-              class="block text-sm font-semibold text-gray-700 mb-1 group-focus-within:text-blue-600 transition-colors"
+              class="form-label group-focus-within:text-blue-600 transition-colors"
               >이메일</label
             >
             <input
               v-model="email"
               type="email"
-              class="w-full px-4 py-2.5 border-gray-200 border rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+              class="field w-full focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
               placeholder="example@email.com"
             />
           </div>
@@ -145,13 +145,13 @@
           <!-- 비밀번호 -->
           <div class="group">
             <label
-              class="block text-sm font-semibold text-gray-700 mb-1 group-focus-within:text-blue-600 transition-colors"
+              class="form-label group-focus-within:text-blue-600 transition-colors"
               >비밀번호</label
             >
             <input
               v-model="password"
               type="password"
-              class="w-full px-4 py-2.5 border-gray-200 border rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+              class="field w-full focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
               placeholder="••••••••"
             />
           </div>
@@ -159,14 +159,14 @@
           <!-- 비밀번호 확인 -->
           <div class="group">
             <label
-              class="block text-sm font-semibold text-gray-700 mb-1 group-focus-within:text-blue-600 transition-colors"
+              class="form-label group-focus-within:text-blue-600 transition-colors"
               >비밀번호 확인</label
             >
             <input
               v-model="passwordConfirm"
               type="password"
               @keyup.enter="signup"
-              class="w-full px-4 py-2.5 border-gray-200 border rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+              class="field w-full focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
               placeholder="••••••••"
             />
           </div>
@@ -174,11 +174,11 @@
           <!-- 가입 버튼 -->
           <button
             :disabled="loading"
-            class="w-full bg-[#1e293b] hover:bg-black text-white py-3.5 rounded-xl font-bold shadow-lg shadow-gray-200 transition-all active:scale-[0.98] flex items-center justify-center gap-3 mt-6 disabled:opacity-70"
+            class="btn btn-primary w-full !bg-[#1e293b] hover:!bg-black !text-white font-bold shadow-lg shadow-gray-200 transition-all active:scale-[0.98] flex items-center justify-center gap-3 mt-6 disabled:opacity-70"
           >
             <div
               v-if="loading"
-              class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"
+              class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
             ></div>
             <span>{{ loading ? "처리 중..." : "회원가입 완료" }}</span>
           </button>

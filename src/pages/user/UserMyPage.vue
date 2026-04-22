@@ -99,12 +99,8 @@
                 v-model="passwordForm.confirmPassword"
                 type="password"
                 placeholder="신규 비밀번호 확인"
-                :class="[
-                  'w-full mt-1 px-4 py-3 bg-gray-50 border rounded-2xl text-sm focus:outline-none transition-all',
-                  isPasswordMatch
-                    ? 'border-gray-100 focus:ring-blue-500/20 focus:border-blue-500'
-                    : 'border-red-300 focus:ring-red-500/20 focus:border-red-500',
-                ]"
+                class="field mt-1"
+                :class="!isPasswordMatch && 'border-red-400 focus:ring-red-500/20 focus:border-red-500'"
               />
               <p
                 v-if="passwordForm.confirmPassword && !isPasswordMatch"
@@ -117,7 +113,7 @@
             <button
               type="submit"
               :disabled="!isFormValid"
-              class="w-full py-4 bg-gray-900 text-white rounded-2xl text-sm font-bold hover:bg-blue-600 disabled:bg-gray-200 disabled:cursor-not-allowed transition-all shadow-lg shadow-gray-200 hover:shadow-blue-200 mt-2"
+              class="btn btn-primary w-full mt-2"
             >
               비밀번호 업데이트
             </button>
@@ -150,11 +146,11 @@
             <table class="w-full">
               <thead class="bg-gray-50/30 border-b">
                 <tr
-                  class="text-left text-[11px] text-gray-400 uppercase tracking-widest font-bold"
+                  class="text-left text-[10px] text-gray-400 uppercase tracking-widest font-bold"
                 >
-                  <th class="px-6 py-4">아이피 주소</th>
-                  <th class="px-6 py-4">용도 / 메모</th>
-                  <th class="px-6 py-4">상태</th>
+                  <th class="px-4 py-2">아이피 주소</th>
+                  <th class="px-4 py-2">용도 / 메모</th>
+                  <th class="px-4 py-2">상태</th>
                 </tr>
               </thead>
               <tbody class="divide-y">
@@ -163,23 +159,23 @@
                   :key="ip.id"
                   class="hover:bg-gray-50/50 transition-colors"
                 >
-                  <td class="px-6 py-4 font-mono text-sm text-gray-700">
+                  <td class="px-4 py-2 font-mono text-xs text-gray-700">
                     {{ ip.ip }}
                   </td>
-                  <td class="px-6 py-4 text-sm text-gray-500">
+                  <td class="px-4 py-2 text-xs text-gray-500">
                     {{ ip.memo || "-" }}
                   </td>
-                  <td class="px-6 py-4">
+                  <td class="px-4 py-2">
                     <span
                       v-if="ip.is_active"
-                      class="flex items-center gap-1.5 text-xs font-bold text-blue-600"
+                      class="flex items-center gap-1.5 text-[11px] font-bold text-blue-600"
                     >
                       <span
                         class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"
                       ></span>
                       ACTIVE
                     </span>
-                    <span v-else class="text-xs font-bold text-gray-300"
+                    <span v-else class="text-[11px] font-bold text-gray-300"
                       >INACTIVE</span
                     >
                   </td>

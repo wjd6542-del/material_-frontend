@@ -247,7 +247,10 @@ export default {
         supplier_id: "",
         status: "",
       },
-      orderDateRange: { start: null, end: null },
+      orderDateRange: {
+        start: new Date(new Date().setHours(0, 0, 0, 0)),
+        end: new Date(new Date().setHours(23, 59, 59, 999)),
+      },
       deliveryDateRange: { start: null, end: null },
     };
   },

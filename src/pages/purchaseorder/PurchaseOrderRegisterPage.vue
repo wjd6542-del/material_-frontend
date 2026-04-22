@@ -176,14 +176,25 @@
               </div>
             </div>
 
-            <button
-              type="button"
-              @click="openMaterialSelect()"
-              class="shrink-0 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
-            >
-              <i class="fa-solid fa-plus"></i>
-              자재 선택
-            </button>
+            <div class="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                @click="clearAllItems"
+                :disabled="!form.items.length"
+                class="px-3 py-2 rounded-xl border border-red-200 bg-white hover:bg-red-50 text-red-600 text-xs font-bold transition-all active:scale-[0.98] flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <i class="fa-solid fa-trash-can"></i>
+                전체 삭제
+              </button>
+              <button
+                type="button"
+                @click="openMaterialSelect()"
+                class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
+              >
+                <i class="fa-solid fa-plus"></i>
+                자재 선택
+              </button>
+            </div>
           </div>
 
           <div class="rounded-2xl border border-slate-200 bg-white">
@@ -544,6 +555,17 @@ export default {
     // 지정 인덱스의 품목을 제거한다
     removeItem(i) {
       this.form.items.splice(i, 1);
+    },
+
+    // 품목 전체를 일괄 삭제한다
+    async clearAllItems() {
+      if (!this.form.items.length) return;
+      const ok = await this.$confirm?.(
+        "발주 품목을 전체 삭제하시겠습니까?",
+        "전체 삭제 확인",
+      );
+      if (ok === false) return;
+      this.form.items = [];
     },
 
     // 목록 페이지로 이동한다

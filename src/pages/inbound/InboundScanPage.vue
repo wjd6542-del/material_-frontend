@@ -5,7 +5,7 @@
       class="col-span-4 bg-white border rounded-2xl shadow-sm p-6 flex flex-col gap-6"
     >
       <!-- 타이틀 -->
-      <h2 class="font-semibold text-gray-700 flex items-center gap-2 text-lg">
+      <h2 class="font-semibold text-gray-700 flex items-center gap-2 text-base">
         <i class="fa-solid fa-box-open text-blue-500"></i>
         입고 처리
       </h2>
@@ -22,14 +22,14 @@
           <input
             v-model="searchText"
             @change="searchMaterial"
-            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            class="field w-full focus:ring-2 focus:ring-blue-500 outline-none"
             placeholder="자재명 검색"
           />
 
           <!-- 자재 선택 -->
           <button
             @click="addRow"
-            class="px-3 py-1.5 text-sm rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition flex items-center gap-1"
+            class="btn btn-primary flex items-center gap-1"
           >
             <i class="fa-solid fa-plus"></i>
             {{ "추가" }}
@@ -75,12 +75,12 @@
       <!-- header -->
       <div class="p-4 border-b flex justify-between items-center">
         <!-- 타이틀 -->
-        <h2 class="font-semibold text-gray-700 flex items-center gap-2 text-lg">
+        <h2 class="font-semibold text-gray-700 flex items-center gap-2 text-base">
           <i class="fa-solid fa-list text-gray-500"></i>
           입고 번호 : {{ inbound_no }}
         </h2>
 
-        <div class="text-sm text-gray-500">총 {{ totalCount }} 개</div>
+        <div class="text-xs text-gray-500">총 {{ totalCount }} 개</div>
       </div>
 
       <!-- list -->
@@ -139,7 +139,7 @@
           <!-- 전체 삭제 -->
           <button
             @click="clearItems"
-            class="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-5 py-3 rounded-xl font-semibold shadow-sm"
+            class="btn btn-danger flex items-center gap-2"
           >
             <i class="fa-solid fa-trash"></i>
             전체 삭제
@@ -148,7 +148,7 @@
           <!-- 입고 확정 -->
           <button
             @click="saveOutbound"
-            class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-7 py-3 rounded-xl font-semibold shadow-md text-base"
+            class="btn btn-primary flex items-center gap-2 bg-green-600 hover:bg-green-700"
           >
             <i class="fa-solid fa-check"></i>
             입고 확정

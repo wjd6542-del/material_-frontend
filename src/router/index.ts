@@ -22,11 +22,13 @@ import MaterialCategoryColumnPage from "@/pages/material/MaterialCategoryColumnP
 
 // 입고
 import InboundPage from "@/pages/inbound/InboundPage.vue"
+import InboundRegisterPage from "@/pages/inbound/InboundRegisterPage.vue"
 import InboundDetailPage from "@/pages/inbound/InboundDetailPage.vue"
 import InboundScanPage from "@/pages/inbound/InboundScanPage.vue"
 
 // 출고
 import OutboundPage from "@/pages/outbound/OutboundPage.vue"
+import OutboundRegisterPage from "@/pages/outbound/OutboundRegisterPage.vue"
 import OutboundDetailPage from "@/pages/outbound/OutboundDetailPage.vue"
 import OutboundScanPage from "@/pages/outbound/OutboundScanPage.vue"
 
@@ -132,6 +134,11 @@ const routes = [
 						meta: { title: "입고관리", auth: true, permission: "inbound.view" },
 					},
 					{
+						path: "inbound/register",
+						component: InboundRegisterPage,
+						meta: { title: "입고 등록", auth: true, permission: "inbound.create" },
+					},
+					{
 						path: "inbound/detail",
 						component: InboundDetailPage,
 						meta: { title: "입고 세부내역", auth: true, permission: "inbound.detail.view" },
@@ -147,6 +154,11 @@ const routes = [
 						path: "outbound",
 						component: OutboundPage,
 						meta: { title: "출고목록", auth: true, permission: "outbound.view" },
+					},
+					{
+						path: "outbound/register",
+						component: OutboundRegisterPage,
+						meta: { title: "출고 등록", auth: true, permission: "outbound.create" },
 					},
 					{
 						path: "outbound/detail",

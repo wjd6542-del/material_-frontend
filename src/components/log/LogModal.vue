@@ -1,19 +1,17 @@
 ﻿<template>
   <div class="p-4">
-    <h2 class="text-lg font-semibold mb-3">
+    <h2 class="text-base font-semibold mb-3">
       {{ title }}
     </h2>
 
     <div
-      class="bg-gray-900 text-green-300 text-sm rounded-lg p-4 overflow-auto max-h-[500px]"
+      class="bg-gray-900 text-green-300 text-xs rounded-lg p-3 overflow-auto max-h-[500px]"
     >
       <pre>{{ formattedJson }}</pre>
     </div>
 
-    <div class="flex justify-end mt-4">
-      <button class="px-4 py-2 bg-gray-200 rounded" @click="modal.closeModal()">
-        닫기
-      </button>
+    <div class="flex justify-end mt-3">
+      <button class="btn" @click="modal.closeModal()">닫기</button>
     </div>
   </div>
 </template>

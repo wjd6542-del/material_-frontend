@@ -11,7 +11,7 @@
       <div class="p-4 pb-0 flex flex-wrap items-center gap-2">
         <button
           v-if="auth.hasPermission('outbound.create')"
-          @click="openModal"
+          @click="goRegister"
           class="btn btn-primary shrink-0"
         >
           <i class="fa-solid fa-add"></i>
@@ -67,7 +67,6 @@ import BaseTable from "@/components/base/BaseTable.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
 import BaseInput from "@/components/base/BaseInput.vue";
 import { useModalStore } from "@/stores/modal";
-import OutboundModal from "@/components/outbound/OutboundModal.vue";
 import OutboundVoucherPrintModal from "@/components/outbound/OutboundVoucherPrintModal.vue";
 import { useAuthStore } from "@/stores/auth";
 
@@ -133,7 +132,10 @@ export default {
 
       rows: [],
       where: { outbound_no: "" },
-      dateRange: { start: null, end: null },
+      dateRange: {
+        start: new Date(new Date().setHours(0, 0, 0, 0)),
+        end: new Date(new Date().setHours(23, 59, 59, 999)),
+      },
     };
   },
 
@@ -168,10 +170,9 @@ export default {
       }
     },
 
-    // 추가 처리
-    // 출고 등록 모달을 연다
-    openModal() {
-      this.modal.openModal(OutboundModal, { onSaved: this.loadList }, "xl");
+    // 출고 등록 페이지로 이동한다
+    goRegister() {
+      this.$router.push("/outbound/register");
     },
 
     // 데이터 로드 처리
@@ -194,22 +195,16 @@ export default {
     },
 
     // 셀클릭시
-    // 전표번호 셀은 수정 모달, ID 셀은 전표 프린트 모달을 연다
+    // 전표번호 셀은 수정 페이지, ID 셀은 전표 프린트 모달을 연다
     onCellClick(data) {
-      // 자재명 클릭시 모달 상세 오픈
       if (data.key == "outbound_no") {
         if (!this.auth.hasPermission("outbound.update")) {
           return;
         }
-        this.modal.openModal(
-          OutboundModal,
-          {
-            id: data.row.id,
-            onSaved: this.loadList,
-          },
-          "xl",
-        );
-        // 전표 모달 출력
+        this.$router.push({
+          path: "/outbound/register",
+          query: { id: data.row.id },
+        });
       } else if (data.key == "id") {
         this.modal.openModal(
           OutboundVoucherPrintModal,

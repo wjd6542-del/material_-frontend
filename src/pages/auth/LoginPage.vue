@@ -66,7 +66,7 @@
           <!-- 아이디 -->
           <div class="group">
             <label
-              class="block text-sm font-semibold text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors"
+              class="form-label group-focus-within:text-blue-600 transition-colors"
               >아이디</label
             >
             <div class="relative">
@@ -74,7 +74,7 @@
                 class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"
               >
                 <svg
-                  class="w-5 h-5"
+                  class="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -90,7 +90,7 @@
               <input
                 v-model="username"
                 type="text"
-                class="w-full pl-10 pr-4 py-3 border-gray-200 border rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-gray-300"
+                class="field w-full pl-9 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-gray-300"
                 placeholder="ID를 입력하세요"
               />
             </div>
@@ -98,9 +98,9 @@
 
           <!-- 비밀번호 -->
           <div class="group">
-            <div class="flex justify-between items-center mb-2">
+            <div class="flex justify-between items-center mb-1">
               <label
-                class="text-sm font-semibold text-gray-700 group-focus-within:text-blue-600 transition-colors"
+                class="form-label !mb-0 group-focus-within:text-blue-600 transition-colors"
                 >비밀번호</label
               >
               <router-link
@@ -114,7 +114,7 @@
                 class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"
               >
                 <svg
-                  class="w-5 h-5"
+                  class="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -130,7 +130,7 @@
               <input
                 v-model="password"
                 :type="showPassword ? 'text' : 'password'"
-                class="w-full pl-10 pr-12 py-3 border-gray-200 border rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-gray-300"
+                class="field w-full pl-9 pr-10 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-gray-300"
                 placeholder="••••••••"
               />
               <button
@@ -140,7 +140,7 @@
               >
                 <svg
                   v-if="!showPassword"
-                  class="w-5 h-5"
+                  class="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -153,7 +153,7 @@
                 </svg>
                 <svg
                   v-else
-                  class="w-5 h-5"
+                  class="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -170,11 +170,11 @@
           <!-- 로그인 버튼 -->
           <button
             :disabled="loading"
-            class="w-full bg-[#1e293b] hover:bg-black text-white py-3.5 rounded-xl font-bold shadow-lg shadow-gray-200 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
+            class="btn btn-primary w-full !bg-[#1e293b] hover:!bg-black !text-white font-bold shadow-lg shadow-gray-200 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             <div
               v-if="loading"
-              class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"
+              class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
             ></div>
             <span>{{ loading ? "인증 중..." : "시스템 접속" }}</span>
           </button>

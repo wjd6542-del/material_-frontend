@@ -117,19 +117,13 @@
     </div>
 
     <!-- 버튼 영역 -->
-    <div class="flex justify-end gap-3 mt-10 no-print">
-      <button
-        @click="print"
-        class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl shadow-md transition"
-      >
+    <div class="flex justify-end gap-2 mt-10 no-print">
+      <button @click="print" class="btn btn-primary">
         <i class="fa-solid fa-print"></i>
         프린트
       </button>
 
-      <button
-        @click="modal.closeModal()"
-        class="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl"
-      >
+      <button @click="modal.closeModal()" class="btn">
         <i class="fa-solid fa-xmark"></i>
         닫기
       </button>

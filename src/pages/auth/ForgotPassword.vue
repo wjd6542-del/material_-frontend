@@ -130,7 +130,7 @@
           <!-- 이메일 입력 (sent 후에도 유지하거나 readonly 처리 가능) -->
           <div class="group">
             <label
-              class="block text-sm font-semibold text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors"
+              class="form-label group-focus-within:text-blue-600 transition-colors"
               >이메일 주소</label
             >
             <div class="relative">
@@ -138,7 +138,7 @@
                 class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"
               >
                 <svg
-                  class="w-5 h-5"
+                  class="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -156,7 +156,7 @@
                 type="email"
                 :disabled="sent"
                 @keyup.enter="!sent ? find() : null"
-                class="w-full pl-10 pr-4 py-3 border-gray-200 border rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all disabled:bg-gray-50 disabled:text-gray-400"
+                class="field w-full pl-9 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all disabled:bg-gray-50 disabled:text-gray-400"
                 placeholder="example@email.com"
               />
             </div>
@@ -166,39 +166,39 @@
           <transition-group name="list" tag="div" class="space-y-5">
             <div v-if="sent" key="code-field" class="group">
               <label
-                class="block text-sm font-semibold text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors"
+                class="form-label group-focus-within:text-blue-600 transition-colors"
                 >인증 코드</label
               >
               <input
                 v-model="code"
                 type="text"
-                class="w-full px-4 py-3 border-gray-200 border rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all tracking-widest text-center font-bold text-lg"
+                class="field w-full focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all tracking-widest text-center font-bold"
                 placeholder="000000 (6자리)"
               />
             </div>
 
             <div v-if="sent" key="pw-field" class="group">
               <label
-                class="block text-sm font-semibold text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors"
+                class="form-label group-focus-within:text-blue-600 transition-colors"
                 >새 비밀번호</label
               >
               <input
                 v-model="password"
                 type="password"
-                class="w-full px-4 py-3 border-gray-200 border rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                class="field w-full focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                 placeholder="새로운 비밀번호"
               />
             </div>
 
             <div v-if="sent" key="pw-conf-field" class="group">
               <label
-                class="block text-sm font-semibold text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors"
+                class="form-label group-focus-within:text-blue-600 transition-colors"
                 >새 비밀번호 확인</label
               >
               <input
                 v-model="passwordConfirm"
                 type="password"
-                class="w-full px-4 py-3 border-gray-200 border rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                class="field w-full focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                 placeholder="비밀번호 다시 입력"
               />
             </div>
@@ -209,11 +209,11 @@
             v-if="!sent"
             :disabled="loading"
             @click="find"
-            class="w-full bg-[#1e293b] hover:bg-black text-white py-3.5 rounded-xl font-bold shadow-lg shadow-gray-200 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-70"
+            class="btn btn-primary w-full !bg-[#1e293b] hover:!bg-black !text-white font-bold shadow-lg shadow-gray-200 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-70"
           >
             <div
               v-if="loading"
-              class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"
+              class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
             ></div>
             <span>{{ loading ? "전송 중..." : "인증코드 발송" }}</span>
           </button>
@@ -222,11 +222,11 @@
             v-else
             :disabled="loading"
             @click="chagePassword"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+            class="btn btn-primary w-full font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
           >
             <div
               v-if="loading"
-              class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"
+              class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
             ></div>
             <span>비밀번호 변경 완료</span>
           </button>

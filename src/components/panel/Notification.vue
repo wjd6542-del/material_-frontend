@@ -13,22 +13,22 @@
         v-if="notificationStore.panelOpen"
         class="fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white shadow-[-20px_0_50px_-10px_rgba(0,0,0,0.1)] z-[100] flex flex-col"
       >
-        <div class="px-6 py-5 border-b border-slate-100 flex flex-col gap-1">
+        <div class="px-4 py-3 border-b border-slate-100 flex flex-col gap-1">
           <div class="flex justify-between items-center">
             <h3
-              class="font-bold text-xl text-slate-800 flex items-center gap-2.5"
+              class="font-bold text-base text-slate-800 flex items-center gap-2"
             >
-              <span class="p-2 bg-blue-50 rounded-xl">
-                <i class="fa-regular fa-bell text-blue-600"></i>
+              <span class="p-1.5 bg-blue-50 rounded-lg">
+                <i class="fa-regular fa-bell text-blue-600 text-xs"></i>
               </span>
               알림센터 - {{ typeLabel(notificationStore.type) }}
             </h3>
 
             <button
               @click.stop="notificationStore.closePanel()"
-              class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+              class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
             >
-              <i class="fa-solid fa-xmark text-lg"></i>
+              <i class="fa-solid fa-xmark text-sm"></i>
             </button>
           </div>
         </div>
@@ -54,7 +54,7 @@
               v-for="row in notificationStore.list"
               :key="row.id"
               :class="[
-                'group relative px-6 py-4 flex gap-4 transition-all cursor-pointer',
+                'group relative px-3 py-2 flex gap-3 transition-all cursor-pointer',
                 row.is_read
                   ? 'opacity-70 hover:bg-slate-50'
                   : 'bg-blue-50/30 hover:bg-blue-50/60',
@@ -62,7 +62,7 @@
               @click="move(row)"
             >
               <div
-                class="w-11 h-11 shrink-0 rounded-2xl flex items-center justify-center text-white text-base shadow-sm group-hover:scale-110 transition-transform"
+                class="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center text-white text-xs shadow-sm group-hover:scale-110 transition-transform"
                 :class="{
                   'bg-blue-500 shadow-indigo-100': row.type === 'INBOUND',
                   'bg-rose-500 shadow-rose-100': row.type === 'OUTBOUND',
@@ -89,25 +89,25 @@
               <div class="flex-1 min-w-0">
                 <div class="flex justify-between items-start gap-2">
                   <div
-                    class="text-[14px] font-bold text-slate-700 truncate leading-tight"
+                    class="text-xs font-bold text-slate-700 truncate leading-tight"
                   >
                     {{ row.title }}
                   </div>
                   <span
                     v-if="!row.is_read"
-                    class="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500 mt-1.5 animate-pulse"
+                    class="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500 mt-1 animate-pulse"
                   ></span>
                 </div>
 
                 <div
-                  class="text-[13px] text-slate-500 mt-1 line-clamp-2 leading-relaxed"
+                  class="text-[11px] text-slate-500 mt-0.5 line-clamp-2 leading-relaxed"
                 >
                   {{ row.message }}
                 </div>
 
-                <div class="flex items-center justify-between mt-2.5">
+                <div class="flex items-center justify-between mt-1.5">
                   <span
-                    class="text-[11px] text-slate-400 flex items-center gap-1"
+                    class="text-[10px] text-slate-400 flex items-center gap-1"
                   >
                     <i class="fa-regular fa-clock opacity-70"></i>
                     <BaseDateText :value="row.created_at" show-time />
@@ -115,7 +115,7 @@
 
                   <button
                     v-if="!row.is_read"
-                    class="text-[11px] font-bold text-blue-600 hover:underline px-2 py-0.5 rounded bg-blue-50"
+                    class="text-[10px] font-bold text-blue-600 hover:underline px-1.5 py-0.5 rounded bg-blue-50"
                     @click.stop="read(row)"
                   >
                     읽음 표시
@@ -126,9 +126,9 @@
           </div>
         </div>
 
-        <div class="p-4 border-t border-slate-100 bg-white">
+        <div class="p-3 border-t border-slate-100 bg-white">
           <button
-            class="w-full flex items-center justify-center gap-2 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 py-3 rounded-xl transition-all active:scale-[0.98]"
+            class="w-full flex items-center justify-center gap-2 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 py-2 rounded-lg transition-all active:scale-[0.98]"
             @click="goNotification"
           >
             전체 알림 확인하기
