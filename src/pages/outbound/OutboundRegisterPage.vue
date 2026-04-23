@@ -234,24 +234,46 @@
 
                   <!-- 원가 -->
                   <td class="td">
-                    <input
-                      v-model.number="it.cost_price"
-                      type="number"
-                      min="0"
-                      class="cell-input text-right"
-                      placeholder="0"
-                    />
+                    <div class="relative">
+                      <button
+                        type="button"
+                        @click="openPriceHistory(it, 'cost_price')"
+                        :disabled="!it.material_id"
+                        class="absolute left-1.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 disabled:text-slate-300 disabled:cursor-not-allowed text-[11px]"
+                        title="가격 이력에서 선택"
+                      >
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                      </button>
+                      <input
+                        v-model.number="it.cost_price"
+                        type="number"
+                        min="0"
+                        class="cell-input text-right pl-7"
+                        placeholder="0"
+                      />
+                    </div>
                   </td>
 
                   <!-- 판매가 -->
                   <td class="td">
-                    <input
-                      v-model.number="it.sale_price"
-                      type="number"
-                      min="0"
-                      class="cell-input text-right"
-                      placeholder="0"
-                    />
+                    <div class="relative">
+                      <button
+                        type="button"
+                        @click="openPriceHistory(it, 'sale_price')"
+                        :disabled="!it.material_id"
+                        class="absolute left-1.5 top-1/2 -translate-y-1/2 text-rose-500 hover:text-rose-700 disabled:text-slate-300 disabled:cursor-not-allowed text-[11px]"
+                        title="가격 이력에서 선택"
+                      >
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                      </button>
+                      <input
+                        v-model.number="it.sale_price"
+                        type="number"
+                        min="0"
+                        class="cell-input text-right pl-7"
+                        placeholder="0"
+                      />
+                    </div>
                   </td>
 
                   <!-- 금액 -->
@@ -359,6 +381,7 @@
 import api from "@/api/api";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import MaterialSelectModal from "@/components/material/MaterialSelectModal.vue";
+import MaterialPriceHistoryModal from "@/components/material/MaterialPriceHistoryModal.vue";
 import ShelfSelectModal from "@/components/warehouse/ShelfSelectModal.vue";
 import { useModalStore } from "@/stores/modal";
 
@@ -409,7 +432,30 @@ export default {
       this.modalStore.openModal(
         MaterialSelectModal,
         {
+          // 판매: 자재 단가 매핑을 판매1 기준으로
+          priceField: "outbound_price1",
           onConfirm: (list) => this.applyMaterials(list, target),
+        },
+        "full",
+      );
+    },
+
+    // 단가 이력에서 금액 선택 모달을 연다
+    openPriceHistory(target, field) {
+      if (!target?.material_id) {
+        this.$toast?.error("먼저 자재를 선택해 주세요.");
+        return;
+      }
+      this.modalStore.openModal(
+        MaterialPriceHistoryModal,
+        {
+          material_id: target.material_id,
+          material_code: target.material_code,
+          material_name: target.material_name,
+          selectable: true,
+          onSelect: (value) => {
+            target[field] = Number(value) || 0;
+          },
         },
         "full",
       );
@@ -426,7 +472,7 @@ export default {
       );
     },
 
-    // 자재 → 품목 행 변환
+    // 자재 → 품목 행 변환 (판매: 원가=구매가, 판매가=판매1 기준)
     buildItemFromMaterial(m) {
       return {
         id: 0,
@@ -441,8 +487,10 @@ export default {
         warehouse_id: null,
         shelf_label: "",
         quantity: 1,
-        cost_price: Number(m.cost_price) || Number(m.price) || 0,
-        sale_price: Number(m.sale_price) || Number(m.price) || 0,
+        // 원가는 자재의 구매가(inbound_price)를 사용
+        cost_price: Number(m.inbound_price) || 0,
+        // 판매가는 priceField(outbound_price1)로 매핑된 m.price 사용
+        sale_price: Number(m.price) || Number(m.outbound_price1) || 0,
       };
     },
 
@@ -456,12 +504,14 @@ export default {
         target.material_name = first.name || "";
         target.spec = first.spec || "";
         target.unit = first.unit || "";
+        // 원가는 자재의 구매가 기준
         if (
           (!target.cost_price || target.cost_price === 0) &&
-          first.price
+          first.inbound_price
         ) {
-          target.cost_price = Number(first.price) || 0;
+          target.cost_price = Number(first.inbound_price) || 0;
         }
+        // 판매가는 priceField(outbound_price1)로 매핑된 price 기준
         if (
           (!target.sale_price || target.sale_price === 0) &&
           first.price

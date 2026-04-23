@@ -6,10 +6,19 @@
         <h2 class="text-base font-semibold text-slate-800 flex items-center gap-2">
           <i class="fa-solid fa-clock-rotate-left text-amber-500"></i>
           금액 변동 이력
+          <span
+            v-if="selectable"
+            class="ml-1 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded"
+          >
+            선택 모드
+          </span>
         </h2>
         <p class="text-[11px] text-slate-400 mt-0.5">
           <span v-if="materialLabel" class="font-mono">{{ materialLabel }}</span>
           <span v-else class="italic">자재 정보 없음</span>
+          <span v-if="selectable" class="ml-1 text-blue-500">
+            · 금액을 클릭하면 적용됩니다
+          </span>
         </p>
       </div>
       <button
@@ -74,46 +83,76 @@
                 {{ actionLabel(row.action) }}
               </span>
             </td>
-            <td class="td text-right font-mono tabular-nums">
-              {{ fmt(row.inbound_price) }}
-              <div class="text-[9px] text-slate-400 mt-0.5"
-                v-if="idx < list.length - 1 && diff(row, 'inbound_price') !== 0">
-                <span :class="diffClass(row, 'inbound_price')">
-                  {{ diffText(row, 'inbound_price') }}
-                </span>
+            <td
+              class="td text-right font-mono tabular-nums"
+              :class="priceCellClass(row, 'inbound_price')"
+              @click="onPickPrice(row, 'inbound_price')"
+            >
+              <div>{{ fmt(row.inbound_price) }}</div>
+              <div class="text-[9px] mt-0.5" :class="diffClass(row, 'inbound_price')">
+                {{ diffDisplay(row, 'inbound_price', idx) }}
               </div>
             </td>
-            <td class="td text-right font-mono tabular-nums bg-blue-50/30">
-              {{ fmt(row.outbound_price1) }}
-              <div class="text-[9px] text-slate-400 mt-0.5"
-                v-if="idx < list.length - 1 && diff(row, 'outbound_price1') !== 0">
-                <span :class="diffClass(row, 'outbound_price1')">
-                  {{ diffText(row, 'outbound_price1') }}
-                </span>
+            <td
+              class="td text-right font-mono tabular-nums bg-blue-50/30"
+              :class="priceCellClass(row, 'outbound_price1')"
+              @click="onPickPrice(row, 'outbound_price1')"
+            >
+              <div>{{ fmt(row.outbound_price1) }}</div>
+              <div class="text-[9px] mt-0.5" :class="diffClass(row, 'outbound_price1')">
+                {{ diffDisplay(row, 'outbound_price1', idx) }}
               </div>
             </td>
-            <td class="td text-right font-mono tabular-nums">
-              <div>{{ fmt(row.outbound_price2) }}</div>
-              <div class="text-[9px] text-slate-400">
-                {{ pctText(row.outbound_rate2) }}
+            <td
+              class="td text-right font-mono tabular-nums"
+              :class="priceCellClass(row, 'outbound_price2')"
+              @click="onPickPrice(row, 'outbound_price2')"
+            >
+              <div class="flex items-center justify-end gap-3">
+                <span class="text-[9px] text-slate-400">{{ pctText(row.outbound_rate2) }}</span>
+                <span>{{ fmt(row.outbound_price2) }}</span>
+              </div>
+              <div class="text-[9px] mt-0.5" :class="diffClass(row, 'outbound_price2')">
+                {{ diffDisplay(row, 'outbound_price2', idx) }}
               </div>
             </td>
-            <td class="td text-right font-mono tabular-nums">
-              <div>{{ fmt(row.wholesale_price1) }}</div>
-              <div class="text-[9px] text-slate-400">
-                {{ pctText(row.wholesale_rate1) }}
+            <td
+              class="td text-right font-mono tabular-nums"
+              :class="priceCellClass(row, 'wholesale_price1')"
+              @click="onPickPrice(row, 'wholesale_price1')"
+            >
+              <div class="flex items-center justify-end gap-3">
+                <span class="text-[9px] text-slate-400">{{ pctText(row.wholesale_rate1) }}</span>
+                <span>{{ fmt(row.wholesale_price1) }}</span>
+              </div>
+              <div class="text-[9px] mt-0.5" :class="diffClass(row, 'wholesale_price1')">
+                {{ diffDisplay(row, 'wholesale_price1', idx) }}
               </div>
             </td>
-            <td class="td text-right font-mono tabular-nums">
-              <div>{{ fmt(row.wholesale_price2) }}</div>
-              <div class="text-[9px] text-slate-400">
-                {{ pctText(row.wholesale_rate2) }}
+            <td
+              class="td text-right font-mono tabular-nums"
+              :class="priceCellClass(row, 'wholesale_price2')"
+              @click="onPickPrice(row, 'wholesale_price2')"
+            >
+              <div class="flex items-center justify-end gap-3">
+                <span class="text-[9px] text-slate-400">{{ pctText(row.wholesale_rate2) }}</span>
+                <span>{{ fmt(row.wholesale_price2) }}</span>
+              </div>
+              <div class="text-[9px] mt-0.5" :class="diffClass(row, 'wholesale_price2')">
+                {{ diffDisplay(row, 'wholesale_price2', idx) }}
               </div>
             </td>
-            <td class="td text-right font-mono tabular-nums">
-              <div>{{ fmt(row.online_price) }}</div>
-              <div class="text-[9px] text-slate-400">
-                {{ pctText(row.online_rate) }}
+            <td
+              class="td text-right font-mono tabular-nums"
+              :class="priceCellClass(row, 'online_price')"
+              @click="onPickPrice(row, 'online_price')"
+            >
+              <div class="flex items-center justify-end gap-3">
+                <span class="text-[9px] text-slate-400">{{ pctText(row.online_rate) }}</span>
+                <span>{{ fmt(row.online_price) }}</span>
+              </div>
+              <div class="text-[9px] mt-0.5" :class="diffClass(row, 'online_price')">
+                {{ diffDisplay(row, 'online_price', idx) }}
               </div>
             </td>
             <td class="td text-center text-slate-500">
@@ -165,6 +204,10 @@ export default {
     material_id: { type: Number, required: true },
     material_code: { type: String, default: "" },
     material_name: { type: String, default: "" },
+    // 선택 모드: true면 가격 셀 클릭 시 onSelect 호출 + 모달 닫힘
+    selectable: { type: Boolean, default: false },
+    // 선택된 가격을 돌려주는 콜백 (value, field, row)
+    onSelect: { type: Function, default: null },
   },
 
   data() {
@@ -238,13 +281,40 @@ export default {
       const d = this.diff(row, field);
       if (d > 0) return "text-red-500 font-semibold";
       if (d < 0) return "text-blue-500 font-semibold";
-      return "";
+      return "text-slate-400";
     },
     diffText(row, field) {
       const d = this.diff(row, field);
       if (d === 0) return "";
       const arrow = d > 0 ? "▲" : "▼";
       return `${arrow} ${Math.abs(d).toLocaleString()}`;
+    },
+    // 변동 없음·비교 불가 상황에서도 '-' 로 통일해 표시
+    diffDisplay(row, field, idx) {
+      if (idx >= this.list.length - 1) return "-";
+      const d = this.diff(row, field);
+      if (d === 0) return "-";
+      const arrow = d > 0 ? "▲" : "▼";
+      return `${arrow} ${Math.abs(d).toLocaleString()}`;
+    },
+
+    // 가격 셀 클래스 (선택 모드일 때 cursor/hover 추가)
+    priceCellClass(row, field) {
+      if (!this.selectable) return "";
+      const v = Number(row[field]) || 0;
+      if (!v) return "text-slate-300 cursor-not-allowed";
+      return "cursor-pointer hover:bg-blue-100 hover:text-blue-700 transition-colors";
+    },
+
+    // 선택 모드에서 가격 셀 클릭 시 onSelect 콜백 호출 후 모달 닫기
+    onPickPrice(row, field) {
+      if (!this.selectable) return;
+      const value = Number(row?.[field]) || 0;
+      if (!value) return;
+      if (typeof this.onSelect === "function") {
+        this.onSelect(value, field, row);
+      }
+      this.modal.closeModal();
     },
 
     // 이력 로드

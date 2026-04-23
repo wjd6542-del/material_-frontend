@@ -4,6 +4,7 @@
       v-if="isMobile"
       :selected-id="selectedCategoryId"
       :tree="categoryTree"
+      :material-count-map="materialCountByCategory"
       @select="selectCategory"
       @reset="selectedCategoryId = null"
     />
@@ -15,6 +16,7 @@
       :width="sidebarWidth"
       :all-expanded="allExpanded"
       :drag-enabled="dragConfig.enabled"
+      :material-count-map="materialCountByCategory"
       @select="selectCategory"
       @add-root="openAddRootModal"
       @add-child="openAddChildModal"
@@ -94,6 +96,7 @@ export default {
       isMobile: false,
       allExpanded: true,
       sidebarWidth: 420,
+      allMaterials: [],
       dragState: {
         draggingItem: null,
         dropTarget: null,
@@ -120,12 +123,23 @@ export default {
       const path = this.categoryPath;
       return path.length > 0 ? path[path.length - 1].name : "";
     },
+    // category_id → 소속 자재 갯수 매핑
+    materialCountByCategory() {
+      const map = Object.create(null);
+      for (const m of this.allMaterials) {
+        const cid = m.category_id;
+        if (cid == null) continue;
+        map[cid] = (map[cid] || 0) + 1;
+      }
+      return map;
+    },
   },
   // 마운트 시 모바일 여부 판별 및 리스너 등록, 트리 로드
   mounted() {
     this.checkMobile();
     window.addEventListener("resize", this.checkMobile);
     this.loadCategoryTree();
+    this.loadAllMaterials();
   },
   // 언마운트 직전 리사이즈 리스너를 제거한다
   beforeUnmount() {
@@ -276,6 +290,16 @@ export default {
       const res = await api.post("/api/category/getCategoryTree");
       initOpenState(res.data);
       this.categoryTree = res.data;
+    },
+
+    // 전체 자재 목록 로드 → category_id 별 갯수 뱃지에 사용
+    async loadAllMaterials() {
+      try {
+        const res = await api.post("/api/material/list", {});
+        this.allMaterials = Array.isArray(res.data) ? res.data : [];
+      } catch {
+        this.allMaterials = [];
+      }
     },
 
     // 변경된 트리를 서버에 저장하고 재조회한다

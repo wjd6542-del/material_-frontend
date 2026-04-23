@@ -34,7 +34,6 @@ import { markRaw } from "vue";
 
 import Setting from "@/components/setting/Setting.vue";
 import Category from "@/components/setting/Category.vue";
-import Supplier from "@/components/setting/Supplier.vue";
 import Warehouse from "@/components/setting/Warehouse.vue";
 import Role from "@/components/setting/Role.vue";
 import Location from "@/components/setting/Location.vue";
@@ -60,12 +59,6 @@ const tabs = [
     label: "자재 태그",
     icon: "fa-solid fa-tags",
     component: markRaw(Tag),
-  },
-  {
-    key: "supplier",
-    label: "거래처",
-    icon: "fa-solid fa-building",
-    component: markRaw(Supplier),
   },
   {
     key: "warehouse",

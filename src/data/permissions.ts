@@ -105,6 +105,16 @@ export const permissions: PermissionGroup[] = [
 				path: "/materials/category",
 				extraMenus: [
 					{ path: "/materials/category/column", label: "자재 카테고리 (가로)" },
+					{ path: "/materials/category/path", label: "카테고리 경로" },
+				],
+			},
+			{
+				code: "material.rate.view",
+				name: "자재 기본설정",
+				action: "view",
+				path: "/materials/rate",
+				actions: [
+					{ code: "material.rate.update", name: "자재 기본설정 저장", action: "update" },
 				],
 			},
 		],
@@ -391,10 +401,30 @@ export const permissions: PermissionGroup[] = [
 	},
 
 	{
-		group: "business",
-		label: "사업자 정보",
-		icon: "fa-building",
+		group: "setting",
+		label: "환경설정",
+		icon: "fa-gear",
 		pages: [
+			{
+				code: "setting.view",
+				name: "환경설정",
+				action: "view",
+				path: "/setting",
+				actions: [
+					{ code: "setting.update", name: "환경설정 저장", action: "update" },
+				],
+			},
+			{
+				code: "supplier.view",
+				name: "거래처",
+				action: "view",
+				path: "/setting/supplier",
+				actions: [
+					{ code: "supplier.create", name: "거래처 등록", action: "create" },
+					{ code: "supplier.update", name: "거래처 수정", action: "update" },
+					{ code: "supplier.delete", name: "거래처 삭제", action: "delete" },
+				],
+			},
 			{
 				code: "business.view",
 				name: "사업자 정보",
@@ -420,23 +450,6 @@ export const permissions: PermissionGroup[] = [
 				actions: [
 					{ code: "notification.read", name: "알림 읽기 처리", action: "read" },
 					{ code: "notification.delete", name: "알림 삭제", action: "delete" },
-				],
-			},
-		],
-	},
-
-	{
-		group: "setting",
-		label: "환경설정",
-		icon: "fa-gear",
-		pages: [
-			{
-				code: "setting.view",
-				name: "환경설정",
-				action: "view",
-				path: "/setting",
-				actions: [
-					{ code: "setting.update", name: "환경설정 저장", action: "update" },
 				],
 			},
 		],

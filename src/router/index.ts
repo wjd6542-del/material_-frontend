@@ -19,6 +19,7 @@ import MaterialListPage from "@/pages/material/MaterialListPage.vue"
 import MaterialPrintPage from "@/pages/material/MaterialPrintPage.vue"
 import MaterialCategoryPage from "@/pages/material/MaterialCategoryPage.vue"
 import MaterialCategoryColumnPage from "@/pages/material/MaterialCategoryColumnPage.vue"
+import CategoryPathPage from "@/pages/material/CategoryPathPage.vue"
 
 // 구매
 import InboundPage from "@/pages/inbound/InboundPage.vue"
@@ -55,6 +56,7 @@ import SatisticsReturnPage from "@/pages/statistics/SatisticsReturnPage.vue"
 
 // 기타
 import SettingPage from "@/pages/setting/SettingPage.vue"
+import SupplierPage from "@/pages/setting/SupplierPage.vue"
 import UserManagerPage from "@/pages/user/UserManagerPage.vue"
 import UserManagerIpPage from "@/pages/user/UserManagerIpPage.vue"
 
@@ -71,6 +73,9 @@ import UserMyPage from "@/pages/user/UserMyPage.vue"
 
 // 사업자
 import BusinessPage from "@/pages/business/BusinessPage.vue"
+
+// 자재 요율
+import MaterialRatePage from "@/pages/materialRate/MaterialRatePage.vue"
 
 
 
@@ -125,6 +130,16 @@ const routes = [
 						path: "materials/category/column",
 						component: MaterialCategoryColumnPage,
 						meta: { title: "자재 카테고리 (가로)", auth: true, permission: "material.category.view" },
+					},
+					{
+						path: "materials/category/path",
+						component: CategoryPathPage,
+						meta: { title: "카테고리 경로", auth: true, permission: "material.category.view" },
+					},
+					{
+						path: "materials/rate",
+						component: MaterialRatePage,
+						meta: { title: "자재 기본설정", auth: true, permission: "material.rate.view" },
 					},
 
 					// 구매
@@ -252,6 +267,11 @@ const routes = [
 						path: "setting",
 						component: SettingPage,
 						meta: { title: "환경설정", auth: true, permission: "setting.view" },
+					},
+					{
+						path: "setting/supplier",
+						component: SupplierPage,
+						meta: { title: "거래처", auth: true, permission: "supplier.view" },
 					},
 
 					// 사업자 정보

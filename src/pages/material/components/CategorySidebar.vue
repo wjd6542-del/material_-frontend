@@ -90,6 +90,7 @@
           :item="cat"
           :selected-id="selectedId"
           :is-root="true"
+          :material-count-map="materialCountMap"
           @select="$emit('select', $event)"
           @add-child="$emit('add-child', $event)"
           @edit-cat="$emit('edit-cat', $event)"
@@ -113,6 +114,7 @@ export default {
     width: { type: Number, default: 420 },
     allExpanded: { type: Boolean, default: true },
     dragEnabled: { type: Boolean, default: false },
+    materialCountMap: { type: Object, default: () => ({}) },
   },
   emits: [
     "select",

@@ -36,6 +36,7 @@
           <CategoryTreeSelect
             v-model="where.category_id"
             placeholder="카테고리 검색"
+            show-material-count
             @change="loadList"
           />
         </div>

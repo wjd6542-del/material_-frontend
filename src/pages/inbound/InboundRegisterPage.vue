@@ -239,13 +239,24 @@
 
                   <!-- 단가 -->
                   <td class="td">
-                    <input
-                      v-model.number="it.unit_price"
-                      type="number"
-                      min="0"
-                      class="cell-input text-right"
-                      placeholder="0"
-                    />
+                    <div class="relative">
+                      <button
+                        type="button"
+                        @click="openPriceHistory(it, 'unit_price')"
+                        :disabled="!it.material_id"
+                        class="absolute left-1.5 top-1/2 -translate-y-1/2 text-emerald-500 hover:text-emerald-700 disabled:text-slate-300 disabled:cursor-not-allowed text-[11px]"
+                        title="가격 이력에서 선택"
+                      >
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                      </button>
+                      <input
+                        v-model.number="it.unit_price"
+                        type="number"
+                        min="0"
+                        class="cell-input text-right pl-7"
+                        placeholder="0"
+                      />
+                    </div>
                   </td>
 
                   <!-- 금액 -->
@@ -353,6 +364,7 @@
 import api from "@/api/api";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import MaterialSelectModal from "@/components/material/MaterialSelectModal.vue";
+import MaterialPriceHistoryModal from "@/components/material/MaterialPriceHistoryModal.vue";
 import ShelfSelectModal from "@/components/warehouse/ShelfSelectModal.vue";
 import PurchaseOrderSelectModal from "@/components/purchaseorder/PurchaseOrderSelectModal.vue";
 import { useModalStore } from "@/stores/modal";
@@ -422,7 +434,30 @@ export default {
       this.modalStore.openModal(
         MaterialSelectModal,
         {
+          // 구매: 자재 단가 매핑을 구매가 기준으로
+          priceField: "inbound_price",
           onConfirm: (list) => this.applyMaterials(list, target),
+        },
+        "full",
+      );
+    },
+
+    // 단가 이력에서 금액을 선택하는 모달을 연다
+    openPriceHistory(target, field) {
+      if (!target?.material_id) {
+        this.$toast?.error("먼저 자재를 선택해 주세요.");
+        return;
+      }
+      this.modalStore.openModal(
+        MaterialPriceHistoryModal,
+        {
+          material_id: target.material_id,
+          material_code: target.material_code,
+          material_name: target.material_name,
+          selectable: true,
+          onSelect: (value) => {
+            target[field] = Number(value) || 0;
+          },
         },
         "full",
       );

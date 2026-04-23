@@ -16,7 +16,7 @@
 
       <div>
         <label class="form-label">카테고리</label>
-        <CategoryTreeSelect v-model="form.category_id" />
+        <CategoryTreeSelect v-model="form.category_id" show-material-count />
       </div>
 
       <div>
@@ -57,14 +57,25 @@
 
       <!-- 금액 정보 -->
       <div class="p-3 rounded-lg border border-slate-200 bg-slate-50/50">
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center justify-between gap-2 mb-2">
           <div class="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600">
             <i class="fa-solid fa-won-sign text-blue-500"></i>
             금액 정보
           </div>
-          <span class="text-[10px] text-slate-400">
-            판매 단가 1 변경 시 비율로 나머지 단가 자동계산
-          </span>
+          <div class="flex items-center gap-2">
+            <span class="hidden sm:inline text-[10px] text-slate-400">
+              판매 단가 1 변경 시 비율로 나머지 단가 자동계산
+            </span>
+            <button
+              type="button"
+              @click="applyDefaultRate"
+              v-tip="'설정된 기본 요율을 불러와 비율 필드에 적용'"
+              class="h-[26px] px-2 rounded-md bg-white border border-slate-300 hover:border-amber-400 hover:bg-amber-50 text-slate-600 hover:text-amber-700 text-[11px] font-semibold transition inline-flex items-center gap-1"
+            >
+              <i class="fa-solid fa-arrow-rotate-right text-[10px]"></i>
+              기본 요율
+            </button>
+          </div>
         </div>
 
         <!-- 구매 단가 -->
@@ -80,8 +91,15 @@
               placeholder="0"
             />
           </div>
-          <div class="w-[90px] shrink-0 invisible">
-            <!-- 레이아웃 정렬용 -->
+          <div class="w-[90px] shrink-0">
+            <button
+              type="button"
+              @click="autoCalculate"
+              class="mt-1 h-[30px] w-full rounded-md bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-semibold transition active:scale-[0.98] inline-flex items-center justify-center gap-1"
+            >
+              <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+              자동계산
+            </button>
           </div>
         </div>
 
@@ -292,6 +310,16 @@ export default {
         { label: "온라인 단가", price: "online_price", rate: "online_rate" },
       ],
 
+      // 초기 로드 시 스냅샷된 요율 (자동계산 버튼 전용)
+      // 구매단가 변경 시 form.*_rate 는 base/cost 로 재계산되어 0 이 될 수 있어 별도 보관
+      defaultRates: {
+        outbound_rate1: 0,
+        outbound_rate2: 0,
+        wholesale_rate1: 0,
+        wholesale_rate2: 0,
+        online_rate: 0,
+      } as Record<string, number>,
+
       categorys: [] as any[],
       tagItems: [] as any[],
       isEdit: false,
@@ -325,6 +353,28 @@ export default {
       const val = this.roundPrice(e?.target?.value);
       (this.form as any)[key] = val;
       this.recalcFromPrice(key);
+    },
+
+    // 구매 단가 기준으로 모든 단가를 각 요율로 일괄 계산한다
+    // 구매단가 변경 시 form.*_rate 가 초기화되므로 defaultRates 스냅샷을 사용한다
+    autoCalculate() {
+      const f: any = this.form;
+      const cost = Number(f.inbound_price) || 0;
+      if (cost <= 0) {
+        (this as any).$toast?.error("구매 단가를 먼저 입력하세요.");
+        return;
+      }
+      const dr = this.defaultRates;
+      // 판매1(BASE) = 원가 × outbound_rate1
+      const base = this.roundPrice(cost * (Number(dr.outbound_rate1) || 0));
+      f.outbound_price1 = base;
+      f.outbound_rate1 = Number(dr.outbound_rate1) || 0;
+      // 종속 단가 = BASE × 각 비율
+      this.dependentPriceRows.forEach((row) => {
+        const r = Number(dr[row.rate]) || 0;
+        f[row.rate] = r;
+        f[row.price] = this.roundPrice(base * r);
+      });
     },
 
     // 비율 입력 핸들러 - 연관 단가를 자동 계산한다
@@ -393,6 +443,15 @@ export default {
         this.form[key] = data[key];
       }
 
+      // 수정 모드에서는 저장된 요율을 자동계산 스냅샷으로 사용
+      this.defaultRates = {
+        outbound_rate1: Number(data.outbound_rate1) || 0,
+        outbound_rate2: Number(data.outbound_rate2) || 0,
+        wholesale_rate1: Number(data.wholesale_rate1) || 0,
+        wholesale_rate2: Number(data.wholesale_rate2) || 0,
+        online_rate: Number(data.online_rate) || 0,
+      };
+
       // 🔥 기존 서버 이미지 매핑
       this.form.images = (data.images || []).map((img) => ({
         id: img.id,
@@ -417,6 +476,33 @@ export default {
     async loadCategory() {
       const res = await api.post("/api/category/list");
       this.categorys = res.data;
+    },
+
+    // 버튼 클릭 시 최신 기본 요율을 재조회해 폼에 덮어쓴다 (수정 모드에서도 사용)
+    async applyDefaultRate() {
+      await this.loadDefaultRate();
+      (this as any).$toast?.success("기본 요율을 불러왔습니다.");
+    },
+
+    // 신규 등록 시 화면에만 기본 요율 값을 채워준다 (자재와 연결은 하지 않음)
+    async loadDefaultRate() {
+      try {
+        const res = await api.post("/api/materialRate/info");
+        const data = res?.data;
+        if (!data) return;
+        const f: any = this.form;
+        const rates = {
+          outbound_rate1: Number(data.outbound_rate1) || 0,
+          outbound_rate2: Number(data.outbound_rate2) || 0,
+          wholesale_rate1: Number(data.wholesale_rate1) || 0,
+          wholesale_rate2: Number(data.wholesale_rate2) || 0,
+          online_rate: Number(data.online_rate) || 0,
+        };
+        Object.assign(f, rates);
+        this.defaultRates = rates;
+      } catch (e) {
+        // 기본 요율 미설정 상태로 간주
+      }
     },
 
     // 신규 태그를 서버에 생성하고 선택 상태로 반영한다
@@ -568,8 +654,12 @@ export default {
       this.isEdit = true;
       this.editId = this.id;
       this.loadData();
-    } else if (this.category_id) {
-      this.form.category_id = this.category_id;
+    } else {
+      if (this.category_id) {
+        this.form.category_id = this.category_id;
+      }
+      // 신규 등록 시 기본 요율 적용
+      this.loadDefaultRate();
     }
   },
 

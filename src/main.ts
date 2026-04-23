@@ -21,6 +21,8 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 
 // 알림창
 import AlertPlugin from "@/plugins/alert.plugin";
+// 커스텀 툴팁 (v-tip 디렉티브)
+import TooltipPlugin from "@/plugins/tooltip.plugin";
 // 캘린더
 import VCalendar from "v-calendar";
 import "v-calendar/style.css";
@@ -78,6 +80,7 @@ app.use(Toast, {
 app.component("v-chart", VueECharts)
 app.config.globalProperties.$toast = useToast();
 app.use(AlertPlugin)
+app.use(TooltipPlugin)
 app.use(router)
 app.mount('#app')
 

@@ -29,7 +29,16 @@
         <span class="node-label">{{ node.name }}</span>
 
         <span
+          v-if="showMaterialCount && materialCountMap[node.id]"
+          v-tip="`자재 갯수 · ${materialCountMap[node.id]}개`"
+          class="material-count"
+        >
+          <i class="fa-solid fa-box material-count-icon"></i>
+          {{ materialCountMap[node.id] }}
+        </span>
+        <span
           v-if="hasChildren"
+          v-tip="`하부 카테고리 갯수 · ${node.children.length}개`"
           class="child-count"
           :class="{ 'child-count--active': isSelected }"
         >
@@ -53,6 +62,8 @@
           :selected-id="selectedId"
           :expanded-ids="expandedIds"
           :is-root="false"
+          :material-count-map="materialCountMap"
+          :show-material-count="showMaterialCount"
           @select="$emit('select', $event)"
           @toggle="$emit('toggle', $event)"
         />
@@ -69,6 +80,8 @@ export default {
     selectedId: { type: Number, default: null },
     expandedIds: { type: Object, required: true },
     isRoot: { type: Boolean, default: true },
+    materialCountMap: { type: Object, default: () => ({}) },
+    showMaterialCount: { type: Boolean, default: false },
   },
   emits: ["select", "toggle"],
   computed: {
@@ -208,6 +221,26 @@ export default {
 }
 .child-count--active .child-count-icon {
   opacity: 0.9;
+}
+
+.material-count {
+  font-size: 11px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: #fef3c7; /* amber-100 */
+  color: #b45309;      /* amber-700 */
+  border: 1px solid #fde68a; /* amber-200 */
+  border-radius: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+  padding: 0 8px;
+}
+.material-count-icon {
+  font-size: 9px;
+  opacity: 0.8;
 }
 
 .child-tree {

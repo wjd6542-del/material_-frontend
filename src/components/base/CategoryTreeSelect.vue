@@ -83,7 +83,16 @@
                     {{ item.name }}
                   </span>
                   <span
+                    v-if="showMaterialCount && materialCountMap[item.id]"
+                    v-tip="`자재 갯수 · ${materialCountMap[item.id]}개`"
+                    class="material-count"
+                  >
+                    <i class="fa-solid fa-box material-count-icon"></i>
+                    {{ materialCountMap[item.id] }}
+                  </span>
+                  <span
                     v-if="item.childCount > 0"
+                    v-tip="`하부 카테고리 갯수 · ${item.childCount}개`"
                     class="child-count"
                     :class="{ 'child-count--active': item.id === modelValue }"
                   >
@@ -117,6 +126,8 @@
               :selected-id="modelValue"
               :expanded-ids="expandedIds"
               :is-root="true"
+              :material-count-map="materialCountMap"
+              :show-material-count="showMaterialCount"
               @select="select"
               @toggle="toggleNode"
             />
@@ -137,6 +148,8 @@ export default {
   props: {
     modelValue: { type: [Number, null], default: null },
     placeholder: { type: String, default: "카테고리 선택" },
+    // 카테고리별 소속 자재 갯수 뱃지 노출 여부 (opt-in: 활성화 시 /api/material/list 호출)
+    showMaterialCount: { type: Boolean, default: false },
   },
   emits: ["update:modelValue", "change"],
   data() {
@@ -147,9 +160,21 @@ export default {
       flatList: [],
       expandedIds: new Set(),
       allExpandableIds: [],
+      allMaterials: [],
     };
   },
   computed: {
+    // category_id → 소속 자재 개수 (opt-in)
+    materialCountMap() {
+      if (!this.showMaterialCount) return {};
+      const map = Object.create(null);
+      for (const m of this.allMaterials) {
+        const cid = m.category_id;
+        if (cid == null) continue;
+        map[cid] = (map[cid] || 0) + 1;
+      }
+      return map;
+    },
     // 현재 선택된 카테고리의 전체 경로 이름을 반환한다
     selectedLabel() {
       const found = this.flatList.find((c) => c.id === this.modelValue);
@@ -295,6 +320,16 @@ export default {
         this.expandedIds = new Set();
       }
     },
+
+    // 전체 자재 로드 → category_id 별 갯수 매핑에 사용 (showMaterialCount=true 때만)
+    async loadAllMaterials() {
+      try {
+        const res = await api.post("/api/material/list", {});
+        this.allMaterials = Array.isArray(res.data) ? res.data : [];
+      } catch {
+        this.allMaterials = [];
+      }
+    },
     // 중첩 트리를 경로 정보가 포함된 평면 리스트로 변환한다
     flatten(nodes, parentPath = "", depth = 1) {
       const result = [];
@@ -320,6 +355,7 @@ export default {
   mounted() {
     document.addEventListener("click", this.handleClickOutside, true);
     this.loadTree();
+    if (this.showMaterialCount) this.loadAllMaterials();
   },
   // 언마운트 직전 외부 클릭 리스너를 제거한다
   beforeUnmount() {
@@ -433,6 +469,26 @@ export default {
   background: #dbeafe;
   color: #2563eb;
   border-color: #bfdbfe;
+}
+
+.material-count {
+  font-size: 11px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: #fef3c7; /* amber-100 */
+  color: #b45309;      /* amber-700 */
+  border: 1px solid #fde68a; /* amber-200 */
+  border-radius: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+  padding: 0 8px;
+}
+.material-count-icon {
+  font-size: 9px;
+  opacity: 0.8;
 }
 
 .tree-select-empty {

@@ -136,7 +136,16 @@
               ></i>
               <span class="col-item-name">{{ item.name }}</span>
               <span
+                v-if="materialCountByCategory[item.id]"
+                v-tip="`자재 갯수 · ${materialCountByCategory[item.id]}개`"
+                class="col-item-material"
+              >
+                <i class="fa-solid fa-box"></i>
+                {{ materialCountByCategory[item.id] }}
+              </span>
+              <span
                 v-if="item.children && item.children.length > 0"
+                v-tip="`하부 카테고리 갯수 · ${item.children.length}개`"
                 class="col-item-count"
               >
                 {{ item.children.length }}
@@ -279,9 +288,20 @@ export default {
       searchQuery: "",
       allPathsOpen: false,
       pathFilter: "",
+      allMaterials: [],
     };
   },
   computed: {
+    // category_id → 소속 자재 갯수
+    materialCountByCategory() {
+      const map = Object.create(null);
+      for (const m of this.allMaterials) {
+        const cid = m.category_id;
+        if (cid == null) continue;
+        map[cid] = (map[cid] || 0) + 1;
+      }
+      return map;
+    },
     // 선택된 경로를 따라 각 depth의 컬럼 아이템 배열을 반환한다
     columns() {
       const cols = [{ items: this.tree }];
@@ -349,15 +369,25 @@ export default {
       return out.slice(0, 50);
     },
   },
-  // 마운트 시 카테고리 트리를 로드한다
+  // 마운트 시 카테고리 트리와 자재 목록을 로드한다
   mounted() {
     this.loadTree();
+    this.loadAllMaterials();
   },
   methods: {
     // 카테고리 트리를 서버에서 로드한다
     async loadTree() {
       const res = await api.post("/api/category/getCategoryTree");
       this.tree = res.data || [];
+    },
+    // 전체 자재 목록 로드 → category_id 별 갯수 뱃지에 사용
+    async loadAllMaterials() {
+      try {
+        const res = await api.post("/api/material/list", {});
+        this.allMaterials = Array.isArray(res.data) ? res.data : [];
+      } catch {
+        this.allMaterials = [];
+      }
     },
     // 특정 컬럼에서 항목 선택 시 하위 경로를 잘라내고 해당 id를 추가한다
     selectAt(colIdx, item) {
@@ -841,6 +871,24 @@ export default {
 }
 .col-item.active .col-item-arrow {
   color: #3b82f6;
+}
+
+.col-item-material {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #b45309;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  padding: 2px 7px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.col-item-material i {
+  font-size: 9px;
+  opacity: 0.85;
 }
 
 .detail-col {

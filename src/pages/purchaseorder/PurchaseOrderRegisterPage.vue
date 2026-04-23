@@ -259,13 +259,24 @@
                     />
                   </td>
                   <td class="td">
-                    <input
-                      v-model.number="it.price"
-                      type="number"
-                      min="0"
-                      class="cell-input text-right"
-                      placeholder="0"
-                    />
+                    <div class="relative">
+                      <button
+                        type="button"
+                        @click="openPriceHistory(it, 'price')"
+                        :disabled="!it.material_id"
+                        class="absolute left-1.5 top-1/2 -translate-y-1/2 text-blue-500 hover:text-blue-700 disabled:text-slate-300 disabled:cursor-not-allowed text-[11px]"
+                        title="가격 이력에서 선택"
+                      >
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                      </button>
+                      <input
+                        v-model.number="it.price"
+                        type="number"
+                        min="0"
+                        class="cell-input text-right pl-7"
+                        placeholder="0"
+                      />
+                    </div>
                   </td>
                   <td class="td">
                     <input
@@ -409,6 +420,7 @@ import api from "@/api/api";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import DatePicker from "@/components/base/DatePicker.vue";
 import MaterialSelectModal from "@/components/material/MaterialSelectModal.vue";
+import MaterialPriceHistoryModal from "@/components/material/MaterialPriceHistoryModal.vue";
 import { useModalStore } from "@/stores/modal";
 
 export default {
@@ -498,12 +510,37 @@ export default {
       });
     },
 
+    // 단가 이력에서 금액 선택 모달을 연다
+    openPriceHistory(target, field) {
+      if (!target?.material_id) {
+        this.$toast?.error("먼저 자재를 선택해 주세요.");
+        return;
+      }
+      this.modalStore.openModal(
+        MaterialPriceHistoryModal,
+        {
+          material_id: target.material_id,
+          material_code: target.material_code,
+          material_name: target.material_name,
+          selectable: true,
+          onSelect: (value) => {
+            target[field] = Number(value) || 0;
+            // 부가세 재계산 (supply_amount/vat)
+            if (typeof this.recalcItem === "function") this.recalcItem(target);
+          },
+        },
+        "full",
+      );
+    },
+
     // 자재 선택 모달을 열어 선택한 자재들을 목록에 반영한다
     // target 이 전달되면 첫 항목으로 해당 행을 교체하고 나머지는 새 행으로 추가한다
     openMaterialSelect(target = null) {
       this.modalStore.openModal(
         MaterialSelectModal,
         {
+          // 발주: 자재 단가 매핑을 구매가 기준으로
+          priceField: "inbound_price",
           onConfirm: (list) => this.applyMaterials(list, target),
         },
         "full",

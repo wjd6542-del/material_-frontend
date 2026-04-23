@@ -88,7 +88,19 @@
                 >
                   {{ item.name }}
                 </span>
-                <span v-if="item.childCount > 0" class="tree-select-count">
+                <span
+                  v-if="materialCountMap[item.id]"
+                  v-tip="`자재 갯수 · ${materialCountMap[item.id]}개`"
+                  class="material-count"
+                >
+                  <i class="fa-solid fa-box material-count-icon"></i>
+                  {{ materialCountMap[item.id] }}
+                </span>
+                <span
+                  v-if="item.childCount > 0"
+                  v-tip="`하부 카테고리 갯수 · ${item.childCount}개`"
+                  class="tree-select-count"
+                >
                   {{ item.childCount }}
                 </span>
                 <i
@@ -113,6 +125,8 @@
                 :selected-id="selectedId"
                 :expanded-ids="expandedIds"
                 :is-root="true"
+                :material-count-map="materialCountMap"
+                :show-material-count="true"
                 @select="select"
                 @toggle="toggleNode"
               />
@@ -133,6 +147,7 @@ export default {
   props: {
     selectedId: { type: Number, default: null },
     tree: { type: Array, required: true },
+    materialCountMap: { type: Object, default: () => ({}) },
   },
   emits: ["select", "reset"],
   data() {
@@ -379,6 +394,26 @@ export default {
   font-weight: 600;
   padding: 0 4px;
   flex-shrink: 0;
+}
+
+.material-count {
+  font-size: 10px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  font-weight: 600;
+  flex-shrink: 0;
+  padding: 0 5px;
+}
+.material-count-icon {
+  font-size: 8px;
+  opacity: 0.8;
 }
 
 .tree-select-empty {

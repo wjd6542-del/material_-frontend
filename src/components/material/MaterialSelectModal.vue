@@ -224,6 +224,9 @@ export default {
 
   props: {
     onConfirm: { type: Function, default: null },
+    // 선택된 자재의 price 필드에 매핑할 원본 필드명
+    // 발주/구매: "inbound_price", 판매: "outbound_price1" 등
+    priceField: { type: String, default: "inbound_price" },
   },
 
   data() {
@@ -410,7 +413,12 @@ export default {
       if (this.selectedIds.size === 0) return;
       const picked = Array.from(this.selectedIds)
         .map((id) => this.selectedMap.get(id))
-        .filter(Boolean);
+        .filter(Boolean)
+        // priceField 기준으로 price 매핑
+        .map((m) => ({
+          ...m,
+          price: Number(m?.[this.priceField]) || Number(m?.price) || 0,
+        }));
       if (typeof this.onConfirm === "function") this.onConfirm(picked);
       this.modal.closeModal();
     },

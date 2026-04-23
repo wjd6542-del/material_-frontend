@@ -49,7 +49,17 @@
         </span>
 
         <span
+          v-if="materialCountMap[item.id]"
+          v-tip="`자재 갯수 · ${materialCountMap[item.id]}개`"
+          class="material-count"
+        >
+          <i class="fa-solid fa-box material-count-icon"></i>
+          {{ materialCountMap[item.id] }}
+        </span>
+
+        <span
           v-if="item.children?.length > 0"
+          v-tip="`하부 카테고리 갯수 · ${item.children.length}개`"
           class="child-count"
           :class="{ 'child-count--active': isSelected }"
         >
@@ -95,6 +105,7 @@
           :item="child"
           :selected-id="selectedId"
           :is-root="false"
+          :material-count-map="materialCountMap"
           @select="$emit('select', $event)"
           @add-child="$emit('add-child', $event)"
           @edit-cat="$emit('edit-cat', $event)"
@@ -113,6 +124,7 @@ export default {
     item: { type: Object, required: true },
     selectedId: { type: Number, default: null },
     isRoot: { type: Boolean, default: false },
+    materialCountMap: { type: Object, default: () => ({}) },
   },
   emits: ["select", "add-child", "edit-cat", "delete-cat"],
   data() {
@@ -368,6 +380,26 @@ export default {
 }
 .child-count--active .child-count-icon {
   opacity: 0.9;
+}
+
+.material-count {
+  font-size: 11px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+  padding: 0 8px;
+}
+.material-count-icon {
+  font-size: 9px;
+  opacity: 0.8;
 }
 
 /* 액션 버튼 */
