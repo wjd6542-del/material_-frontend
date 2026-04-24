@@ -85,7 +85,6 @@ import BaseTable from "@/components/base/BaseTable.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
 import BaseInput from "@/components/base/BaseInput.vue";
 import { useModalStore } from "@/stores/modal";
-import ReturnOrderModal from "@/components/returnorder/ReturnOrderModal.vue";
 
 import ReturnOrderVoucherPrintModal from "@/components/returnorder/ReturnOrderVoucherPrintModal.vue";
 
@@ -195,9 +194,9 @@ export default {
     },
 
     // 추가 처리
-    // 반품 등록 모달을 연다
+    // 반품 등록 페이지로 이동한다
     openModal() {
-      this.modal.openModal(ReturnOrderModal, { onSaved: this.loadList }, "xl");
+      this.$router.push("/returnorder/register");
     },
 
     // 데이터 로드 처리

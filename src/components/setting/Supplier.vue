@@ -149,6 +149,7 @@
               <th class="th text-left" style="min-width: 120px">모바일</th>
               <th class="th text-left" style="min-width: 120px">팩스</th>
               <th class="th text-left" style="min-width: 160px">이메일</th>
+              <th class="th text-left" style="min-width: 160px">계좌번호</th>
               <th class="th text-left" style="min-width: 110px">우편번호</th>
               <th class="th text-left" style="min-width: 220px">기본주소</th>
               <th class="th text-left" style="min-width: 160px">상세주소</th>
@@ -264,6 +265,15 @@
                 />
               </td>
               <td class="td">
+                <input
+                  v-model="row.account_no"
+                  @input="markSelected(row.id)"
+                  type="text"
+                  class="cell-input font-mono"
+                  placeholder="000-0000-0000"
+                />
+              </td>
+              <td class="td">
                 <div class="flex items-center gap-1">
                   <button
                     type="button"
@@ -362,7 +372,7 @@
               </td>
             </tr>
             <tr v-if="!filteredRows.length">
-              <td colspan="17" class="p-0">
+              <td colspan="18" class="p-0">
                 <div
                   class="flex flex-col items-center justify-center py-14 px-6 text-center bg-gradient-to-b from-white to-slate-50/60"
                 >
@@ -496,6 +506,7 @@ export default {
           registration_no: r.registration_no || "",
           mobile: r.mobile || "",
           fax: r.fax || "",
+          account_no: r.account_no || "",
           receivable: Number(r.receivable) || 0,
           payable: Number(r.payable) || 0,
         }));
@@ -573,6 +584,7 @@ export default {
         mobile: "",
         fax: "",
         email: "",
+        account_no: "",
         zipcode: "",
         address: "",
         address_detail: "",

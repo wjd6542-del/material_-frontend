@@ -88,16 +88,13 @@
                 <span class="ml-1 text-[9px] font-bold text-blue-500">원가 대비</span>
               </label>
               <div class="relative">
-                <i
-                  class="fa-solid fa-percent absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm"
-                ></i>
                 <input
                   :value="pct('outbound_rate1')"
                   @input="onRateInput('outbound_rate1', $event)"
                   type="number"
                   min="0"
                   step="0.01"
-                  class="form-input pl-10 text-right pr-8"
+                  class="form-input text-right pr-8"
                   placeholder="0"
                 />
                 <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] text-slate-400 font-bold">%</span>
@@ -110,16 +107,13 @@
                 <span class="ml-1 text-[9px] font-bold text-slate-400">BASE 대비</span>
               </label>
               <div class="relative">
-                <i
-                  class="fa-solid fa-percent absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm"
-                ></i>
                 <input
                   :value="pct('outbound_rate2')"
                   @input="onRateInput('outbound_rate2', $event)"
                   type="number"
                   min="0"
                   step="0.01"
-                  class="form-input pl-10 text-right pr-8"
+                  class="form-input text-right pr-8"
                   placeholder="0"
                 />
                 <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] text-slate-400 font-bold">%</span>
@@ -155,16 +149,13 @@
             <div>
               <label class="form-label">도매 1 요율</label>
               <div class="relative">
-                <i
-                  class="fa-solid fa-percent absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm"
-                ></i>
                 <input
                   :value="pct('wholesale_rate1')"
                   @input="onRateInput('wholesale_rate1', $event)"
                   type="number"
                   min="0"
                   step="0.01"
-                  class="form-input pl-10 text-right pr-8"
+                  class="form-input text-right pr-8"
                   placeholder="0"
                 />
                 <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] text-slate-400 font-bold">%</span>
@@ -173,16 +164,13 @@
             <div>
               <label class="form-label">도매 2 요율</label>
               <div class="relative">
-                <i
-                  class="fa-solid fa-percent absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm"
-                ></i>
                 <input
                   :value="pct('wholesale_rate2')"
                   @input="onRateInput('wholesale_rate2', $event)"
                   type="number"
                   min="0"
                   step="0.01"
-                  class="form-input pl-10 text-right pr-8"
+                  class="form-input text-right pr-8"
                   placeholder="0"
                 />
                 <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] text-slate-400 font-bold">%</span>
@@ -218,16 +206,13 @@
             <div>
               <label class="form-label">온라인 요율</label>
               <div class="relative">
-                <i
-                  class="fa-solid fa-percent absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm"
-                ></i>
                 <input
                   :value="pct('online_rate')"
                   @input="onRateInput('online_rate', $event)"
                   type="number"
                   min="0"
                   step="0.01"
-                  class="form-input pl-10 text-right pr-8"
+                  class="form-input text-right pr-8"
                   placeholder="0"
                 />
                 <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] text-slate-400 font-bold">%</span>

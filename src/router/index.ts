@@ -18,7 +18,6 @@ import PurchaseOrderDetailPage from "@/pages/purchaseorder/PurchaseOrderDetailPa
 import MaterialListPage from "@/pages/material/MaterialListPage.vue"
 import MaterialPrintPage from "@/pages/material/MaterialPrintPage.vue"
 import MaterialCategoryPage from "@/pages/material/MaterialCategoryPage.vue"
-import MaterialCategoryColumnPage from "@/pages/material/MaterialCategoryColumnPage.vue"
 import CategoryPathPage from "@/pages/material/CategoryPathPage.vue"
 
 // 구매
@@ -35,6 +34,7 @@ import OutboundScanPage from "@/pages/outbound/OutboundScanPage.vue"
 
 // 반품
 import ReturnOrderPage from "@/pages/returnorder/ReturnOrderPage.vue"
+import ReturnOrderRegisterPage from "@/pages/returnorder/ReturnOrderRegisterPage.vue"
 import ReturnOrderDetailPage from "@/pages/returnorder/ReturnOrderDetailPage.vue"
 import ReturnOrderScanPage from "@/pages/returnorder/ReturnOrderScanPage.vue"
 
@@ -46,6 +46,7 @@ import StockLoctoinPage from "@/pages/stock/StockLoctoinPage.vue"
 import StockShelfPage from "@/pages/stock/StockShelfPage.vue"
 import StockMovePage from "@/pages/stock/StockMovePage.vue"
 import StockChangePage from "@/pages/stock/StockChangePage.vue"
+import StockInspectionPage from "@/pages/stock/StockInspectionPage.vue"
 
 
 // 통계
@@ -127,11 +128,6 @@ const routes = [
 						meta: { title: "자재 카테고리", auth: true, permission: "material.category.view" },
 					},
 					{
-						path: "materials/category/column",
-						component: MaterialCategoryColumnPage,
-						meta: { title: "자재 카테고리 (가로)", auth: true, permission: "material.category.view" },
-					},
-					{
 						path: "materials/category/path",
 						component: CategoryPathPage,
 						meta: { title: "카테고리 경로", auth: true, permission: "material.category.view" },
@@ -193,6 +189,11 @@ const routes = [
 						meta: { title: "반품목록", auth: true, permission: "returnorder.view" },
 					},
 					{
+						path: "returnorder/register",
+						component: ReturnOrderRegisterPage,
+						meta: { title: "반품 등록", auth: true, permission: "returnorder.create" },
+					},
+					{
 						path: "returnorder/detail",
 						component: ReturnOrderDetailPage,
 						meta: { title: "반품 세부내역", auth: true, permission: "returnorder.detail.view" },
@@ -237,6 +238,11 @@ const routes = [
 						path: "/stock/change",
 						component: StockChangePage,
 						meta: { title: "재고 흐름", auth: true, permission: "stock.change.view" },
+					},
+					{
+						path: "/stock/inspection",
+						component: StockInspectionPage,
+						meta: { title: "재고 검사", auth: true, permission: "stock.inspection.view" },
 					},
 
 					// 통계

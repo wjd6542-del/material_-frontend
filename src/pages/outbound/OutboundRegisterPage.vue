@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-full p-4 md:p-6 bg-gradient-to-br from-slate-50 via-white to-rose-50/30">
+  <div class="min-h-full p-4 md:p-6 bg-gradient-to-br from-slate-50 via-white to-red-50/30">
     <div class="w-full">
       <!-- 헤더 -->
       <div
@@ -13,7 +13,7 @@
           "
         ></div>
         <div
-          class="absolute -top-10 -right-10 w-48 h-48 bg-rose-500 rounded-full mix-blend-overlay filter blur-3xl opacity-40"
+          class="absolute -top-10 -right-10 w-48 h-48 bg-red-500 rounded-full mix-blend-overlay filter blur-3xl opacity-40"
         ></div>
 
         <div class="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -24,7 +24,7 @@
               <i class="fa-solid fa-truck-fast text-white text-xl"></i>
             </div>
             <div>
-              <div class="text-[11px] font-bold uppercase tracking-widest text-rose-300 mb-1">
+              <div class="text-[11px] font-bold uppercase tracking-widest text-red-300 mb-1">
                 Outbound Voucher
               </div>
               <h2 class="text-xl md:text-2xl font-black text-white tracking-tight">
@@ -37,6 +37,14 @@
           </div>
 
           <div class="self-start md:self-center flex items-center gap-2">
+            <button
+              type="button"
+              @click="openInboundSelect"
+              class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border border-white/20 bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all shadow-sm"
+            >
+              <i class="fa-solid fa-file-import"></i>
+              구매 정보 불러오기
+            </button>
             <button
               type="button"
               @click="goList"
@@ -59,7 +67,7 @@
           <div class="flex items-center gap-3 mb-6">
             <div class="relative shrink-0">
               <div
-                class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-md shadow-rose-500/20"
+                class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-md shadow-red-500/20"
               >
                 <i class="fa-solid fa-file-lines text-white text-sm"></i>
               </div>
@@ -92,13 +100,130 @@
               />
             </div>
             <div>
-              <label class="form-label">메모</label>
-              <input
-                v-model="form.memo"
-                type="text"
-                class="field"
-                placeholder="특이사항이 있으면 입력하세요"
+              <label class="form-label">거래처 (고객사)</label>
+              <SearchSelect
+                v-model="form.supplier_id"
+                :options="outboundSuppliers"
+                labelKey="name"
+                valueKey="id"
+                placeholder="거래처 선택"
+                @change="onSupplierChange"
               />
+            </div>
+
+            <div>
+              <label class="form-label">판매일자</label>
+              <DatePicker v-model="form.outbound_date" placeholder="판매일자" />
+            </div>
+
+            <div>
+              <label class="form-label">부가세</label>
+              <select
+                v-model="form.vat_applied"
+                @change="onVatAppliedChange"
+                class="field"
+              >
+                <option :value="true">부가세 적용</option>
+                <option :value="false">미적용</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label">미수금 여부</label>
+              <select v-model="form.payment_status" class="field">
+                <option value="paid">완납 (미수금 없음)</option>
+                <option value="unpaid">미수 (미수금 발생)</option>
+              </select>
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="form-label">메모</label>
+              <textarea
+                v-model="form.memo"
+                rows="3"
+                class="field-auto resize-none"
+                placeholder="특이사항이 있으면 입력하세요"
+              ></textarea>
+            </div>
+
+            <!-- 선택된 거래처 정보 카드 -->
+            <div v-if="selectedSupplier" class="md:col-span-2">
+              <div
+                class="rounded-xl border border-red-200 bg-gradient-to-br from-red-50/60 to-white p-4"
+              >
+                <div class="flex items-start justify-between gap-4 flex-wrap">
+                  <div class="flex items-start gap-3 min-w-0">
+                    <div
+                      class="w-10 h-10 rounded-lg bg-red-500 text-white flex items-center justify-center shadow-sm shrink-0"
+                    >
+                      <i class="fa-solid fa-building text-sm"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div
+                        class="text-[10px] font-bold uppercase tracking-widest text-red-600 mb-0.5"
+                      >
+                        Customer
+                      </div>
+                      <div class="text-sm font-black text-slate-800 truncate">
+                        {{ selectedSupplier.name }}
+                        <span
+                          v-if="selectedSupplier.registration_no"
+                          class="ml-1 text-[11px] text-slate-400 font-mono font-medium"
+                        >
+                          {{ selectedSupplier.registration_no }}
+                        </span>
+                      </div>
+                      <div
+                        class="flex items-center gap-3 mt-1 text-[11px] text-slate-500 flex-wrap"
+                      >
+                        <span v-if="selectedSupplier.phone" class="inline-flex items-center gap-1">
+                          <i class="fa-solid fa-phone text-[10px] text-slate-400"></i>
+                          {{ selectedSupplier.phone }}
+                        </span>
+                        <span v-if="selectedSupplier.mobile" class="inline-flex items-center gap-1">
+                          <i class="fa-solid fa-mobile-screen text-[10px] text-slate-400"></i>
+                          {{ selectedSupplier.mobile }}
+                        </span>
+                        <span v-if="selectedSupplier.email" class="inline-flex items-center gap-1">
+                          <i class="fa-solid fa-envelope text-[10px] text-slate-400"></i>
+                          {{ selectedSupplier.email }}
+                        </span>
+                        <span
+                          v-if="selectedSupplier.address"
+                          class="inline-flex items-center gap-1 truncate"
+                        >
+                          <i class="fa-solid fa-location-dot text-[10px] text-slate-400"></i>
+                          {{ selectedSupplier.address }}
+                          {{ selectedSupplier.address_detail || "" }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 미수금 -->
+                  <div
+                    class="shrink-0 rounded-lg border border-amber-200 bg-white px-4 py-2 text-right"
+                  >
+                    <div
+                      class="text-[10px] font-bold uppercase tracking-widest text-amber-600 mb-0.5 inline-flex items-center gap-1"
+                    >
+                      <i class="fa-solid fa-circle-exclamation text-[9px]"></i>
+                      미수금
+                    </div>
+                    <div
+                      class="text-base font-black font-mono tabular-nums"
+                      :class="
+                        Number(selectedSupplier.receivable) > 0
+                          ? 'text-amber-700'
+                          : 'text-slate-400'
+                      "
+                    >
+                      {{ Number(selectedSupplier.receivable || 0).toLocaleString() }}
+                      <span class="text-[10px] text-slate-400 font-sans font-medium">원</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -109,7 +234,7 @@
             <div class="flex items-center gap-3">
               <div class="relative shrink-0">
                 <div
-                  class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-md shadow-rose-500/20"
+                  class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-md shadow-red-500/20"
                 >
                   <i class="fa-solid fa-boxes-stacked text-white text-sm"></i>
                 </div>
@@ -141,7 +266,7 @@
               <button
                 type="button"
                 @click="openMaterialSelect()"
-                class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md shadow-rose-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
+                class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-md shadow-red-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
               >
                 <i class="fa-solid fa-plus"></i>
                 자재 선택
@@ -155,14 +280,12 @@
                 <tr>
                   <th class="th w-10">#</th>
                   <th class="th text-left" style="min-width: 200px">자재</th>
-                  <th class="th text-left" style="min-width: 160px">
-                    거래처 <span class="text-red-500">*</span>
-                  </th>
                   <th class="th text-left" style="min-width: 220px">창고 &gt; 위치 &gt; 선반</th>
                   <th class="th text-right w-24">수량</th>
                   <th class="th text-right w-28">원가</th>
                   <th class="th text-right w-28">판매가</th>
-                  <th class="th text-right w-28">금액</th>
+                  <th class="th text-right w-28">공급가액</th>
+                  <th class="th text-right w-28">부가세</th>
                   <th class="th text-center w-16">관리</th>
                 </tr>
               </thead>
@@ -181,7 +304,7 @@
                     <button
                       type="button"
                       @click="openMaterialSelect(it)"
-                      class="cell-input text-left flex items-center justify-between gap-2 hover:border-rose-400"
+                      class="cell-input text-left flex items-center justify-between gap-2 hover:border-red-400"
                       :class="it.material_name ? 'text-slate-700' : 'text-slate-400'"
                     >
                       <span class="truncate">
@@ -195,23 +318,12 @@
                     </button>
                   </td>
 
-                  <!-- 거래처 -->
-                  <td class="td">
-                    <SearchSelect
-                      v-model="it.supplier_id"
-                      :options="suppliers"
-                      labelKey="name"
-                      valueKey="id"
-                      placeholder="거래처 선택"
-                    />
-                  </td>
-
                   <!-- 창고>위치>선반 -->
                   <td class="td">
                     <button
                       type="button"
                       @click="openShelfSelect(it)"
-                      class="cell-input text-left flex items-center justify-between gap-2 hover:border-rose-400"
+                      class="cell-input text-left flex items-center justify-between gap-2 hover:border-red-400"
                       :class="it.shelf_label ? 'text-slate-700' : 'text-slate-400'"
                     >
                       <span class="truncate">
@@ -225,6 +337,7 @@
                   <td class="td">
                     <input
                       v-model.number="it.quantity"
+                      @input="recalcItem(it)"
                       type="number"
                       min="0"
                       class="cell-input text-right"
@@ -261,13 +374,14 @@
                         type="button"
                         @click="openPriceHistory(it, 'sale_price')"
                         :disabled="!it.material_id"
-                        class="absolute left-1.5 top-1/2 -translate-y-1/2 text-rose-500 hover:text-rose-700 disabled:text-slate-300 disabled:cursor-not-allowed text-[11px]"
+                        class="absolute left-1.5 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700 disabled:text-slate-300 disabled:cursor-not-allowed text-[11px]"
                         title="가격 이력에서 선택"
                       >
                         <i class="fa-solid fa-clock-rotate-left"></i>
                       </button>
                       <input
                         v-model.number="it.sale_price"
+                        @input="recalcItem(it)"
                         type="number"
                         min="0"
                         class="cell-input text-right pl-7"
@@ -276,9 +390,29 @@
                     </div>
                   </td>
 
-                  <!-- 금액 -->
-                  <td class="td text-right font-mono">
-                    {{ rowAmount(it).toLocaleString() }}
+                  <!-- 공급가액 -->
+                  <td class="td">
+                    <input
+                      v-model.number="it.supply_amount"
+                      @input="recalcVatOnly(it)"
+                      type="number"
+                      min="0"
+                      class="cell-input text-right"
+                      placeholder="0"
+                    />
+                  </td>
+
+                  <!-- 부가세 -->
+                  <td class="td">
+                    <input
+                      v-if="form.vat_applied"
+                      v-model.number="it.vat"
+                      type="number"
+                      min="0"
+                      class="cell-input text-right"
+                      placeholder="0"
+                    />
+                    <div v-else class="text-right font-mono text-slate-300">-</div>
                   </td>
 
                   <!-- 관리 -->
@@ -295,17 +429,18 @@
 
                 <tr v-if="!form.items.length">
                   <td colspan="9" class="p-0">
+                    <!-- 9 cols: # / 자재 / 위치 / 수량 / 원가 / 판매가 / 공급가액 / 부가세 / 관리 -->
                     <div
                       class="flex flex-col items-center justify-center py-14 px-6 text-center bg-gradient-to-b from-white to-slate-50/60"
                     >
                       <div
-                        class="relative w-20 h-20 rounded-3xl bg-gradient-to-br from-rose-50 to-pink-50 border border-rose-100/60 flex items-center justify-center mb-4 shadow-sm"
+                        class="relative w-20 h-20 rounded-3xl bg-gradient-to-br from-red-50 to-red-50 border border-red-100/60 flex items-center justify-center mb-4 shadow-sm"
                       >
-                        <i class="fa-solid fa-boxes-stacked text-2xl text-rose-400"></i>
+                        <i class="fa-solid fa-boxes-stacked text-2xl text-red-400"></i>
                         <span
                           class="absolute -bottom-1.5 -right-1.5 w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm"
                         >
-                          <i class="fa-solid fa-plus text-[11px] text-rose-500"></i>
+                          <i class="fa-solid fa-plus text-[11px] text-red-500"></i>
                         </span>
                       </div>
                       <p class="text-sm font-bold text-slate-700 tracking-tight mb-1">
@@ -317,7 +452,7 @@
                       <button
                         type="button"
                         @click="openMaterialSelect()"
-                        class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md shadow-rose-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
+                        class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-md shadow-red-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
                       >
                         <i class="fa-solid fa-plus"></i>
                         자재 선택
@@ -328,11 +463,14 @@
               </tbody>
               <tfoot v-if="form.items.length">
                 <tr class="border-t-2 border-slate-200 bg-slate-50">
-                  <td colspan="7" class="td text-right font-bold text-slate-600">
+                  <td colspan="6" class="td text-right font-bold text-slate-600">
                     합계
                   </td>
                   <td class="td text-right font-black text-slate-900 font-mono">
-                    {{ totalAmount.toLocaleString() }}
+                    {{ totalSupply.toLocaleString() }}
+                  </td>
+                  <td class="td text-right font-black text-slate-900 font-mono">
+                    {{ totalVat.toLocaleString() }}
                   </td>
                   <td></td>
                 </tr>
@@ -364,7 +502,7 @@
             <button
               type="submit"
               :disabled="saving"
-              class="px-6 py-2.5 text-sm font-bold rounded-xl bg-gradient-to-b from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white shadow-md shadow-rose-600/20 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center gap-2"
+              class="px-6 py-2.5 text-sm font-bold rounded-xl bg-gradient-to-b from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-md shadow-red-600/20 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center gap-2"
             >
               <i v-if="saving" class="fa-solid fa-spinner fa-spin"></i>
               <i v-else class="fa-solid fa-floppy-disk"></i>
@@ -380,15 +518,17 @@
 <script>
 import api from "@/api/api";
 import SearchSelect from "@/components/base/SearchSelect.vue";
+import DatePicker from "@/components/base/DatePicker.vue";
 import MaterialSelectModal from "@/components/material/MaterialSelectModal.vue";
 import MaterialPriceHistoryModal from "@/components/material/MaterialPriceHistoryModal.vue";
 import ShelfSelectModal from "@/components/warehouse/ShelfSelectModal.vue";
+import InboundSelectModal from "@/components/inbound/InboundSelectModal.vue";
 import { useModalStore } from "@/stores/modal";
 
 export default {
   name: "OutboundRegisterPage",
 
-  components: { SearchSelect },
+  components: { SearchSelect, DatePicker },
 
   data() {
     return {
@@ -398,6 +538,11 @@ export default {
       form: {
         id: 0,
         outbound_no: "",
+        supplier_id: null,
+        outbound_date: "",
+        vat_applied: true,
+        // "paid"=완납, "unpaid"=미수(미수금 발생)
+        payment_status: "paid",
         memo: "",
         items: [],
       },
@@ -410,16 +555,114 @@ export default {
       return !!this.$route.query.id;
     },
 
-    // 금액 합계 (판매가 기준)
-    totalAmount() {
+    // 판매는 OUTBOUND(고객사) 거래처만 선택 대상
+    outboundSuppliers() {
+      return (this.suppliers || []).filter(
+        (s) => !s.type || s.type === "OUTBOUND",
+      );
+    },
+
+    // 현재 선택된 거래처(고객사) 객체
+    selectedSupplier() {
+      if (!this.form.supplier_id) return null;
+      return (
+        this.suppliers.find((s) => s.id === this.form.supplier_id) || null
+      );
+    },
+
+    // 공급가액 합계
+    totalSupply() {
       return this.form.items.reduce(
-        (sum, it) => sum + this.rowAmount(it),
+        (sum, it) => sum + (Number(it.supply_amount) || 0),
         0,
       );
+    },
+
+    // 부가세 합계
+    totalVat() {
+      return this.form.items.reduce(
+        (sum, it) => sum + (Number(it.vat) || 0),
+        0,
+      );
+    },
+
+    // 총액 (공급가액 + 부가세)
+    totalAmount() {
+      return this.totalSupply + this.totalVat;
     },
   },
 
   methods: {
+    // 구매 정보 불러오기 모달 오픈
+    openInboundSelect() {
+      this.modalStore.openModal(
+        InboundSelectModal,
+        {
+          onConfirm: (list) => this.applyInboundItems(list),
+        },
+        "xl",
+      );
+    },
+
+    // 구매 품목을 판매 품목 스키마로 변환해 push
+    // (InboundSelectModal 이 반품용으로 만든 row: cost_price=구매단가, sale_price=0, reasonType 포함)
+    applyInboundItems(list) {
+      if (!Array.isArray(list) || !list.length) return;
+      list.forEach((raw) => {
+        const qty = Number(raw.quantity) || 0;
+        const salePrice = Number(raw.sale_price) || 0;
+        const supply = Math.round(qty * salePrice);
+        this.form.items.push({
+          id: 0,
+          material_id: raw.material_id,
+          material_code: raw.material_code || "",
+          material_name: raw.material_name || "",
+          spec: raw.spec || "",
+          unit: raw.unit || "",
+          supplier_id: null,
+          warehouse_id: raw.warehouse_id ?? null,
+          location_id: raw.location_id ?? null,
+          shelf_id: raw.shelf_id ?? null,
+          shelf_label: raw.shelf_label || "",
+          quantity: qty,
+          cost_price: Number(raw.cost_price) || 0,
+          sale_price: salePrice,
+          supply_amount: supply,
+          vat: this.form.vat_applied ? Math.round(supply * 0.1) : 0,
+          inbound_id: raw.inbound_id ?? null,
+          inbound_item_id: raw.inbound_item_id ?? null,
+        });
+      });
+      this.$toast?.success(`${list.length}개 품목이 추가되었습니다. 판매가를 입력하세요.`);
+    },
+
+    // 헤더 거래처 변경 시 → 거래처에 등록된 메모를 폼 메모에 기본 주입
+    onSupplierChange() {
+      const s = this.selectedSupplier;
+      if (s && s.memo) {
+        this.form.memo = s.memo;
+      }
+    },
+
+    // 수량/판매가 변경 시 공급가액 = qty*price 로 재계산 + 부가세 동기화
+    recalcItem(it) {
+      const qty = Number(it.quantity) || 0;
+      const price = Number(it.sale_price) || 0;
+      it.supply_amount = Math.round(qty * price);
+      it.vat = this.form.vat_applied ? Math.round(it.supply_amount * 0.1) : 0;
+    },
+
+    // 공급가액만 직접 수정된 경우 부가세만 재계산
+    recalcVatOnly(it) {
+      const supply = Number(it.supply_amount) || 0;
+      it.vat = this.form.vat_applied ? Math.round(supply * 0.1) : 0;
+    },
+
+    // 부가세 적용 토글 시 전체 품목 부가세 재계산
+    onVatAppliedChange() {
+      this.form.items.forEach((it) => this.recalcVatOnly(it));
+    },
+
     // 행 금액 계산 (수량 * 판매가)
     rowAmount(it) {
       const qty = Number(it.quantity) || 0;
@@ -474,6 +717,9 @@ export default {
 
     // 자재 → 품목 행 변환 (판매: 원가=구매가, 판매가=판매1 기준)
     buildItemFromMaterial(m) {
+      const qty = 1;
+      const salePrice = Number(m.price) || Number(m.outbound_price1) || 0;
+      const supply = Math.round(qty * salePrice);
       return {
         id: 0,
         material_id: m.id,
@@ -486,11 +732,11 @@ export default {
         location_id: null,
         warehouse_id: null,
         shelf_label: "",
-        quantity: 1,
-        // 원가는 자재의 구매가(inbound_price)를 사용
+        quantity: qty,
         cost_price: Number(m.inbound_price) || 0,
-        // 판매가는 priceField(outbound_price1)로 매핑된 m.price 사용
-        sale_price: Number(m.price) || Number(m.outbound_price1) || 0,
+        sale_price: salePrice,
+        supply_amount: supply,
+        vat: this.form.vat_applied ? Math.round(supply * 0.1) : 0,
       };
     },
 
@@ -593,13 +839,12 @@ export default {
 
     // 저장
     async save() {
-      if (!this.form.items.length) {
-        this.$toast?.error("판매 품목을 최소 1개 이상 등록하세요.");
+      if (!this.form.supplier_id) {
+        this.$toast?.error("거래처(고객사)를 선택하세요.");
         return;
       }
-      const missing = this.form.items.findIndex((it) => !it.supplier_id);
-      if (missing !== -1) {
-        this.$toast?.error(`${missing + 1}번 품목의 거래처를 선택하세요.`);
+      if (!this.form.items.length) {
+        this.$toast?.error("판매 품목을 최소 1개 이상 등록하세요.");
         return;
       }
 
@@ -624,6 +869,11 @@ export default {
       this.loadData();
     } else {
       this.form.outbound_no = this.mkOutboundNo();
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      this.form.outbound_date = `${yyyy}-${mm}-${dd}`;
     }
   },
 };

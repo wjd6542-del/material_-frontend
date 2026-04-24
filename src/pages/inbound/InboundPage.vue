@@ -39,6 +39,16 @@
             @change="loadList"
           />
         </div>
+        <div class="w-full sm:w-[160px] shrink-0">
+          <SearchSelect
+            v-model="where.is_unpaid"
+            :options="paymentFilterOptions"
+            labelKey="text"
+            valueKey="value"
+            placeholder="지급 여부"
+            @change="loadList"
+          />
+        </div>
       </div>
 
       <div class="p-4">
@@ -62,6 +72,7 @@
 import BaseTable from "@/components/base/BaseTable.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
 import BaseInput from "@/components/base/BaseInput.vue";
+import SearchSelect from "@/components/base/SearchSelect.vue";
 import { useModalStore } from "@/stores/modal";
 import InboundVoucherPrintModal from "@/components/inbound/InboundVoucherPrintModal.vue";
 import { useAuthStore } from "@/stores/auth";
@@ -75,6 +86,7 @@ export default {
     BaseTable,
     DateRangePicker,
     BaseInput,
+    SearchSelect,
   },
 
   data() {
@@ -111,6 +123,14 @@ export default {
           width: "100px",
         },
         {
+          key: "is_unpaid_label",
+          label: "지급 여부",
+          type: "text",
+          align: "center",
+          width: "110px",
+          sortable: true,
+        },
+        {
           key: "memo",
           label: "메모",
           type: "text",
@@ -126,8 +146,14 @@ export default {
         },
       ],
 
+      paymentFilterOptions: [
+        { text: "전체", value: "" },
+        { text: "미지급", value: "true" },
+        { text: "지급 완료", value: "false" },
+      ],
+
       rows: [],
-      where: { inbound_no: "" },
+      where: { inbound_no: "", is_unpaid: "" },
       dateRange: {
         start: new Date(new Date().setHours(0, 0, 0, 0)),
         end: new Date(new Date().setHours(23, 59, 59, 999)),
@@ -180,6 +206,11 @@ export default {
         ...this.where,
       };
 
+      // is_unpaid 값은 select 특성상 문자열("true"/"false"/"")이므로 서버에 boolean 으로 변환해 전송
+      if (where.is_unpaid === "true") where.is_unpaid = true;
+      else if (where.is_unpaid === "false") where.is_unpaid = false;
+      else delete where.is_unpaid;
+
       if (this.dateRange?.start) {
         where.startDate = this.dateRange.start.toISOString();
       }
@@ -188,7 +219,11 @@ export default {
       }
 
       const res = await api.post("/api/inbound/list", where);
-      this.rows = res.data;
+      const list = Array.isArray(res.data) ? res.data : [];
+      this.rows = list.map((r) => ({
+        ...r,
+        is_unpaid_label: r.is_unpaid ? "미지급" : "지급 완료",
+      }));
     },
 
     // 셀클릭시

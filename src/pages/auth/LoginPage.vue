@@ -180,17 +180,6 @@
           </button>
         </form>
 
-        <div class="mt-8 text-center">
-          <p class="text-sm text-gray-500">
-            아직 계정이 없으신가요?
-            <router-link
-              to="/signup"
-              class="text-blue-600 font-bold hover:underline ml-1"
-              >회원가입</router-link
-            >
-          </p>
-        </div>
-
         <div
           class="mt-auto pt-10 text-center text-[10px] text-gray-300 uppercase tracking-widest font-semibold"
         >

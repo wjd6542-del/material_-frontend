@@ -2,8 +2,8 @@
   <div class="flex flex-col gap-4" style="height: 75vh">
     <div class="flex items-center justify-between">
       <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
-        <i class="fa-solid fa-clipboard-list text-indigo-500"></i>
-        발주 정보 불러오기
+        <i class="fa-solid fa-truck-ramp-box text-blue-500"></i>
+        구매 정보 불러오기
       </h2>
       <button
         type="button"
@@ -14,7 +14,7 @@
       </button>
     </div>
 
-    <!-- 상단 통합 필터 (거래처 · 검색 · 상태) -->
+    <!-- 상단 통합 필터 (거래처 · 검색) -->
     <div class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 flex items-center gap-2 flex-nowrap">
       <span class="text-[11px] font-bold text-slate-500 inline-flex items-center gap-1 mr-1 shrink-0">
         <i class="fa-solid fa-building text-slate-400"></i>
@@ -34,17 +34,8 @@
         <input
           v-model="keyword"
           type="text"
-          placeholder="발주번호/거래처 검색"
-          class="w-full h-[30px] pl-7 pr-2 text-xs bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-      </div>
-      <div class="w-28 shrink-0">
-        <SearchSelect
-          v-model="statusFilter"
-          :options="statusOptions"
-          labelKey="text"
-          valueKey="value"
-          placeholder="상태"
+          placeholder="구매번호/거래처 검색"
+          class="w-full h-[30px] pl-7 pr-2 text-xs bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
       <button
@@ -63,16 +54,16 @@
 
     <!-- 본체: 좌 리스트 / 우 아이템 프리뷰 -->
     <div class="flex-1 flex gap-3 overflow-hidden border rounded-xl bg-white">
-      <!-- 좌: 발주 리스트 -->
+      <!-- 좌: 구매 리스트 -->
       <section class="w-1/2 flex flex-col overflow-hidden border-r">
         <header class="px-3 py-2 border-b bg-slate-50/80 flex items-center justify-between gap-2">
           <div class="flex items-center gap-2">
-            <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">1</span>
-            <span class="text-sm font-semibold text-slate-700">발주 목록</span>
+            <span class="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">1</span>
+            <span class="text-sm font-semibold text-slate-700">구매 목록</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[11px] text-slate-500">
-              선택 <span class="font-bold text-indigo-600">{{ checkedIds.size }}</span>개
+              선택 <span class="font-bold text-blue-600">{{ checkedIds.size }}</span>개
             </span>
           </div>
         </header>
@@ -83,7 +74,7 @@
           </div>
           <div v-else-if="!filteredOrders.length" class="h-full flex flex-col items-center justify-center text-slate-400 text-xs py-10">
             <i class="fa-regular fa-folder-open text-2xl mb-2 text-slate-300"></i>
-            조회된 발주가 없습니다
+            조회된 구매가 없습니다
           </div>
           <table v-else class="w-full text-xs">
             <thead class="bg-slate-50/60 text-slate-500 sticky top-0">
@@ -95,9 +86,9 @@
                     @change="toggleAll"
                   />
                 </th>
-                <th class="text-left px-2 py-2 font-semibold">발주번호</th>
+                <th class="text-left px-2 py-2 font-semibold">구매번호</th>
                 <th class="text-left px-2 py-2 font-semibold">거래처</th>
-                <th class="text-center px-2 py-2 font-semibold w-20">상태</th>
+                <th class="text-center px-2 py-2 font-semibold w-24">구매일자</th>
               </tr>
             </thead>
             <tbody>
@@ -108,7 +99,7 @@
                 class="border-t border-slate-100 cursor-pointer transition-colors"
                 :class="
                   selectedPo?.id === po.id
-                    ? 'bg-indigo-50/80 hover:bg-indigo-100/60'
+                    ? 'bg-blue-50/80 hover:bg-blue-100/60'
                     : 'hover:bg-slate-50'
                 "
               >
@@ -120,18 +111,13 @@
                   />
                 </td>
                 <td class="px-2 py-1.5 font-mono text-slate-700">
-                  {{ po.order_no }}
+                  {{ po.inbound_no }}
                 </td>
                 <td class="px-2 py-1.5 text-slate-700 truncate">
                   {{ po.supplier_name || po.supplier?.name || "-" }}
                 </td>
-                <td class="px-2 py-1.5 text-center">
-                  <span
-                    class="px-1.5 py-0.5 rounded text-[10px] font-bold"
-                    :class="statusBadgeClass(po.status)"
-                  >
-                    {{ statusLabel(po.status) }}
-                  </span>
+                <td class="px-2 py-1.5 text-center text-slate-500 text-[11px]">
+                  {{ fmtDate(po.inbound_date || po.created_at) }}
                 </td>
               </tr>
             </tbody>
@@ -139,26 +125,28 @@
         </div>
       </section>
 
-      <!-- 우: 선택한 발주의 품목 미리보기 -->
+      <!-- 우: 선택한 구매의 품목 미리보기 -->
       <section class="w-1/2 flex flex-col overflow-hidden">
         <header class="px-3 py-2 border-b bg-slate-50/80 flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <span class="w-5 h-5 rounded-full text-white text-[10px] font-bold flex items-center justify-center"
-              :class="selectedPo ? 'bg-indigo-600' : 'bg-slate-300'">2</span>
-            <span class="text-sm font-semibold text-slate-700">발주 품목</span>
+            <span
+              class="w-5 h-5 rounded-full text-white text-[10px] font-bold flex items-center justify-center"
+              :class="selectedPo ? 'bg-blue-600' : 'bg-slate-300'"
+            >2</span>
+            <span class="text-sm font-semibold text-slate-700">구매 품목</span>
           </div>
           <span v-if="selectedPo" class="text-[11px] text-slate-500 font-mono truncate">
-            {{ selectedPo.order_no }}
+            {{ selectedPo.inbound_no }}
           </span>
         </header>
 
         <div class="flex-1 overflow-auto">
           <div v-if="!selectedPo" class="h-full flex flex-col items-center justify-center text-slate-400 text-xs py-10 px-4 text-center">
-            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 flex items-center justify-center mb-2">
-              <i class="fa-regular fa-hand-pointer text-indigo-400 text-xl"></i>
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 flex items-center justify-center mb-2">
+              <i class="fa-regular fa-hand-pointer text-blue-400 text-xl"></i>
             </div>
-            <p class="font-semibold text-slate-500">발주를 선택하면 품목이 표시됩니다</p>
-            <p class="mt-0.5 text-[11px] text-slate-400">좌측에서 발주를 클릭하세요</p>
+            <p class="font-semibold text-slate-500">구매를 선택하면 품목이 표시됩니다</p>
+            <p class="mt-0.5 text-[11px] text-slate-400">좌측에서 구매를 클릭하세요</p>
           </div>
           <div v-else-if="loadingDetail" class="text-center text-slate-400 text-xs py-10">
             <i class="fa-solid fa-spinner fa-spin mr-1"></i>불러오는 중...
@@ -178,9 +166,9 @@
               <tr v-for="it in detailItems" :key="it.id" class="border-t border-slate-100">
                 <td class="px-2 py-1.5 text-slate-700">
                   <div class="truncate font-mono text-[10px] text-slate-400">
-                    {{ it.material_code }}
+                    {{ it.material_code || it.material?.code || "-" }}
                   </div>
-                  <div class="truncate">{{ it.material_name }}</div>
+                  <div class="truncate">{{ it.material_name || it.material?.name || "-" }}</div>
                 </td>
                 <td class="px-2 py-1.5 text-right font-mono">
                   {{ Number(it.quantity || 0).toLocaleString() }}
@@ -198,8 +186,8 @@
     <!-- 하단 액션 -->
     <div class="flex items-center justify-between pt-2 border-t">
       <p class="text-xs text-slate-500">
-        체크한 발주 <span class="font-bold text-indigo-600">{{ checkedIds.size }}</span>개의
-        품목을 구매 품목에 추가합니다
+        체크한 구매 <span class="font-bold text-blue-600">{{ checkedIds.size }}</span>개의
+        품목을 반품 품목에 추가합니다
       </p>
       <div class="flex items-center gap-2">
         <button
@@ -213,7 +201,7 @@
           type="button"
           @click="confirm"
           :disabled="!checkedIds.size || applying"
-          class="px-5 py-2 text-sm font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+          class="px-5 py-2 text-sm font-bold rounded-lg bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
         >
           <i v-if="applying" class="fa-solid fa-spinner fa-spin text-xs"></i>
           <i v-else class="fa-solid fa-check text-xs"></i>
@@ -230,15 +218,13 @@ import { useModalStore } from "@/stores/modal";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 
 export default {
-  name: "PurchaseOrderSelectModal",
+  name: "InboundSelectModal",
 
   components: { SearchSelect },
 
   props: {
     // 적용 시 호출되는 콜백. 인자로 병합된 item 배열 전달
     onConfirm: { type: Function, default: null },
-    // 초기 거래처 필터 (구매 등록에서 선택된 거래처 전달)
-    supplier_id: { type: Number, default: null },
   },
 
   data() {
@@ -246,23 +232,15 @@ export default {
       modal: useModalStore(),
       orders: [],
       suppliers: [],
-      supplierFilter: this.supplier_id ?? null,
+      supplierFilter: null,
       keyword: "",
-      statusFilter: "ordered",
-      statusOptions: [
-        { text: "전체", value: "" },
-        { text: "임시저장", value: "draft" },
-        { text: "발주완료", value: "ordered" },
-        { text: "구매완료", value: "received" },
-        { text: "취소", value: "canceled" },
-      ],
 
-      // 체크된 발주 ID 집합
+      // 체크된 구매 ID 집합
       checkedIds: new Set(),
-      // 체크된 발주의 아이템 캐시 { [poId]: { header, items } }
+      // 체크된 구매의 아이템 캐시 { [id]: { header, items } }
       detailCache: {},
 
-      // 우측 미리보기용 현재 선택된 발주
+      // 우측 미리보기용 현재 선택된 구매
       selectedPo: null,
       detailItems: [],
       loadingList: false,
@@ -279,7 +257,7 @@ export default {
       );
     },
 
-    // 거래처 + 발주번호/거래처명 키워드로 필터링된 목록
+    // 거래처 + 구매번호/거래처명 키워드로 필터링된 목록
     filteredOrders() {
       const kw = this.keyword.trim().toLowerCase();
       const sid = this.supplierFilter;
@@ -287,21 +265,17 @@ export default {
         if (sid != null && o.supplier_id !== sid) return false;
         if (!kw) return true;
         const supplier = (o.supplier_name || o.supplier?.name || "").toLowerCase();
-        const no = (o.order_no || "").toLowerCase();
+        const no = (o.inbound_no || "").toLowerCase();
         return supplier.includes(kw) || no.includes(kw);
       });
     },
 
-    // 하나 이상의 필터가 적용됐는지 (초기화 버튼 활성 조건)
+    // 하나 이상의 필터가 적용됐는지
     hasFilter() {
-      return !!(
-        this.supplierFilter != null ||
-        this.keyword ||
-        this.statusFilter
-      );
+      return !!(this.supplierFilter != null || this.keyword);
     },
 
-    // 필터된 발주가 모두 체크됐는지 여부
+    // 필터된 구매가 모두 체크됐는지 여부
     allChecked() {
       return (
         this.filteredOrders.length > 0 &&
@@ -310,42 +284,23 @@ export default {
     },
   },
 
-  watch: {
-    statusFilter() {
-      this.loadOrders();
-    },
-  },
-
   methods: {
-    // 상태별 배지 색상
-    statusBadgeClass(status) {
-      switch (status) {
-        case "draft":
-          return "bg-slate-100 text-slate-600";
-        case "ordered":
-          return "bg-blue-100 text-blue-700";
-        case "received":
-          return "bg-emerald-100 text-emerald-700";
-        case "canceled":
-          return "bg-red-100 text-red-700";
-        default:
-          return "bg-slate-100 text-slate-600";
-      }
+    // 날짜 포맷 (YYYY-MM-DD)
+    fmtDate(v) {
+      if (!v) return "-";
+      const d = new Date(v);
+      if (Number.isNaN(d.getTime())) return String(v);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
     },
 
-    // 상태별 라벨
-    statusLabel(status) {
-      const s = this.statusOptions.find((o) => o.value === status);
-      return s ? s.text : status || "-";
-    },
-
-    // 발주 목록 조회
+    // 구매 목록 조회
     async loadOrders() {
       this.loadingList = true;
       try {
-        const where = {};
-        if (this.statusFilter) where.status = this.statusFilter;
-        const res = await api.post("/api/purchaseOrder/list", where);
+        const res = await api.post("/api/inbound/list", {});
         this.orders = Array.isArray(res.data) ? res.data : [];
       } catch {
         this.orders = [];
@@ -358,7 +313,6 @@ export default {
     resetFilters() {
       this.supplierFilter = null;
       this.keyword = "";
-      this.statusFilter = "";
     },
 
     // 거래처 목록 로드 (상단 필터용)
@@ -371,11 +325,11 @@ export default {
       }
     },
 
-    // 발주 상세(아이템) 조회 및 캐싱
+    // 구매 상세(아이템) 조회 및 캐싱
     async loadDetail(po) {
       if (this.detailCache[po.id]) return this.detailCache[po.id];
       try {
-        const res = await api.post("/api/purchaseOrder/info", { id: po.id });
+        const res = await api.post(`/api/inbound/${po.id}`, { id: po.id });
         const data = res.data || {};
         const items = Array.isArray(data.items) ? data.items : [];
         this.detailCache[po.id] = { header: data, items };
@@ -386,7 +340,7 @@ export default {
       }
     },
 
-    // 발주 마스터 클릭 시 우측 미리보기를 로드한다
+    // 구매 마스터 클릭 시 우측 미리보기를 로드한다
     async onSelectPo(po) {
       this.selectedPo = po;
       this.loadingDetail = true;
@@ -418,7 +372,7 @@ export default {
       this.checkedIds = next;
     },
 
-    // 체크된 모든 발주의 품목을 모아 구매 아이템 형식으로 변환 후 콜백 호출
+    // 체크된 모든 구매의 품목을 모아 반품 아이템 형식으로 변환 후 콜백 호출
     async confirm() {
       if (!this.checkedIds.size) return;
       this.applying = true;
@@ -427,31 +381,32 @@ export default {
         for (const id of this.checkedIds) {
           const po = this.orders.find((o) => o.id === id);
           if (!po) continue;
-          const { header, items } = await this.loadDetail(po);
-          const supplierId = header?.supplier_id ?? po.supplier_id ?? null;
+          const { items } = await this.loadDetail(po);
           for (const it of items) {
-            const qty = Number(it.quantity) || 0;
-            const price = Number(it.price) || 0;
-            const supply = Math.round(qty * price);
+            const m = it.material || {};
+            const w = it.warehouse || {};
+            const l = it.location || {};
+            const s = it.shelf || {};
+            const parts = [w.name, l.name, s.name].filter(Boolean);
             merged.push({
               id: 0,
-              material_id: it.material_id,
-              material_code: it.material_code || "",
-              material_name: it.material_name || "",
-              spec: it.spec || "",
-              unit: it.unit || "",
-              supplier_id: supplierId,
-              shelf_id: null,
-              location_id: null,
-              warehouse_id: null,
-              shelf_label: "",
-              quantity: qty,
-              price: price,
-              supply_amount: supply,
-              vat: 0,
-              // 원본 참조용 (서버 저장에 사용해도 무방)
-              purchase_order_id: po.id,
-              purchase_order_item_id: it.id,
+              material_id: it.material_id ?? m.id ?? null,
+              material_code: it.material_code || m.code || "",
+              material_name: it.material_name || m.name || "",
+              spec: it.spec || m.spec || "",
+              unit: it.unit || m.unit || "",
+              warehouse_id: it.warehouse_id ?? w.id ?? null,
+              location_id: it.location_id ?? l.id ?? null,
+              shelf_id: it.shelf_id ?? s.id ?? null,
+              shelf_label:
+                it.shelf_label || (parts.length ? parts.join(" > ") : ""),
+              quantity: Number(it.quantity) || 0,
+              cost_price: Number(it.price) || 0,
+              sale_price: 0,
+              reasonType: "단순변심",
+              // 원본 참조용
+              inbound_id: po.id,
+              inbound_item_id: it.id,
             });
           }
         }

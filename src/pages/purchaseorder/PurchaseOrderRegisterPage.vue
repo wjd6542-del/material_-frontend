@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-full p-4 md:p-6 bg-gradient-to-br from-slate-50 via-white to-blue-50/30"
+    class="min-h-full p-4 md:p-6 bg-gradient-to-br from-slate-50 via-white to-teal-50/30"
   >
     <div class="w-full">
       <!-- 헤더 -->
@@ -15,7 +15,7 @@
           "
         ></div>
         <div
-          class="absolute -top-10 -right-10 w-48 h-48 bg-blue-500 rounded-full mix-blend-overlay filter blur-3xl opacity-40"
+          class="absolute -top-10 -right-10 w-48 h-48 bg-teal-500 rounded-full mix-blend-overlay filter blur-3xl opacity-40"
         ></div>
 
         <div
@@ -29,7 +29,7 @@
             </div>
             <div>
               <div
-                class="text-[11px] font-bold uppercase tracking-widest text-blue-300 mb-1"
+                class="text-[11px] font-bold uppercase tracking-widest text-teal-300 mb-1"
               >
                 Purchase Order
               </div>
@@ -65,7 +65,7 @@
           <div class="flex items-center gap-3 mb-4">
             <div class="relative shrink-0">
               <div
-                class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/20"
+                class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shadow-md shadow-teal-500/20"
               >
                 <i class="fa-solid fa-file-lines text-white text-sm"></i>
               </div>
@@ -103,10 +103,11 @@
               </label>
               <SearchSelect
                 v-model="form.supplier_id"
-                :options="suppliers"
+                :options="inboundSuppliers"
                 labelKey="name"
                 valueKey="id"
                 placeholder="거래처 선택"
+                @change="onSupplierChange"
               />
             </div>
             <div>
@@ -146,6 +147,86 @@
                 placeholder="특이사항이 있으면 입력하세요"
               ></textarea>
             </div>
+
+            <!-- 선택된 거래처 정보 카드 -->
+            <div v-if="selectedSupplier" class="md:col-span-2">
+              <div
+                class="rounded-xl border border-teal-200 bg-gradient-to-br from-teal-50/60 to-white p-4"
+              >
+                <div class="flex items-start justify-between gap-4 flex-wrap">
+                  <div class="flex items-start gap-3 min-w-0">
+                    <div
+                      class="w-10 h-10 rounded-lg bg-teal-500 text-white flex items-center justify-center shadow-sm shrink-0"
+                    >
+                      <i class="fa-solid fa-building text-sm"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div
+                        class="text-[10px] font-bold uppercase tracking-widest text-teal-600 mb-0.5"
+                      >
+                        Supplier
+                      </div>
+                      <div class="text-sm font-black text-slate-800 truncate">
+                        {{ selectedSupplier.name }}
+                        <span
+                          v-if="selectedSupplier.registration_no"
+                          class="ml-1 text-[11px] text-slate-400 font-mono font-medium"
+                        >
+                          {{ selectedSupplier.registration_no }}
+                        </span>
+                      </div>
+                      <div
+                        class="flex items-center gap-3 mt-1 text-[11px] text-slate-500 flex-wrap"
+                      >
+                        <span v-if="selectedSupplier.phone" class="inline-flex items-center gap-1">
+                          <i class="fa-solid fa-phone text-[10px] text-slate-400"></i>
+                          {{ selectedSupplier.phone }}
+                        </span>
+                        <span v-if="selectedSupplier.mobile" class="inline-flex items-center gap-1">
+                          <i class="fa-solid fa-mobile-screen text-[10px] text-slate-400"></i>
+                          {{ selectedSupplier.mobile }}
+                        </span>
+                        <span v-if="selectedSupplier.email" class="inline-flex items-center gap-1">
+                          <i class="fa-solid fa-envelope text-[10px] text-slate-400"></i>
+                          {{ selectedSupplier.email }}
+                        </span>
+                        <span
+                          v-if="selectedSupplier.address"
+                          class="inline-flex items-center gap-1 truncate"
+                        >
+                          <i class="fa-solid fa-location-dot text-[10px] text-slate-400"></i>
+                          {{ selectedSupplier.address }}
+                          {{ selectedSupplier.address_detail || "" }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 미지급금 -->
+                  <div
+                    class="shrink-0 rounded-lg border border-indigo-200 bg-white px-4 py-2 text-right"
+                  >
+                    <div
+                      class="text-[10px] font-bold uppercase tracking-widest text-indigo-500 mb-0.5 inline-flex items-center gap-1"
+                    >
+                      <i class="fa-solid fa-circle-exclamation text-[9px]"></i>
+                      미지급금
+                    </div>
+                    <div
+                      class="text-base font-black font-mono tabular-nums"
+                      :class="
+                        Number(selectedSupplier.payable) > 0
+                          ? 'text-indigo-700'
+                          : 'text-slate-400'
+                      "
+                    >
+                      {{ Number(selectedSupplier.payable || 0).toLocaleString() }}
+                      <span class="text-[10px] text-slate-400 font-sans font-medium">원</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -155,7 +236,7 @@
             <div class="flex items-center gap-3">
               <div class="relative shrink-0">
                 <div
-                  class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/20"
+                  class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shadow-md shadow-teal-500/20"
                 >
                   <i class="fa-solid fa-boxes-stacked text-white text-sm"></i>
                 </div>
@@ -189,7 +270,7 @@
               <button
                 type="button"
                 @click="openMaterialSelect()"
-                class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
+                class="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-md shadow-teal-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
               >
                 <i class="fa-solid fa-plus"></i>
                 자재 선택
@@ -228,7 +309,7 @@
                     <button
                       type="button"
                       @click="openMaterialSelect(it)"
-                      class="cell-input text-left flex items-center justify-between hover:border-blue-400"
+                      class="cell-input text-left flex items-center justify-between hover:border-teal-400"
                       :class="
                         it.material_code
                           ? 'text-slate-700 font-mono'
@@ -264,7 +345,7 @@
                         type="button"
                         @click="openPriceHistory(it, 'price')"
                         :disabled="!it.material_id"
-                        class="absolute left-1.5 top-1/2 -translate-y-1/2 text-blue-500 hover:text-blue-700 disabled:text-slate-300 disabled:cursor-not-allowed text-[11px]"
+                        class="absolute left-1.5 top-1/2 -translate-y-1/2 text-teal-500 hover:text-teal-700 disabled:text-slate-300 disabled:cursor-not-allowed text-[11px]"
                         title="가격 이력에서 선택"
                       >
                         <i class="fa-solid fa-clock-rotate-left"></i>
@@ -325,16 +406,16 @@
                       class="flex flex-col items-center justify-center py-14 px-6 text-center bg-gradient-to-b from-white to-slate-50/60"
                     >
                       <div
-                        class="relative w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100/60 flex items-center justify-center mb-4 shadow-sm"
+                        class="relative w-20 h-20 rounded-3xl bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-100/60 flex items-center justify-center mb-4 shadow-sm"
                       >
                         <i
-                          class="fa-solid fa-boxes-stacked text-2xl text-blue-400"
+                          class="fa-solid fa-boxes-stacked text-2xl text-teal-400"
                         ></i>
                         <span
                           class="absolute -bottom-1.5 -right-1.5 w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm"
                         >
                           <i
-                            class="fa-solid fa-plus text-[11px] text-blue-500"
+                            class="fa-solid fa-plus text-[11px] text-teal-500"
                           ></i>
                         </span>
                       </div>
@@ -349,7 +430,7 @@
                       <button
                         type="button"
                         @click="openMaterialSelect()"
-                        class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
+                        class="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-md shadow-teal-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
                       >
                         <i class="fa-solid fa-plus"></i>
                         자재 선택
@@ -456,6 +537,21 @@ export default {
       return !!this.$route.query.id;
     },
 
+    // 발주는 INBOUND(구매) 거래처만 선택 대상
+    inboundSuppliers() {
+      return (this.suppliers || []).filter(
+        (s) => !s.type || s.type === "INBOUND",
+      );
+    },
+
+    // 현재 선택된 거래처 객체
+    selectedSupplier() {
+      if (!this.form.supplier_id) return null;
+      return (
+        this.suppliers.find((s) => s.id === this.form.supplier_id) || null
+      );
+    },
+
     // 공급가액 합계
     totalSupply() {
       return this.form.items.reduce(
@@ -479,6 +575,14 @@ export default {
   },
 
   methods: {
+    // 헤더 거래처 변경 시 → 거래처에 등록된 메모를 폼 메모에 기본 주입
+    onSupplierChange() {
+      const s = this.selectedSupplier;
+      if (s && s.memo) {
+        this.form.memo = s.memo;
+      }
+    },
+
     // 공급가액 기준으로 부가세를 재계산해 행에 반영한다
     recalcItem(it) {
       const supply = Number(it.supply_amount) || 0;

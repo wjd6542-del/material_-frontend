@@ -104,7 +104,6 @@ export const permissions: PermissionGroup[] = [
 				action: "view",
 				path: "/materials/category",
 				extraMenus: [
-					{ path: "/materials/category/column", label: "자재 카테고리 (가로)" },
 					{ path: "/materials/category/path", label: "카테고리 경로" },
 				],
 			},
@@ -203,7 +202,12 @@ export const permissions: PermissionGroup[] = [
 				action: "view",
 				path: "/returnorder",
 				actions: [
-					{ code: "returnorder.create", name: "반품 등록", action: "create" },
+					{
+						code: "returnorder.create",
+						name: "반품 등록",
+						action: "create",
+						path: "/returnorder/register",
+					},
 					{ code: "returnorder.update", name: "반품 수정", action: "update" },
 					{ code: "returnorder.delete", name: "반품 삭제", action: "delete" },
 				],
@@ -272,6 +276,12 @@ export const permissions: PermissionGroup[] = [
 				name: "재고 위치 (선반)",
 				action: "view",
 				path: "/stock/shelf",
+			},
+			{
+				code: "stock.inspection.view",
+				name: "재고 검사",
+				action: "view",
+				path: "/stock/inspection",
 			},
 		],
 	},
@@ -566,11 +576,13 @@ export type MenuNode = {
 // 사이드바용 메뉴 트리를 반환한다
 // - 페이지의 path, action 중 path 가 있는 항목, extraMenus 를 메뉴 항목으로 취급
 // - 그룹이 메뉴 항목 1개만 가지면 상위로 평탄화 (예: 대시보드, 사업자 정보, 알림, 설정, 로그)
+// - action 에서 나온 메뉴(예: 발주 등록/구매 등록/판매 등록)는 그룹 맨 뒤로 모이도록 2-pass 로 조립
 export function getMenuTree (): MenuNode[] {
 	const tree: MenuNode[] = []
 
 	for (const g of permissions) {
 		const children: MenuNode[] = []
+		const actionChildren: MenuNode[] = []
 
 		for (const p of g.pages) {
 			if (p.path) {
@@ -594,7 +606,7 @@ export function getMenuTree (): MenuNode[] {
 			if (p.actions) {
 				for (const a of p.actions) {
 					if (a.path) {
-						children.push({
+						actionChildren.push({
 							label: a.name,
 							path: a.path,
 							permission: a.code,
@@ -603,6 +615,9 @@ export function getMenuTree (): MenuNode[] {
 				}
 			}
 		}
+
+		// action 기반 메뉴(등록 등)는 그룹 맨 뒤로 이어붙인다
+		children.push(...actionChildren)
 
 		if (children.length === 1) {
 			// 단일 메뉴는 상위로 평탄화

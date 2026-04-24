@@ -14,10 +14,11 @@
       </button>
     </div>
 
-    <div class="flex-1 flex gap-4 overflow-hidden border rounded-xl">
+    <div class="flex-1 flex overflow-hidden border rounded-xl">
       <!-- 왼쪽: 카테고리 트리 -->
       <aside
-        class="w-[280px] shrink-0 border-r bg-slate-50/60 flex flex-col overflow-hidden"
+        class="shrink-0 bg-slate-50/60 flex flex-col overflow-hidden"
+        :style="{ width: sidebarWidth + 'px' }"
       >
         <div class="px-3 py-2.5 border-b bg-white flex items-center gap-2">
           <i class="fa-solid fa-folder-tree text-slate-400 text-sm"></i>
@@ -67,7 +68,7 @@
               <li
                 v-for="item in filteredFlat"
                 :key="item.id"
-                class="px-2 py-1.5 rounded-lg cursor-pointer text-[13px] hover:bg-blue-50"
+                class="px-2 py-1.5 rounded-lg cursor-pointer text-[13px] hover:bg-blue-50 flex items-center gap-1.5"
                 :class="
                   item.id === selectedCategoryId
                     ? 'bg-blue-50 text-blue-700 font-semibold'
@@ -75,11 +76,19 @@
                 "
                 @click="onCategorySelect(item.id)"
               >
-                <i class="fa-solid fa-folder text-amber-400 mr-1.5 text-xs"></i>
+                <i class="fa-solid fa-folder text-amber-400 text-xs"></i>
                 <span v-if="item.path" class="text-slate-400 text-[11px]">
                   {{ item.path }} ›
                 </span>
-                {{ item.name }}
+                <span class="flex-1 truncate">{{ item.name }}</span>
+                <span
+                  v-if="materialCountMap[item.id]"
+                  v-tip="`자재 갯수 · ${materialCountMap[item.id]}개`"
+                  class="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700 text-[10px] font-semibold"
+                >
+                  <i class="fa-solid fa-box text-[9px]"></i>
+                  {{ materialCountMap[item.id] }}
+                </span>
               </li>
             </ul>
             <div v-else class="text-center text-slate-400 text-xs py-6">
@@ -95,12 +104,25 @@
               :selected-id="selectedCategoryId"
               :expanded-ids="expandedIds"
               :is-root="true"
+              :material-count-map="materialCountMap"
+              :show-material-count="true"
               @select="onCategorySelect"
               @toggle="toggleNode"
             />
           </ul>
         </div>
       </aside>
+
+      <!-- 리사이즈 핸들 -->
+      <div
+        class="resize-handle"
+        @mousedown="startResize"
+        title="드래그해서 트리 너비 조정"
+      >
+        <div class="resize-handle-bar">
+          <i class="fa-solid fa-grip-lines-vertical"></i>
+        </div>
+      </div>
 
       <!-- 오른쪽: 자재 목록 -->
       <section class="flex-1 flex flex-col overflow-hidden">
@@ -149,6 +171,11 @@
                 <th class="text-left px-4 py-2.5 font-semibold">자재명</th>
                 <th class="text-left px-4 py-2.5 font-semibold">규격</th>
                 <th class="text-center px-4 py-2.5 font-semibold">단위</th>
+                <th class="text-right px-4 py-2.5 font-semibold">구매단가</th>
+                <th class="text-right px-4 py-2.5 font-semibold">
+                  판매단가1
+                  <span class="ml-0.5 text-[9px] text-blue-500 font-bold">BASE</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -177,6 +204,18 @@
                 <td class="px-4 py-2 text-slate-500">{{ m.spec || "-" }}</td>
                 <td class="px-4 py-2 text-center text-slate-500">
                   {{ m.unit || "-" }}
+                </td>
+                <td
+                  class="px-4 py-2 text-right font-mono tabular-nums"
+                  :class="Number(m.inbound_price) > 0 ? 'text-slate-700' : 'text-slate-300'"
+                >
+                  {{ Number(m.inbound_price || 0).toLocaleString() }}
+                </td>
+                <td
+                  class="px-4 py-2 text-right font-mono tabular-nums bg-blue-50/30"
+                  :class="Number(m.outbound_price1) > 0 ? 'text-slate-700 font-semibold' : 'text-slate-300'"
+                >
+                  {{ Number(m.outbound_price1 || 0).toLocaleString() }}
                 </td>
               </tr>
             </tbody>
@@ -239,14 +278,27 @@ export default {
       selectedCategoryId: null,
       treeKeyword: "",
       materials: [],
+      allMaterials: [], // 카테고리 트리 뱃지용 (필터와 무관한 전체)
       keyword: "",
       loading: false,
       selectedIds: new Set(),
       selectedMap: new Map(),
+      sidebarWidth: 280,
     };
   },
 
   computed: {
+    // category_id → 소속 자재 갯수 (트리 뱃지용)
+    materialCountMap() {
+      const map = Object.create(null);
+      for (const m of this.allMaterials) {
+        const cid = m.category_id;
+        if (cid == null) continue;
+        map[cid] = (map[cid] || 0) + 1;
+      }
+      return map;
+    },
+
     filtered() {
       const kw = this.keyword.trim().toLowerCase();
       if (!kw) return this.materials;
@@ -360,6 +412,16 @@ export default {
       }
     },
 
+    // 전체 자재 로드 → 카테고리별 갯수 뱃지용 (1회만 호출)
+    async loadAllMaterialsForCount() {
+      try {
+        const res = await api.post("/api/material/list", {});
+        this.allMaterials = Array.isArray(res.data) ? res.data : [];
+      } catch {
+        this.allMaterials = [];
+      }
+    },
+
     toggleNode(id) {
       const next = new Set(this.expandedIds);
       if (next.has(id)) next.delete(id);
@@ -409,6 +471,29 @@ export default {
       this.selectedIds = next;
     },
 
+    // 사이드바 너비 드래그 리사이즈 (220 ~ 640)
+    startResize(e) {
+      e.preventDefault();
+      const startX = e.clientX;
+      const startWidth = this.sidebarWidth;
+      const MIN = 220;
+      const MAX = 640;
+      const onMove = (ev) => {
+        const w = startWidth + (ev.clientX - startX);
+        this.sidebarWidth = Math.max(MIN, Math.min(w, MAX));
+      };
+      const onUp = () => {
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      };
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    },
+
     confirm() {
       if (this.selectedIds.size === 0) return;
       const picked = Array.from(this.selectedIds)
@@ -427,6 +512,7 @@ export default {
   mounted() {
     this.loadTree();
     this.loadMaterials();
+    this.loadAllMaterialsForCount();
   },
 };
 </script>
@@ -436,5 +522,34 @@ export default {
   list-style: none;
   padding: 0;
   margin: 0;
+}
+
+/* 사이드바 리사이즈 핸들 */
+.resize-handle {
+  width: 10px;
+  cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border-left: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  user-select: none;
+}
+.resize-handle:hover,
+.resize-handle:active {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+.resize-handle-bar {
+  color: #94a3b8;
+  font-size: 10px;
+  transition: color 0.15s;
+}
+.resize-handle:hover .resize-handle-bar,
+.resize-handle:active .resize-handle-bar {
+  color: #3b82f6;
 }
 </style>

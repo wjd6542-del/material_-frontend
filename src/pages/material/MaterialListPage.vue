@@ -24,7 +24,9 @@
         >
           <i class="fa-solid fa-trash"></i>
         </button>
-        <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[280px] sm:max-w-[450px]">
+        <div
+          class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[280px] sm:max-w-[450px]"
+        >
           <DateRangePicker
             v-model="dateRange"
             :minuteStep="5"
@@ -32,7 +34,9 @@
             @change="loadList"
           />
         </div>
-        <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[200px] sm:max-w-[350px]">
+        <div
+          class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[200px] sm:max-w-[350px]"
+        >
           <CategoryTreeSelect
             v-model="where.category_id"
             placeholder="카테고리 검색"
@@ -40,7 +44,9 @@
             @change="loadList"
           />
         </div>
-        <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[200px] sm:max-w-[350px]">
+        <div
+          class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[200px] sm:max-w-[350px]"
+        >
           <MultiCheck
             v-model="where.tag_ids"
             :items="tags"
@@ -53,7 +59,9 @@
             @change="loadList"
           />
         </div>
-        <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[200px] sm:max-w-[350px]">
+        <div
+          class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[200px] sm:max-w-[350px]"
+        >
           <BaseInput
             v-model="where.keyword"
             placeholder="자재명 / 메모 검색"
@@ -203,8 +211,8 @@ export default {
       tags: [],
 
       dateRange: {
-        start: new Date(new Date().setHours(0, 0, 0, 0)),
-        end: new Date(new Date().setHours(23, 59, 59, 999)),
+        start: null,
+        end: null,
       },
       where: {
         category_id: "",
