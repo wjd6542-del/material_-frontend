@@ -5,7 +5,7 @@
       class="lg:col-span-8 bg-white rounded-xl shadow border border-gray-200"
     >
       <div class="flex items-center justify-between px-5 py-4 border-b">
-        <h2 class="text-base font-semibold text-gray-800">자재 목록</h2>
+        <h2 class="text-base font-semibold text-gray-800">품목 목록</h2>
       </div>
 
       <div class="p-4 pb-0 flex flex-wrap items-center gap-2">
@@ -64,7 +64,7 @@
         >
           <BaseInput
             v-model="where.keyword"
-            placeholder="자재명 / 메모 검색"
+            placeholder="품목명 / 메모 검색"
             @change="loadList"
           />
         </div>
@@ -152,7 +152,7 @@ export default {
         },
         {
           key: "name",
-          label: "자재명",
+          label: "품목명",
           minWidth: "200px",
         },
 
@@ -226,7 +226,7 @@ export default {
 
   methods: {
     // 삭제
-    // 선택된 자재들을 사용자 확인 후 일괄 삭제한다
+    // 선택된 품목들을 사용자 확인 후 일괄 삭제한다
     async batchDelete() {
       const rows = this.$refs.materialTable.getSelectedRows();
       if (!rows.length) {
@@ -242,13 +242,13 @@ export default {
 
       const ok = await this.$confirm(
         `선택된 정보를 삭제하시겠습니까?`,
-        "삭제 확인",
+        "삭제 확인", "danger",
       );
       if (!ok) return;
 
       try {
         await api.post("/api/material/batchDelete", ids);
-        this.$toast.success("선택 자재가 삭제되었습니다");
+        this.$toast.success("선택 품목이 삭제되었습니다");
         this.loadList();
       } catch (e) {
         this.$toast.error(e.message);
@@ -256,13 +256,13 @@ export default {
     },
 
     // 추가 처리
-    // 자재 등록 모달을 연다
+    // 품목 등록 모달을 연다
     openModal() {
       this.modal.openModal(MaterialModal, { onSaved: this.loadList });
     },
 
     // 데이터 로드 처리
-    // 검색 조건을 반영하여 자재 목록을 서버에서 로드한다
+    // 검색 조건을 반영하여 품목 목록을 서버에서 로드한다
     async loadList() {
       this.rows = [];
       const where = {
@@ -293,9 +293,9 @@ export default {
     },
 
     // 셀클릭시
-    // 자재명/코드 셀 클릭 시 상세 모달, 이미지 셀 클릭 시 이미지 모달을 연다
+    // 품목명/코드 셀 클릭 시 상세 모달, 이미지 셀 클릭 시 이미지 모달을 연다
     onCellClick(data) {
-      // 자재명 클릭시 모달 상세 오픈
+      // 품목명 클릭시 모달 상세 오픈
       if (data.key == "name" || data.key == "code") {
         if (!this.auth.hasPermission("material.update")) {
           return;
@@ -339,7 +339,7 @@ export default {
       }
     },
   },
-  // 마운트 시 카테고리/태그/자재 목록을 순차 로드한다
+  // 마운트 시 카테고리/태그/품목 목록을 순차 로드한다
   mounted() {
     this.loadCategory();
     this.loadTags();

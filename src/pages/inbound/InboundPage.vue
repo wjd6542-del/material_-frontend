@@ -179,7 +179,7 @@ export default {
 
       const ok = await this.$confirm(
         `선택된 정보를 삭제하시겠습니까?`,
-        "삭제 확인",
+        "삭제 확인", "danger",
       );
       if (!ok) return;
 

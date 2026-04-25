@@ -34,10 +34,10 @@
               <h2
                 class="text-xl md:text-2xl font-black text-white tracking-tight"
               >
-                자재 요율 기본 설정
+                품목 요율 기본 설정
               </h2>
               <p class="text-xs text-slate-400 mt-1">
-                자재 등록 시 기본으로 적용될 판매·도매·온라인 요율을 관리합니다.
+                품목 등록 시 기본으로 적용될 판매·도매·온라인 요율을 관리합니다.
               </p>
             </div>
           </div>

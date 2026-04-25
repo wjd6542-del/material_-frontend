@@ -103,7 +103,7 @@ export default {
         { text: "구매", value: "INBOUND" },
         { text: "판매", value: "OUTBOUND" },
         { text: "반품", value: "RETURNORDER" },
-        { text: "자재", value: "MATERIAL" },
+        { text: "품목", value: "MATERIAL" },
       ],
 
       columns: [
@@ -245,7 +245,7 @@ export default {
 
       const ok = await this.$confirm(
         `선택된 정보를 삭제하시겠습니까?`,
-        "삭제 확인",
+        "삭제 확인", "danger",
       );
       if (!ok) return;
 

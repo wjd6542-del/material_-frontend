@@ -25,35 +25,35 @@
         />
       </div>
 
-      <!-- 자재 검색 카드 -->
+      <!-- 품목 검색 카드 -->
       <div class="bg-gray-50 border rounded-xl p-4 space-y-3">
         <div class="flex items-center gap-2 text-sm font-medium text-gray-700">
           <i class="fa-solid fa-magnifying-glass text-blue-500"></i>
-          자재 검색
+          품목 검색
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <!-- 자재명 검색 -->
+          <!-- 품목명 검색 -->
           <input
             v-model="searchText"
             @change="searchMaterial"
             class="field w-full focus:ring-2 focus:ring-blue-500 outline-none"
-            placeholder="자재명 검색"
+            placeholder="품목명 검색"
           />
 
-          <!-- 자재 선택 -->
+          <!-- 품목 선택 -->
           <SearchSelect
             v-model="material_id"
             :options="materialsArr"
             labelKey="name"
             valueKey="id"
-            placeholder="자재 선택"
+            placeholder="품목 선택"
             @change="search_material"
           />
         </div>
       </div>
 
-      <!-- 자재 목록 카드 -->
+      <!-- 품목 목록 카드 -->
       <div class="bg-gray-50 border rounded-xl p-4 space-y-3 flex flex-col">
         <div class="flex items-center gap-2 text-sm font-medium text-gray-700">
           <i class="fa-solid fa-boxes-stacked text-blue-500"></i>
@@ -81,7 +81,7 @@
         </div>
 
         <div v-else class="text-sm text-gray-400 text-center py-6">
-          검색된 자재가 없습니다
+          검색된 품목이 없습니다
         </div>
       </div>
     </div>
@@ -288,7 +288,7 @@ export default {
       this.search({ scan_code: this.scanCode });
     },
 
-    // 자재 검색 API
+    // 품목 검색 API
     // 키워드로 재고를 검색한다
     async searchMaterial() {
       this.search({ scan_code: this.searchText });
@@ -325,7 +325,7 @@ export default {
       this.rowData = this.rowData.filter((r) => r !== row);
     },
 
-    // 선택된 자재 id로 검색을 실행한다
+    // 선택된 품목 id로 검색을 실행한다
     search_material() {
       this.search({ material_id: this.material_id });
     },
@@ -441,7 +441,7 @@ export default {
       }
     },
 
-    // 자재 목록 및 id→name 맵을 로드한다
+    // 품목 목록 및 id→name 맵을 로드한다
     async loadMaterial() {
       const res = await api.post("/api/material/list");
       const materialsArr = res.data;

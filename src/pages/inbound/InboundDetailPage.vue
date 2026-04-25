@@ -21,13 +21,13 @@
           </div>
 
           <div class="lg:w-48">
-            <label class="form-label">자재</label>
+            <label class="form-label">품목</label>
             <SearchSelect
               v-model="where.material_id"
               :options="materials"
               labelKey="name"
               valueKey="id"
-              placeholder="자재 선택"
+              placeholder="품목 선택"
               @change="loadList"
             />
           </div>
@@ -133,13 +133,13 @@ export default {
         },
         {
           key: "material_code",
-          label: "자재코드",
+          label: "품목코드",
           sortable: true,
           width: "180px",
         },
         {
           key: "material_name",
-          label: "자재명",
+          label: "품목명",
           sortable: true,
           width: "250px",
         },
@@ -255,7 +255,7 @@ export default {
       this.loadList();
     },
 
-    // 자재 옵션을 로드한다
+    // 품목 옵션을 로드한다
     async loadMaterial() {
       const res = await api.post("/api/material/list");
       this.materials = res.data;

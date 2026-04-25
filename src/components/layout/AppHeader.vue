@@ -302,7 +302,7 @@ export default {
         },
         {
           type: "MATERIAL",
-          label: "자재",
+          label: "품목",
           icon: "fa-box",
           bg: "bg-green-50",
           text: "text-green-600",

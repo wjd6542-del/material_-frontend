@@ -15,7 +15,7 @@
         </h2>
         <p class="text-[11px] text-slate-400 mt-0.5">
           <span v-if="materialLabel" class="font-mono">{{ materialLabel }}</span>
-          <span v-else class="italic">자재 정보 없음</span>
+          <span v-else class="italic">품목 정보 없음</span>
           <span v-if="selectable" class="ml-1 text-blue-500">
             · 금액을 클릭하면 적용됩니다
           </span>

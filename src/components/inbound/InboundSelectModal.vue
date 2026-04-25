@@ -157,7 +157,7 @@
           <table v-else class="w-full text-xs">
             <thead class="bg-slate-50/60 text-slate-500 sticky top-0">
               <tr>
-                <th class="text-left px-2 py-2 font-semibold">자재</th>
+                <th class="text-left px-2 py-2 font-semibold">품목</th>
                 <th class="text-right px-2 py-2 font-semibold w-16">수량</th>
                 <th class="text-right px-2 py-2 font-semibold w-20">단가</th>
               </tr>

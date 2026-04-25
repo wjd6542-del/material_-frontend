@@ -252,7 +252,7 @@
                   발주 품목
                 </h3>
                 <p class="text-[11px] text-slate-400 mt-0.5">
-                  발주할 자재와 수량·단가를 입력합니다
+                  발주할 품목와 수량·단가를 입력합니다
                 </p>
               </div>
             </div>
@@ -273,7 +273,7 @@
                 class="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-md shadow-teal-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
               >
                 <i class="fa-solid fa-plus"></i>
-                자재 선택
+                품목 선택
               </button>
             </div>
           </div>
@@ -284,9 +284,9 @@
                 <tr>
                   <th class="th">#</th>
                   <th class="th text-left" style="min-width: 180px">
-                    자재번호
+                    품목번호
                   </th>
-                  <th class="th text-left">자재명</th>
+                  <th class="th text-left">품목명</th>
                   <th class="th text-left">규격</th>
                   <th class="th text-right">수량</th>
                   <th class="th text-right">단가</th>
@@ -317,7 +317,7 @@
                       "
                     >
                       <span class="truncate">
-                        {{ it.material_code || "자재 선택" }}
+                        {{ it.material_code || "품목 선택" }}
                       </span>
                       <i
                         class="fa-solid fa-magnifying-glass text-[10px] text-slate-400 ml-2"
@@ -425,7 +425,7 @@
                         등록된 품목이 없습니다
                       </p>
                       <p class="text-xs text-slate-400 mb-4">
-                        발주할 자재·수량·단가를 추가해 주세요.
+                        발주할 품목·수량·단가를 추가해 주세요.
                       </p>
                       <button
                         type="button"
@@ -433,7 +433,7 @@
                         class="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-md shadow-teal-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
                       >
                         <i class="fa-solid fa-plus"></i>
-                        자재 선택
+                        품목 선택
                       </button>
                     </div>
                   </td>
@@ -617,7 +617,7 @@ export default {
     // 단가 이력에서 금액 선택 모달을 연다
     openPriceHistory(target, field) {
       if (!target?.material_id) {
-        this.$toast?.error("먼저 자재를 선택해 주세요.");
+        this.$toast?.error("먼저 품목을 선택해 주세요.");
         return;
       }
       this.modalStore.openModal(
@@ -637,13 +637,13 @@ export default {
       );
     },
 
-    // 자재 선택 모달을 열어 선택한 자재들을 목록에 반영한다
+    // 품목 선택 모달을 열어 선택한 품목들을 목록에 반영한다
     // target 이 전달되면 첫 항목으로 해당 행을 교체하고 나머지는 새 행으로 추가한다
     openMaterialSelect(target = null) {
       this.modalStore.openModal(
         MaterialSelectModal,
         {
-          // 발주: 자재 단가 매핑을 구매가 기준으로
+          // 발주: 품목 단가 매핑을 구매가 기준으로
           priceField: "inbound_price",
           onConfirm: (list) => this.applyMaterials(list, target),
         },
@@ -651,7 +651,7 @@ export default {
       );
     },
 
-    // 자재 정보를 새 품목 행 객체로 변환한다
+    // 품목 정보를 새 품목 행 객체로 변환한다
     buildItemFromMaterial(m) {
       const it = {
         material_id: m.id,
@@ -668,7 +668,7 @@ export default {
       return it;
     },
 
-    // 선택된 자재 목록을 품목 리스트에 반영한다
+    // 선택된 품목 목록을 품목 리스트에 반영한다
     applyMaterials(list, target = null) {
       if (!Array.isArray(list) || !list.length) return;
       if (target) {
@@ -703,7 +703,7 @@ export default {
       if (!this.form.items.length) return;
       const ok = await this.$confirm?.(
         "발주 품목을 전체 삭제하시겠습니까?",
-        "전체 삭제 확인",
+        "전체 삭제 확인", "danger",
       );
       if (ok === false) return;
       this.form.items = [];

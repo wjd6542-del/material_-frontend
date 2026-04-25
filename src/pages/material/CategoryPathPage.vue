@@ -175,11 +175,11 @@
                   </template>
                 </div>
 
-                <!-- ID / 자식 개수 / 자재 개수 -->
+                <!-- ID / 자식 개수 / 품목 개수 -->
                 <div class="shrink-0 flex items-center gap-2 text-[10px] text-slate-400">
                   <span
                     v-if="materialCountByCategory[item.id]"
-                    v-tip="`자재 갯수 · ${materialCountByCategory[item.id]}개`"
+                    v-tip="`품목 갯수 · ${materialCountByCategory[item.id]}개`"
                     class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-semibold"
                   >
                     <i class="fa-solid fa-box text-[9px]"></i>
@@ -234,7 +234,7 @@
                       class="flex items-center justify-center py-6 text-[11px] text-slate-400"
                     >
                       <i class="fa-regular fa-folder-open mr-1.5"></i>
-                      등록된 자재가 없습니다
+                      등록된 품목이 없습니다
                     </div>
                     <ul
                       v-else
@@ -316,7 +316,7 @@ export default {
       return max;
     },
 
-    // category_id → 소속 자재 개수
+    // category_id → 소속 품목 개수
     materialCountByCategory() {
       const map = Object.create(null);
       for (const m of this.allMaterials) {
@@ -327,7 +327,7 @@ export default {
       return map;
     },
 
-    // 현재 펼쳐진 카테고리에 소속된 자재 리스트
+    // 현재 펼쳐진 카테고리에 소속된 품목 리스트
     expandedMaterials() {
       if (!this.expandedId) return [];
       return this.allMaterials.filter((m) => m.category_id === this.expandedId);
@@ -463,7 +463,7 @@ export default {
       this.expandedId = this.expandedId === item.id ? null : item.id;
     },
 
-    // 전체 자재 로드 → 카테고리 매핑/콜랩스 리스트에 공용 사용
+    // 전체 품목 로드 → 카테고리 매핑/콜랩스 리스트에 공용 사용
     async loadAllMaterials() {
       this.materialsLoading = true;
       try {

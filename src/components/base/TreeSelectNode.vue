@@ -30,7 +30,7 @@
 
         <span
           v-if="showMaterialCount && materialCountMap[node.id]"
-          v-tip="`자재 갯수 · ${materialCountMap[node.id]}개`"
+          v-tip="`품목 갯수 · ${materialCountMap[node.id]}개`"
           class="material-count"
         >
           <i class="fa-solid fa-box material-count-icon"></i>

@@ -31,7 +31,7 @@
                 {{ isEdit ? "판매 수정" : "판매 등록" }}
               </h2>
               <p class="text-xs text-slate-400 mt-1">
-                판매할 자재·거래처·창고 위치·수량·단가를 입력하여 전표를 생성합니다.
+                판매할 품목·거래처·창고 위치·수량·단가를 입력하여 전표를 생성합니다.
               </p>
             </div>
           </div>
@@ -248,7 +248,7 @@
                   판매 품목
                 </h3>
                 <p class="text-[11px] text-slate-400 mt-0.5">
-                  판매할 자재와 거래처·창고위치·수량·단가를 입력합니다
+                  판매할 품목와 거래처·창고위치·수량·단가를 입력합니다
                 </p>
               </div>
             </div>
@@ -269,7 +269,7 @@
                 class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-md shadow-red-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
               >
                 <i class="fa-solid fa-plus"></i>
-                자재 선택
+                품목 선택
               </button>
             </div>
           </div>
@@ -279,7 +279,7 @@
               <thead class="bg-slate-50 text-slate-500">
                 <tr>
                   <th class="th w-10">#</th>
-                  <th class="th text-left" style="min-width: 200px">자재</th>
+                  <th class="th text-left" style="min-width: 200px">품목</th>
                   <th class="th text-left" style="min-width: 220px">창고 &gt; 위치 &gt; 선반</th>
                   <th class="th text-right w-24">수량</th>
                   <th class="th text-right w-28">원가</th>
@@ -299,7 +299,7 @@
                     {{ i + 1 }}
                   </td>
 
-                  <!-- 자재 -->
+                  <!-- 품목 -->
                   <td class="td">
                     <button
                       type="button"
@@ -311,7 +311,7 @@
                         {{
                           it.material_name
                             ? `${it.material_code || ""} ${it.material_name}`.trim()
-                            : "자재 선택"
+                            : "품목 선택"
                         }}
                       </span>
                       <i class="fa-solid fa-magnifying-glass text-[10px] text-slate-400"></i>
@@ -429,7 +429,7 @@
 
                 <tr v-if="!form.items.length">
                   <td colspan="9" class="p-0">
-                    <!-- 9 cols: # / 자재 / 위치 / 수량 / 원가 / 판매가 / 공급가액 / 부가세 / 관리 -->
+                    <!-- 9 cols: # / 품목 / 위치 / 수량 / 원가 / 판매가 / 공급가액 / 부가세 / 관리 -->
                     <div
                       class="flex flex-col items-center justify-center py-14 px-6 text-center bg-gradient-to-b from-white to-slate-50/60"
                     >
@@ -447,7 +447,7 @@
                         등록된 품목이 없습니다
                       </p>
                       <p class="text-xs text-slate-400 mb-4">
-                        판매할 자재를 추가해 주세요.
+                        판매할 품목을 추가해 주세요.
                       </p>
                       <button
                         type="button"
@@ -455,7 +455,7 @@
                         class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-md shadow-red-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
                       >
                         <i class="fa-solid fa-plus"></i>
-                        자재 선택
+                        품목 선택
                       </button>
                     </div>
                   </td>
@@ -670,12 +670,12 @@ export default {
       return qty * price;
     },
 
-    // 자재 선택 모달
+    // 품목 선택 모달
     openMaterialSelect(target = null) {
       this.modalStore.openModal(
         MaterialSelectModal,
         {
-          // 판매: 자재 단가 매핑을 판매1 기준으로
+          // 판매: 품목 단가 매핑을 판매1 기준으로
           priceField: "outbound_price1",
           onConfirm: (list) => this.applyMaterials(list, target),
         },
@@ -686,7 +686,7 @@ export default {
     // 단가 이력에서 금액 선택 모달을 연다
     openPriceHistory(target, field) {
       if (!target?.material_id) {
-        this.$toast?.error("먼저 자재를 선택해 주세요.");
+        this.$toast?.error("먼저 품목을 선택해 주세요.");
         return;
       }
       this.modalStore.openModal(
@@ -715,7 +715,7 @@ export default {
       );
     },
 
-    // 자재 → 품목 행 변환 (판매: 원가=구매가, 판매가=판매1 기준)
+    // 품목 → 품목 행 변환 (판매: 원가=구매가, 판매가=판매1 기준)
     buildItemFromMaterial(m) {
       const qty = 1;
       const salePrice = Number(m.price) || Number(m.outbound_price1) || 0;
@@ -740,7 +740,7 @@ export default {
       };
     },
 
-    // 자재 선택 결과 반영
+    // 품목 선택 결과 반영
     applyMaterials(list, target = null) {
       if (!Array.isArray(list) || !list.length) return;
       if (target) {
@@ -750,7 +750,7 @@ export default {
         target.material_name = first.name || "";
         target.spec = first.spec || "";
         target.unit = first.unit || "";
-        // 원가는 자재의 구매가 기준
+        // 원가는 품목의 구매가 기준
         if (
           (!target.cost_price || target.cost_price === 0) &&
           first.inbound_price
@@ -796,7 +796,7 @@ export default {
       if (!this.form.items.length) return;
       const ok = await this.$confirm?.(
         "판매 품목을 전체 삭제하시겠습니까?",
-        "전체 삭제 확인",
+        "전체 삭제 확인", "danger",
       );
       if (ok === false) return;
       this.form.items = [];

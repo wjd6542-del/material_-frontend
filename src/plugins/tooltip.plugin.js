@@ -1,7 +1,7 @@
 // 커스텀 툴팁 플러그인 (v-tip 디렉티브)
 //
 // 사용:
-//   <span v-tip="'자재 갯수 · 12개'">...</span>
+//   <span v-tip="'품목 갯수 · 12개'">...</span>
 //   <span :v-tip="dynamicText">...</span> (Vue 3: v-tip="text")
 //
 // 특징:

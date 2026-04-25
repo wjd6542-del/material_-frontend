@@ -24,7 +24,7 @@
               :options="materials"
               labelKey="name"
               valueKey="id"
-              placeholder="자재 선택"
+              placeholder="품목 선택"
               @change="loadList"
             />
           </div>
@@ -105,7 +105,7 @@
           </div>
         </div>
 
-        <!-- 이번달 신규 자재 -->
+        <!-- 이번달 신규 품목 -->
         <div
           class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition"
         >
@@ -118,7 +118,7 @@
               >
                 <i class="fa-solid fa-box-open text-green-600"></i>
               </div>
-              <span class="text-gray-700 font-medium">이번달 신규 자재</span>
+              <span class="text-gray-700 font-medium">이번달 신규 품목</span>
             </div>
 
             <button
@@ -130,10 +130,13 @@
           </div>
 
           <div class="p-3 max-h-[400px] overflow-y-auto">
-            <div
+            <button
+              type="button"
               v-for="row in newMaterialList"
               :key="row.id"
-              class="flex justify-between items-center px-3 py-2 text-sm border-b last:border-0 hover:bg-gray-50 rounded"
+              @click="openMaterialDetail(row)"
+              v-tip="'상세 정보 보기'"
+              class="w-full flex justify-between items-center px-3 py-2 text-sm border-b last:border-0 hover:bg-blue-50 rounded transition text-left"
             >
               <div class="flex items-center gap-2">
                 <i class="fa-solid fa-plus text-green-500 text-xs"></i>
@@ -149,7 +152,7 @@
               </div>
 
               <div class="text-green-600 font-semibold text-xs">NEW</div>
-            </div>
+            </button>
 
             <div
               v-if="!newMaterialList.length"
@@ -173,6 +176,7 @@ import BaseDateText from "@/components/base/BaseDateText.vue";
 
 import { useModalStore } from "@/stores/modal";
 import StockPrintModal from "@/components/stock/StockPrintModal.vue";
+import MaterialDetailModal from "@/components/material/MaterialDetailModal.vue";
 
 import api from "@/api/api";
 
@@ -202,13 +206,13 @@ export default {
         },
         {
           key: "material_code",
-          label: "자재코드",
+          label: "품목코드",
           sortable: true,
           width: "200px",
         },
         {
           key: "material_name",
-          label: "자재명",
+          label: "품목명",
           sortable: true,
           width: "200px",
         },
@@ -277,8 +281,8 @@ export default {
       this.$router.push("/login");
     },
 
-    //자재 페이지로 이동
-    // 자재 목록 페이지로 이동한다
+    //품목 페이지로 이동
+    // 품목 목록 페이지로 이동한다
     goNewMaterialPage() {
       this.$router.push("/materials");
     },
@@ -315,7 +319,17 @@ export default {
       this.modal.openModal(StockPrintModal, {}, "xl");
     },
 
-    // 자재 옵션을 로드한다
+    // 신규 품목 아이템 클릭 → 품목 상세 모달 오픈
+    openMaterialDetail(row) {
+      if (!row?.id) return;
+      this.modal.openModal(
+        MaterialDetailModal,
+        { material_id: row.id },
+        "lg",
+      );
+    },
+
+    // 품목 옵션을 로드한다
     async loadMaterial() {
       const res = await api.post("/api/material/list");
       this.materials = res.data;
@@ -333,13 +347,13 @@ export default {
       this.locations = res.data;
     },
 
-    // 이번 달 신규 자재 목록을 로드한다
+    // 이번 달 신규 품목 목록을 로드한다
     async newMonthMaterial() {
       const res = await api.post("/api/material/newMonthMaterial");
       this.newMaterialList = res.data;
     },
 
-    // 안전재고 미달 자재 목록을 로드한다
+    // 안전재고 미달 품목 목록을 로드한다
     async lowStockMaterials() {
       const res = await api.post("/api/stock/lowStockMaterials");
       this.lowStockList = res.data;
@@ -353,7 +367,7 @@ export default {
       console.log(data);
     },
   },
-  // 마운트 시 재고/자재/위치/통계 데이터를 병렬 로드한다
+  // 마운트 시 재고/품목/위치/통계 데이터를 병렬 로드한다
   mounted() {
     this.loadList();
     this.loadMaterial();

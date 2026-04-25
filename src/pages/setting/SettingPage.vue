@@ -56,7 +56,7 @@ const tabs = [
   },
   {
     key: "tag",
-    label: "자재 태그",
+    label: "품목 태그",
     icon: "fa-solid fa-tags",
     component: markRaw(Tag),
   },

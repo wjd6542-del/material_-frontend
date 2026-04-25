@@ -27,7 +27,7 @@
           <input
             v-model="searchKeyword"
             type="text"
-            placeholder="자재명 또는 창고 검색..."
+            placeholder="품목명 또는 창고 검색..."
             class="field w-full pl-9 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-50 transition-all"
           />
         </div>
@@ -355,7 +355,7 @@ export default {
 
       try {
         const ok = await this.$confirm(
-          `${select.location_name} ${select.material_name} 자재 ${this.form.quantity}개 이동처리하시겠습니까? `,
+          `${select.location_name} ${select.material_name} 품목 ${this.form.quantity}개 이동처리하시겠습니까? `,
           "재고 이동 확인",
         );
         if (!ok) return;

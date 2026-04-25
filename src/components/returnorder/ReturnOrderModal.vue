@@ -33,7 +33,7 @@
       <table class="w-full text-sm">
         <thead class="bg-gray-100">
           <tr>
-            <th class="th">자재</th>
+            <th class="th">품목</th>
             <th class="th w-32">위치</th>
             <th class="th w-24">수량</th>
             <th class="th w-32">원가</th>
@@ -53,14 +53,14 @@
 
         <tbody>
           <tr v-for="(item, i) in form.items" :key="i">
-            <!-- 자재 -->
+            <!-- 품목 -->
             <td class="td">
               <SearchSelect
                 v-model="item.material_id"
                 :options="materials"
                 labelKey="name"
                 valueKey="id"
-                placeholder="자재 선택"
+                placeholder="품목 선택"
               />
             </td>
 
@@ -248,7 +248,7 @@ export default {
       this.mapping_data(res.data);
     },
 
-    // 자재 옵션을 로드한다
+    // 품목 옵션을 로드한다
     async loadMaterial() {
       const res = await api.post("/api/material/list");
       this.materials = res.data;

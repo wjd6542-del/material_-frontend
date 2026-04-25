@@ -33,7 +33,7 @@
                 재고 검사
               </h2>
               <p class="text-xs text-slate-400 mt-1">
-                자재 코드를 스캔해서 실재고와 장부재고의 일치 여부를 검사합니다.
+                품목 코드를 스캔해서 실재고와 장부재고의 일치 여부를 검사합니다.
               </p>
             </div>
           </div>
@@ -60,7 +60,7 @@
       <div
         class="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 p-4 md:p-5 mb-6"
       >
-        <label class="form-label">자재 코드 스캔</label>
+        <label class="form-label">품목 코드 스캔</label>
         <div class="relative">
           <i
             class="fa-solid fa-barcode absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 text-lg"
@@ -70,7 +70,7 @@
             v-model="scanCode"
             type="text"
             class="w-full h-12 pl-12 pr-12 text-base font-mono bg-slate-50 border-2 border-slate-200 rounded-xl outline-none transition-all focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500"
-            placeholder="자재 코드 스캔 또는 입력 후 Enter"
+            placeholder="품목 코드 스캔 또는 입력 후 Enter"
             @keydown.enter.prevent="onScan"
             @focus="hint = true"
             @blur="hint = false"
@@ -114,7 +114,7 @@
             <thead class="bg-slate-50 text-slate-500">
               <tr>
                 <th class="th text-center w-10">#</th>
-                <th class="th text-left" style="min-width: 200px">자재</th>
+                <th class="th text-left" style="min-width: 200px">품목</th>
                 <th class="th text-left" style="min-width: 220px">카테고리 경로</th>
                 <th class="th text-left" style="min-width: 160px">위치</th>
                 <th class="th text-right w-24">장부재고</th>
@@ -223,7 +223,7 @@
                       <i class="fa-solid fa-barcode text-2xl text-emerald-400"></i>
                     </div>
                     <p class="text-sm font-bold text-slate-700 mb-1">
-                      자재 코드를 스캔하여 검사를 시작하세요
+                      품목 코드를 스캔하여 검사를 시작하세요
                     </p>
                     <p class="text-xs text-slate-400">
                       위 입력창에 코드 입력 후 Enter
@@ -344,7 +344,7 @@ export default {
       if (!this.rows.length) return;
       const ok = await this.$confirm?.(
         "검사 목록을 전체 초기화하시겠습니까?",
-        "초기화 확인",
+        "초기화 확인", "warning",
       );
       if (ok === false) return;
       this.rows = [];

@@ -39,7 +39,7 @@
                 {{ isEdit ? "구매 수정" : "구매 등록" }}
               </h2>
               <p class="text-xs text-slate-400 mt-1">
-                구매할 자재·창고 위치·수량·단가를 입력하여 전표를 생성합니다.
+                구매할 품목·창고 위치·수량·단가를 입력하여 전표를 생성합니다.
               </p>
             </div>
           </div>
@@ -280,7 +280,7 @@
                   구매 품목
                 </h3>
                 <p class="text-[11px] text-slate-400 mt-0.5">
-                  구매할 자재와 거래처·창고위치·수량·단가를 입력합니다
+                  구매할 품목와 거래처·창고위치·수량·단가를 입력합니다
                 </p>
               </div>
             </div>
@@ -301,7 +301,7 @@
                 class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
               >
                 <i class="fa-solid fa-plus"></i>
-                자재 선택
+                품목 선택
               </button>
             </div>
           </div>
@@ -311,7 +311,7 @@
               <thead class="bg-slate-50 text-slate-500">
                 <tr>
                   <th class="th w-10">#</th>
-                  <th class="th text-left" style="min-width: 200px">자재</th>
+                  <th class="th text-left" style="min-width: 200px">품목</th>
                   <th class="th text-left" style="min-width: 160px">거래처</th>
                   <th class="th text-left" style="min-width: 220px">
                     창고 &gt; 위치 &gt; 선반
@@ -333,7 +333,7 @@
                     {{ i + 1 }}
                   </td>
 
-                  <!-- 자재 -->
+                  <!-- 품목 -->
                   <td class="td">
                     <button
                       type="button"
@@ -347,7 +347,7 @@
                         {{
                           it.material_name
                             ? `${it.material_code || ""} ${it.material_name}`.trim()
-                            : "자재 선택"
+                            : "품목 선택"
                         }}
                       </span>
                       <i
@@ -485,7 +485,7 @@
                         등록된 품목이 없습니다
                       </p>
                       <p class="text-xs text-slate-400 mb-4">
-                        구매할 자재를 추가해 주세요.
+                        구매할 품목을 추가해 주세요.
                       </p>
                       <button
                         type="button"
@@ -493,7 +493,7 @@
                         class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
                       >
                         <i class="fa-solid fa-plus"></i>
-                        자재 선택
+                        품목 선택
                       </button>
                     </div>
                   </td>
@@ -694,12 +694,12 @@ export default {
       this.$toast?.success(`${list.length}개 품목이 추가되었습니다.`);
     },
 
-    // 자재 선택 모달을 연다 (target 있으면 행 교체, 없으면 신규 추가)
+    // 품목 선택 모달을 연다 (target 있으면 행 교체, 없으면 신규 추가)
     openMaterialSelect(target = null) {
       this.modalStore.openModal(
         MaterialSelectModal,
         {
-          // 구매: 자재 단가 매핑을 구매가 기준으로
+          // 구매: 품목 단가 매핑을 구매가 기준으로
           priceField: "inbound_price",
           onConfirm: (list) => this.applyMaterials(list, target),
         },
@@ -710,7 +710,7 @@ export default {
     // 단가 이력에서 금액을 선택하는 모달을 연다
     openPriceHistory(target, field) {
       if (!target?.material_id) {
-        this.$toast?.error("먼저 자재를 선택해 주세요.");
+        this.$toast?.error("먼저 품목을 선택해 주세요.");
         return;
       }
       this.modalStore.openModal(
@@ -739,7 +739,7 @@ export default {
       );
     },
 
-    // 자재 정보를 신규 구매 품목 행 객체로 변환한다
+    // 품목 정보를 신규 구매 품목 행 객체로 변환한다
     buildItemFromMaterial(m) {
       const qty = 1;
       const price = Number(m.price) || 0;
@@ -760,7 +760,7 @@ export default {
       };
     },
 
-    // 선택된 자재 목록을 품목 리스트에 반영한다
+    // 선택된 품목 목록을 품목 리스트에 반영한다
     applyMaterials(list, target = null) {
       if (!Array.isArray(list) || !list.length) return;
       if (target) {
@@ -805,7 +805,7 @@ export default {
       if (!this.form.items.length) return;
       const ok = await this.$confirm?.(
         "구매 품목을 전체 삭제하시겠습니까?",
-        "전체 삭제 확인",
+        "전체 삭제 확인", "danger",
       );
       if (ok === false) return;
       this.form.items = [];

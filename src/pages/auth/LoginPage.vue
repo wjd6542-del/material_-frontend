@@ -40,7 +40,7 @@
           </h1>
           <p class="text-gray-400 text-lg leading-relaxed font-light">
             복잡한 재고 관리를 한눈에.<br />
-            더 스마트하고 빠른 통합 자재 솔루션.
+            더 스마트하고 빠른 통합 품목 솔루션.
           </p>
         </div>
 
@@ -59,7 +59,7 @@
         class="w-full lg:w-1/2 p-8 md:p-16 flex flex-col justify-center bg-white"
       >
         <div class="mb-10 text-center lg:text-left">
-          <p class="text-gray-500">로그인하여 자재 현황을 확인하세요.</p>
+          <p class="text-gray-500">로그인하여 품목 현황을 확인하세요.</p>
         </div>
 
         <form @submit.prevent="login" class="space-y-6">

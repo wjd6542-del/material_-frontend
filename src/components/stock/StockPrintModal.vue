@@ -19,7 +19,7 @@
           <th class="py-2 text-left">
             <div class="flex items-center gap-1">
               <i class="fa-solid fa-box text-gray-400"></i>
-              자재
+              품목
             </div>
           </th>
           <th class="py-2 text-center">

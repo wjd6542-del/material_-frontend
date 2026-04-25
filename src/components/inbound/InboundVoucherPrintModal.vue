@@ -37,7 +37,7 @@
           <th class="py-2 text-left">
             <div class="flex items-center gap-1">
               <i class="fa-solid fa-box text-gray-400"></i>
-              자재
+              품목
             </div>
           </th>
 
@@ -65,14 +65,14 @@
           <th class="py-2 text-right">
             <div class="flex items-center justify-end gap-1">
               <i class="fa-solid fa-coins text-gray-400"></i>
-              원가
+              단가
             </div>
           </th>
 
           <th class="py-2 text-right">
             <div class="flex items-center justify-end gap-1">
               <i class="fa-solid fa-sack-dollar text-gray-400"></i>
-              금액
+              공급가액
             </div>
           </th>
         </tr>
@@ -94,12 +94,14 @@
           </td>
 
           <td class="py-2 text-right">
-            {{ formatNumber(row.unit_price) }}
+            {{ formatNumber(row.price) }}
           </td>
 
           <td class="py-2 text-right font-medium">
             {{
-              formatNumber(row.amount || row.quantity * (row.unit_price || 0))
+              formatNumber(
+                row.supply_amount || row.quantity * (row.price || 0),
+              )
             }}
           </td>
         </tr>
@@ -176,13 +178,18 @@ export default {
       window.print();
     },
 
-    // 품목 수량×단가를 합산해 총액을 계산한다
+    // 품목 공급가액 합계로 총액을 계산한다 (supply_amount 우선, 없으면 수량×단가)
     totalAmount(data) {
-      const list = data.items;
+      const list = Array.isArray(data?.items) ? data.items : [];
 
       let total = 0;
       list.forEach((row) => {
-        total += Number(row.quantity) * Number(row.unit_price);
+        const supply = Number(row.supply_amount);
+        if (!Number.isNaN(supply) && supply > 0) {
+          total += supply;
+        } else {
+          total += Number(row.quantity || 0) * Number(row.price || 0);
+        }
       });
       this.total_amount = total;
     },

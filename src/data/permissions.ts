@@ -14,7 +14,7 @@ export type PermissionItem = {
 }
 
 export type PermissionPage = PermissionItem & {
-	// 같은 권한 코드를 공유하는 추가 메뉴 변형 (예: 자재 카테고리 / 자재 카테고리 가로)
+	// 같은 권한 코드를 공유하는 추가 메뉴 변형 (예: 품목 카테고리 / 품목 카테고리 가로)
 	extraMenus?: { path: string; label: string }[]
 	// 페이지 내 버튼/동작 권한. action 중 path 가 있으면 메뉴 항목으로도 노출된다
 	actions?: PermissionItem[]
@@ -78,29 +78,29 @@ export const permissions: PermissionGroup[] = [
 
 	{
 		group: "material",
-		label: "자재관리",
+		label: "품목관리",
 		icon: "fa-box",
 		pages: [
 			{
 				code: "material.view",
-				name: "자재목록",
+				name: "품목목록",
 				action: "view",
 				path: "/materials",
 				actions: [
-					{ code: "material.create", name: "자재 등록", action: "create" },
-					{ code: "material.update", name: "자재 수정", action: "update" },
-					{ code: "material.delete", name: "자재 삭제", action: "delete" },
+					{ code: "material.create", name: "품목 등록", action: "create" },
+					{ code: "material.update", name: "품목 수정", action: "update" },
+					{ code: "material.delete", name: "품목 삭제", action: "delete" },
 				],
 			},
 			{
 				code: "material.print.view",
-				name: "자재라벨",
+				name: "품목라벨",
 				action: "view",
 				path: "/materials/print",
 			},
 			{
 				code: "material.category.view",
-				name: "자재 카테고리",
+				name: "품목 카테고리",
 				action: "view",
 				path: "/materials/category",
 				extraMenus: [
@@ -109,11 +109,11 @@ export const permissions: PermissionGroup[] = [
 			},
 			{
 				code: "material.rate.view",
-				name: "자재 기본설정",
+				name: "품목 기본설정",
 				action: "view",
 				path: "/materials/rate",
 				actions: [
-					{ code: "material.rate.update", name: "자재 기본설정 저장", action: "update" },
+					{ code: "material.rate.update", name: "품목 기본설정 저장", action: "update" },
 				],
 			},
 		],

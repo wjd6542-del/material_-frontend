@@ -94,14 +94,14 @@
               <label
                 class="text-[11px] font-bold text-slate-400 mb-1.5 block px-1 flex items-center gap-1"
               >
-                <i class="fa-solid fa-tag text-[10px]"></i> 자재 필터
+                <i class="fa-solid fa-tag text-[10px]"></i> 품목 필터
               </label>
               <SearchSelect
                 v-model="where.material_id"
                 :options="materials"
                 labelKey="name"
                 valueKey="id"
-                placeholder="전체 자재"
+                placeholder="전체 품목"
                 @change="searchData"
               />
             </div>
@@ -208,7 +208,7 @@ export default {
         },
         {
           key: "material_name",
-          label: "자재명",
+          label: "품목명",
           width: "auto",
           align: "left",
           sortable: true,
@@ -315,7 +315,7 @@ export default {
       await Promise.all([this.loadList(), this.loadChartData()]);
     },
 
-    // 자재 옵션 목록을 로드한다
+    // 품목 옵션 목록을 로드한다
     async loadMaterial() {
       const res = await api.post("/api/material/list");
       this.materials = res.data;

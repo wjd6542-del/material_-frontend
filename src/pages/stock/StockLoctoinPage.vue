@@ -187,7 +187,7 @@
               ></i>
               <input
                 v-model="searchText"
-                placeholder="자재 검색 (선반 자동 찾기)..."
+                placeholder="품목 검색 (선반 자동 찾기)..."
                 class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
               />
             </div>
@@ -200,7 +200,7 @@
                 class="w-3 h-3 rounded-sm bg-emerald-500 shadow-sm shadow-emerald-200"
               ></span>
               <span class="text-[11px] font-bold text-slate-600"
-                >자재 존재(검색시)</span
+                >품목 존재(검색시)</span
               >
             </div>
             <div class="flex items-center gap-1.5">
@@ -441,12 +441,12 @@
             ></i>
             <input
               v-model="detailSearchText"
-              placeholder="위치 내 자재 검색..."
+              placeholder="위치 내 품목 검색..."
               class="w-full pl-9 pr-4 py-2 bg-slate-50 border-none rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
             />
           </div>
 
-          <!-- 자재 리스트 -->
+          <!-- 품목 리스트 -->
           <div class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scroll">
             <div
               v-for="item in filteredStocks"
@@ -552,7 +552,7 @@ export default {
           .includes(this.detailSearchText.toLowerCase()),
       );
     },
-    // 검색어에 자재가 포함된 rack id 배열을 반환한다
+    // 검색어에 품목이 포함된 rack id 배열을 반환한다
     matchedRackIds() {
       if (!this.searchText) return [];
       return this.racks
@@ -582,7 +582,7 @@ export default {
     },
   },
   methods: {
-    // 창고별 고유 자재 종류 수를 계산한다
+    // 창고별 고유 품목 종류 수를 계산한다
     getWarehouseTypes(id) {
       const wh = this.warehouses.find((w) => w.id === id);
       if (!wh || !wh.stocks) return 0;

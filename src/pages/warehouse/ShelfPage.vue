@@ -592,7 +592,7 @@ export default {
       }
       const ok = await this.$confirm(
         `[${rack.code}] 삭제하시겠습니까?`,
-        "삭제 확인",
+        "삭제 확인", "danger",
       );
       if (!ok) return;
       try {

@@ -12,6 +12,7 @@
     :title="alertStore.title"
     :message="alertStore.message"
     :type="alertStore.type"
+    :variant="alertStore.variant"
     @ok="alertStore.ok"
     @cancel="alertStore.cancel"
   />

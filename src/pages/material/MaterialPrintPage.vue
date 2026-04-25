@@ -106,7 +106,7 @@
           class="print-page"
         >
           <div class="page-header">
-            <div class="title">자재 QR 라벨 ({{ format.name }})</div>
+            <div class="title">품목 QR 라벨 ({{ format.name }})</div>
             <div class="page-number">
               Page {{ pageIndex + 1 }} / {{ pages.length }}
             </div>
@@ -308,7 +308,7 @@ export default {
   },
 
   methods: {
-    // 검색 조건으로 자재 목록을 로드한다
+    // 검색 조건으로 품목 목록을 로드한다
     async loadData() {
       try {
         const payload = {
@@ -329,7 +329,7 @@ export default {
       }
     },
 
-    // 자재 검색 옵션 전체 목록을 로드한다
+    // 품목 검색 옵션 전체 목록을 로드한다
     async loadMaterial() {
       try {
         const res = await api.post("/api/material/list");
@@ -475,7 +475,7 @@ export default {
     },
   },
 
-  // 생성 시 데이터/자재/태그를 병렬 로드한다
+  // 생성 시 데이터/품목/태그를 병렬 로드한다
   created() {
     this.loadData();
     this.loadMaterial();

@@ -6,7 +6,7 @@
           <i class="fa-solid fa-boxes-stacked"></i>
         </div>
         <div>
-          <h2>자재 카테고리</h2>
+          <h2>품목 카테고리</h2>
           <p class="sidebar-subtitle">분류 체계 관리</p>
         </div>
       </div>
@@ -61,7 +61,7 @@
         </div>
         <p class="tree-empty-title">카테고리가 비어있습니다</p>
         <p class="tree-empty-desc">
-          첫 번째 카테고리를 등록하여<br />자재 분류를 시작하세요.
+          첫 번째 카테고리를 등록하여<br />품목 분류를 시작하세요.
         </p>
         <button @click="$emit('add-root')" class="tree-empty-btn">
           <i class="fa-solid fa-plus mr-1.5"></i> 첫 카테고리 만들기

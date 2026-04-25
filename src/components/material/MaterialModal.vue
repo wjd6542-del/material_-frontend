@@ -1,15 +1,15 @@
 <template>
   <div>
     <h2 class="text-base font-semibold mb-3">
-      자재 {{ isEdit ? "수정" : "등록" }}
+      품목 {{ isEdit ? "수정" : "등록" }}
     </h2>
 
     <div class="space-y-3">
       <div>
-        <label class="form-label">자재명</label>
+        <label class="form-label">품목명</label>
         <input
           v-model="form.name"
-          placeholder="자재명 입력"
+          placeholder="품목명 입력"
           class="field mt-1"
         />
       </div>
@@ -20,7 +20,7 @@
       </div>
 
       <div>
-        <label class="form-label">자재코드</label>
+        <label class="form-label">품목코드</label>
         <input
           v-model="form.code"
           class="field mt-1"
@@ -466,7 +466,7 @@ export default {
       );
     },
 
-    // 수정 대상 자재 상세 데이터를 로드한다
+    // 수정 대상 품목 상세 데이터를 로드한다
     async loadData() {
       const res = await api.post(`/api/material/${this.id}`, { id: this.id });
       this.mappingData(res.data);
@@ -484,7 +484,7 @@ export default {
       (this as any).$toast?.success("기본 요율을 불러왔습니다.");
     },
 
-    // 신규 등록 시 화면에만 기본 요율 값을 채워준다 (자재와 연결은 하지 않음)
+    // 신규 등록 시 화면에만 기본 요율 값을 채워준다 (품목와 연결은 하지 않음)
     async loadDefaultRate() {
       try {
         const res = await api.post("/api/materialRate/info");
@@ -584,7 +584,7 @@ export default {
       this.form.images = this.form.images.filter((item) => item.id !== img.id);
     },
 
-    // 자재를 FormData로 저장한다 (이미지/태그 포함, 신규/수정 분기)
+    // 품목을 FormData로 저장한다 (이미지/태그 포함, 신규/수정 분기)
     async save() {
       try {
         const formData = new FormData();
@@ -646,7 +646,7 @@ export default {
     },
   },
 
-  // 마운트 시 카테고리/태그 로드 및 수정 대상 자재 로드
+  // 마운트 시 카테고리/태그 로드 및 수정 대상 품목 로드
   mounted() {
     this.loadCategory();
     this.loadTags();

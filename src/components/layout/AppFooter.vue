@@ -5,10 +5,10 @@
       class="hidden lg:flex lg:w-1/2 bg-blue-600 text-white items-center justify-center"
     >
       <div class="max-w-md text-center px-8">
-        <h1 class="text-4xl font-bold mb-4">자재관리 시스템</h1>
+        <h1 class="text-4xl font-bold mb-4">품목관리 시스템</h1>
 
         <p class="text-blue-100 leading-relaxed">
-          재고, 구매, 판매를 효율적으로 관리하는 통합 자재 관리 플랫폼입니다.
+          재고, 구매, 판매를 효율적으로 관리하는 통합 품목 관리 플랫폼입니다.
         </p>
 
         <div class="mt-10 text-sm text-blue-200">

@@ -190,7 +190,7 @@ export default {
     // 셀클릭시
     // username 셀 클릭 시 사용자 정보 수정 모달을 연다
     onCellClick(data) {
-      // 자재명 클릭시 모달 상세 오픈
+      // 품목명 클릭시 모달 상세 오픈
       if (data.key == "username") {
         this.modal.openModal(
           UserInfoModal,

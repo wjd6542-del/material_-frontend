@@ -123,7 +123,7 @@ export default {
       const path = this.categoryPath;
       return path.length > 0 ? path[path.length - 1].name : "";
     },
-    // category_id → 소속 자재 갯수 매핑
+    // category_id → 소속 품목 갯수 매핑
     materialCountByCategory() {
       const map = Object.create(null);
       for (const m of this.allMaterials) {
@@ -277,8 +277,8 @@ export default {
     // 사용자 확인 후 카테고리를 로컬 트리에서 제거한다
     async deleteCategory(id) {
       const ok = await this.$confirm(
-        "선택된 자재를 삭제하시겠습니까?",
-        "삭제 확인",
+        "선택된 품목을 삭제하시겠습니까?",
+        "삭제 확인", "danger",
       );
       if (!ok) return;
       removeNode(this.categoryTree, id);
@@ -292,7 +292,7 @@ export default {
       this.categoryTree = res.data;
     },
 
-    // 전체 자재 목록 로드 → category_id 별 갯수 뱃지에 사용
+    // 전체 품목 목록 로드 → category_id 별 갯수 뱃지에 사용
     async loadAllMaterials() {
       try {
         const res = await api.post("/api/material/list", {});

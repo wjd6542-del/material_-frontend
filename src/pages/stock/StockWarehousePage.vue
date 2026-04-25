@@ -111,7 +111,7 @@
               ></i>
               <input
                 v-model="searchMaterial"
-                placeholder="특정 자재 위치 검색..."
+                placeholder="특정 품목 위치 검색..."
                 class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
               />
             </div>
@@ -124,7 +124,7 @@
                 class="w-3 h-3 rounded-sm bg-emerald-500 shadow-sm shadow-emerald-200"
               ></span>
               <span class="text-[11px] font-bold text-slate-600"
-                >자재 존재(검색시)</span
+                >품목 존재(검색시)</span
               >
             </div>
             <div class="flex items-center gap-1.5">
@@ -451,7 +451,7 @@ export default {
         r.name.toLowerCase().includes(this.searchText.toLowerCase()),
       );
     },
-    // 자재 검색어에 매칭되는 rack id 배열을 반환한다
+    // 품목 검색어에 매칭되는 rack id 배열을 반환한다
     matchedRackIds() {
       if (!this.searchMaterial) return [];
       return this.racks

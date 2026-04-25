@@ -20,7 +20,7 @@
       <h3 class="text-xs font-semibold text-slate-700">구매 품목</h3>
       <button type="button" class="btn btn-primary" @click="openMaterialSelect()">
         <i class="fa-solid fa-plus text-[10px]"></i>
-        자재 선택
+        품목 선택
       </button>
     </div>
 
@@ -28,7 +28,7 @@
       <table class="w-full text-xs">
         <thead class="bg-slate-50">
           <tr>
-            <th class="th">자재</th>
+            <th class="th">품목</th>
             <th class="th">거래처</th>
             <th class="th w-32">창고 위치</th>
             <th class="th w-20">수량</th>
@@ -40,7 +40,7 @@
 
         <tbody>
           <tr v-for="(item, i) in form.items" :key="i">
-            <!-- 자재 -->
+            <!-- 품목 -->
             <td class="td">
               <button
                 type="button"
@@ -52,7 +52,7 @@
                   {{
                     item.material_name
                       ? `${item.material_code || ""} ${item.material_name}`.trim()
-                      : "자재 선택"
+                      : "품목 선택"
                   }}
                 </span>
                 <i class="fa-solid fa-magnifying-glass text-[10px] text-slate-400"></i>
@@ -166,8 +166,8 @@ export default {
   },
 
   methods: {
-    // 자재 선택 모달을 열어 선택한 자재들을 품목에 반영한다
-    // target 이 전달되면 해당 행을 첫 자재로 교체하고 나머지는 새 행으로 추가한다
+    // 품목 선택 모달을 열어 선택한 품목들을 품목에 반영한다
+    // target 이 전달되면 해당 행을 첫 품목로 교체하고 나머지는 새 행으로 추가한다
     openMaterialSelect(target: any = null) {
       this.modal.openModal(
         MaterialSelectModal,
@@ -178,7 +178,7 @@ export default {
       );
     },
 
-    // 자재 정보를 신규 구매 품목 행 객체로 변환한다
+    // 품목 정보를 신규 구매 품목 행 객체로 변환한다
     buildItemFromMaterial(m: any) {
       return {
         id: 0,
@@ -218,7 +218,7 @@ export default {
       target.shelf_label = shelf.name;
     },
 
-    // 선택된 자재 목록을 품목 리스트에 반영한다
+    // 선택된 품목 목록을 품목 리스트에 반영한다
     applyMaterials(list: any[], target: any = null) {
       if (!Array.isArray(list) || !list.length) return;
       if (target) {

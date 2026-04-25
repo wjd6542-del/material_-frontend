@@ -25,7 +25,7 @@
           <h1 class="current-cat-title">{{ selectedName }}</h1>
         </div>
         <button @click="openModal()" class="btn-add-main">
-          <i class="fa-solid fa-plus mr-1.5"></i> 자재 등록
+          <i class="fa-solid fa-plus mr-1.5"></i> 품목 등록
         </button>
       </div>
 
@@ -71,7 +71,7 @@ import api from "@/api/api";
 
 const COLUMNS = [
   { key: "code", label: "코드", width: "180px", sortable: true },
-  { key: "name", label: "자재명", minWidth: "180px", sortable: true },
+  { key: "name", label: "품목명", minWidth: "180px", sortable: true },
   { key: "spec", label: "규격", align: "center", width: "120px", sortable: true },
   { key: "unit", label: "단위", align: "center", width: "100px", sortable: true },
   { key: "safety_stock", label: "안전재고", align: "right", width: "110px", sortable: true },
@@ -98,14 +98,14 @@ export default {
   watch: {
     selectedId: {
       immediate: true,
-      // 선택된 카테고리 변경 시 자재 목록을 재로드한다
+      // 선택된 카테고리 변경 시 품목 목록을 재로드한다
       handler() {
         this.load();
       },
     },
   },
   methods: {
-    // 선택된 카테고리의 자재 목록을 로드한다
+    // 선택된 카테고리의 품목 목록을 로드한다
     async load() {
       if (!this.selectedId) {
         this.materials = [];
@@ -120,24 +120,24 @@ export default {
         this.materials = [];
       }
     },
-    // 자재명/코드 셀 클릭 시 상세 수정 모달을 연다
+    // 품목명/코드 셀 클릭 시 상세 수정 모달을 연다
     onCellClick(data) {
       if (data.key === "name" || data.key === "code") {
         this.openModal(data.row.id);
       }
     },
-    // 자재 등록/수정 모달을 연다 (id가 있으면 수정 모드)
+    // 품목 등록/수정 모달을 연다 (id가 있으면 수정 모드)
     openModal(id) {
       const props = { onSaved: this.load };
       if (id) props.id = id;
       else props.category_id = this.selectedId;
       this.modal.openModal(MaterialModal, props);
     },
-    // 지정 자재를 사용자 확인 후 서버에서 삭제한다
+    // 지정 품목을 사용자 확인 후 서버에서 삭제한다
     async remove(id) {
       const ok = await this.$confirm(
-        "선택된 자재를 삭제하시겠습니까?",
-        "삭제 확인",
+        "선택된 품목을 삭제하시겠습니까?",
+        "삭제 확인", "danger",
       );
       if (!ok) return;
       try {

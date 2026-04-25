@@ -5,7 +5,7 @@
       <div>
         <h2 class="text-base font-semibold text-slate-800 flex items-center gap-2">
           <i class="fa-solid fa-clock-rotate-left text-amber-500"></i>
-          자재 요율 변경 이력
+          품목 요율 변경 이력
         </h2>
         <p class="text-[11px] text-slate-400 mt-0.5">
           기본 요율 저장 시점마다 스냅샷이 기록됩니다

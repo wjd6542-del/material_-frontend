@@ -29,14 +29,14 @@
           <div class="space-y-1.5">
             <label
               class="text-xs font-bold text-gray-400 ml-1 uppercase tracking-wider"
-              >자재 그룹</label
+              >품목 그룹</label
             >
             <SearchSelect
               v-model="where.material_id"
               :options="materials"
               labelKey="name"
               valueKey="id"
-              placeholder="전체 자재 보기"
+              placeholder="전체 품목 보기"
               @change="loadData"
             />
           </div>
@@ -48,7 +48,7 @@
             >
             <input
               v-model="where.searchText"
-              placeholder="자재명 또는 코드를 입력..."
+              placeholder="품목명 또는 코드를 입력..."
               class="field"
               @keyup.enter="loadData"
             />
@@ -80,7 +80,7 @@
               재고 변동 추이
             </h2>
             <p class="text-sm text-gray-400 mt-0.5">
-              선택한 기간 동안의 자재별 흐름을 한눈에 확인하세요.
+              선택한 기간 동안의 품목별 흐름을 한눈에 확인하세요.
             </p>
           </div>
         </div>
@@ -110,7 +110,7 @@
           </h3>
           <p class="text-gray-400 max-w-sm">
             설정하신 필터 조건에 맞는 재고 변동 내역이 없습니다.<br />
-            기간을 변경하거나 다른 자재를 선택해 보세요.
+            기간을 변경하거나 다른 품목을 선택해 보세요.
           </p>
           <button
             @click="resetFilters"
@@ -204,7 +204,7 @@ export default {
   },
 
   methods: {
-    // 자재 선택 옵션을 로드한다
+    // 품목 선택 옵션을 로드한다
     async loadMaterial() {
       const res = await api.post("/api/material/list");
       this.materials = res.data;
@@ -222,7 +222,7 @@ export default {
       this.buildChart();
     },
 
-    // 로드된 데이터를 기간 라벨과 자재별 series로 가공한다
+    // 로드된 데이터를 기간 라벨과 품목별 series로 가공한다
     buildChart() {
       if (!this.chartData?.length) {
         this.labels = [];
@@ -255,7 +255,7 @@ export default {
       }));
     },
 
-    // 기간을 이번달로 초기화하고 자재 필터를 비운다
+    // 기간을 이번달로 초기화하고 품목 필터를 비운다
     resetFilters() {
       const now = new Date();
       this.dateRange = {
@@ -268,7 +268,7 @@ export default {
     },
   },
 
-  // 마운트 시 필터 초기화와 자재 로드를 수행한다
+  // 마운트 시 필터 초기화와 품목 로드를 수행한다
   mounted() {
     this.resetFilters();
     this.loadMaterial();

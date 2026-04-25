@@ -180,7 +180,7 @@ export default {
 
       const ok = await this.$confirm(
         `선택된 정보를 삭제하시겠습니까?`,
-        "삭제 확인",
+        "삭제 확인", "danger",
       );
       if (!ok) return;
 
@@ -224,7 +224,7 @@ export default {
     // 셀클릭시
     // 전표번호 셀은 수정 모달, ID 셀은 전표 프린트 모달을 연다
     onCellClick(data) {
-      // 자재명 클릭시 모달 상세 오픈
+      // 품목명 클릭시 모달 상세 오픈
       if (data.key == "return_no") {
         this.modal.openModal(
           returnorderModal,

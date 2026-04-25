@@ -30,7 +30,7 @@
           :options="materials"
           labelKey="name"
           valueKey="id"
-          placeholder="자재 선택"
+          placeholder="품목 선택"
           @change="loadList"
         />
         <SearchSelect
@@ -97,14 +97,14 @@ export default {
         },
         {
           key: "material_code",
-          label: "자재코드",
+          label: "품목코드",
           sortable: true,
           width: "200px",
         },
 
         {
           key: "material_name",
-          label: "자재명",
+          label: "품목명",
           sortable: true,
           width: "200px",
         },
@@ -198,7 +198,7 @@ export default {
       console.log(res.data);
     },
 
-    // 자재 옵션을 로드한다
+    // 품목 옵션을 로드한다
     async loadMaterial() {
       const res = await api.post("/api/material/list");
       this.materials = res.data;
@@ -216,7 +216,7 @@ export default {
       this.locations = res.data;
     },
   },
-  // 마운트 시 이력/자재/창고/위치를 로드한다
+  // 마운트 시 이력/품목/창고/위치를 로드한다
   mounted() {
     this.loadList();
     this.loadMaterial();

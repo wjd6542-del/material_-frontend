@@ -163,7 +163,7 @@ export default {
       const map = {
         INBOUND: "구매",
         OUTBOUND: "판매",
-        MATERIAL: "자재",
+        MATERIAL: "품목",
         PURCHASEORDER: "발주",
         RETURNORDER: "반품",
         STOCK: "재고",

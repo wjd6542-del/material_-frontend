@@ -14,7 +14,7 @@ import PurchaseOrderListPage from "@/pages/purchaseorder/PurchaseOrderListPage.v
 import PurchaseOrderRegisterPage from "@/pages/purchaseorder/PurchaseOrderRegisterPage.vue"
 import PurchaseOrderDetailPage from "@/pages/purchaseorder/PurchaseOrderDetailPage.vue"
 
-// 자재
+// 품목
 import MaterialListPage from "@/pages/material/MaterialListPage.vue"
 import MaterialPrintPage from "@/pages/material/MaterialPrintPage.vue"
 import MaterialCategoryPage from "@/pages/material/MaterialCategoryPage.vue"
@@ -38,7 +38,7 @@ import ReturnOrderRegisterPage from "@/pages/returnorder/ReturnOrderRegisterPage
 import ReturnOrderDetailPage from "@/pages/returnorder/ReturnOrderDetailPage.vue"
 import ReturnOrderScanPage from "@/pages/returnorder/ReturnOrderScanPage.vue"
 
-// 자재
+// 품목
 import StockPage from "@/pages/stock/StockPage.vue"
 import StockDetailPage from "@/pages/stock/StockDetailPage.vue"
 import StockWarehousePage from "@/pages/stock/StockWarehousePage.vue"
@@ -75,7 +75,7 @@ import UserMyPage from "@/pages/user/UserMyPage.vue"
 // 사업자
 import BusinessPage from "@/pages/business/BusinessPage.vue"
 
-// 자재 요율
+// 품목 요율
 import MaterialRatePage from "@/pages/materialRate/MaterialRatePage.vue"
 
 
@@ -111,21 +111,21 @@ const routes = [
 						meta: { title: "대시보드", auth: true, permission: "dashboard.view" },
 					},
 
-					// 자재
+					// 품목
 					{
 						path: "materials",
 						component: MaterialListPage,
-						meta: { title: "자재목록", auth: true, permission: "material.view" },
+						meta: { title: "품목목록", auth: true, permission: "material.view" },
 					},
 					{
 						path: "materials/print",
 						component: MaterialPrintPage,
-						meta: { title: "자재라벨", auth: true, permission: "material.print.view" },
+						meta: { title: "품목라벨", auth: true, permission: "material.print.view" },
 					},
 					{
 						path: "materials/category",
 						component: MaterialCategoryPage,
-						meta: { title: "자재 카테고리", auth: true, permission: "material.category.view" },
+						meta: { title: "품목 카테고리", auth: true, permission: "material.category.view" },
 					},
 					{
 						path: "materials/category/path",
@@ -135,7 +135,7 @@ const routes = [
 					{
 						path: "materials/rate",
 						component: MaterialRatePage,
-						meta: { title: "자재 기본설정", auth: true, permission: "material.rate.view" },
+						meta: { title: "품목 기본설정", auth: true, permission: "material.rate.view" },
 					},
 
 					// 구매
@@ -431,7 +431,7 @@ router.beforeEach((to, from) => {
 
 // 라우트 전환 후 메타 타이틀로 document.title을 갱신한다
 router.afterEach((to) => {
-	const baseTitle = "자재관리 시스템";
+	const baseTitle = "품목관리 시스템";
 
 	if (to.meta?.title) {
 		document.title = `${baseTitle} | ${to.meta.title}`;

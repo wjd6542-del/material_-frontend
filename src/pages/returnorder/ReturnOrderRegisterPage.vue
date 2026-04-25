@@ -31,7 +31,7 @@
                 {{ isEdit ? "반품 수정" : "반품 등록" }}
               </h2>
               <p class="text-xs text-slate-400 mt-1">
-                반품 자재·위치·수량·반품사유를 입력하여 전표를 생성합니다.
+                반품 품목·위치·수량·반품사유를 입력하여 전표를 생성합니다.
               </p>
             </div>
           </div>
@@ -134,7 +134,7 @@
                   반품 품목
                 </h3>
                 <p class="text-[11px] text-slate-400 mt-0.5">
-                  반품할 자재·위치·수량·반품사유를 입력합니다
+                  반품할 품목·위치·수량·반품사유를 입력합니다
                 </p>
               </div>
             </div>
@@ -155,7 +155,7 @@
                 class="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-md shadow-orange-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
               >
                 <i class="fa-solid fa-plus"></i>
-                자재 선택
+                품목 선택
               </button>
             </div>
           </div>
@@ -165,7 +165,7 @@
               <thead class="bg-slate-50 text-slate-500">
                 <tr>
                   <th class="th w-10">#</th>
-                  <th class="th text-left" style="min-width: 200px">자재</th>
+                  <th class="th text-left" style="min-width: 200px">품목</th>
                   <th class="th text-left" style="min-width: 220px">창고 &gt; 위치 &gt; 선반</th>
                   <th class="th text-right w-24">수량</th>
                   <th class="th text-right w-28">원가</th>
@@ -184,7 +184,7 @@
                     {{ i + 1 }}
                   </td>
 
-                  <!-- 자재 -->
+                  <!-- 품목 -->
                   <td class="td">
                     <button
                       type="button"
@@ -196,7 +196,7 @@
                         {{
                           it.material_name
                             ? `${it.material_code || ""} ${it.material_name}`.trim()
-                            : "자재 선택"
+                            : "품목 선택"
                         }}
                       </span>
                       <i class="fa-solid fa-magnifying-glass text-[10px] text-slate-400"></i>
@@ -292,7 +292,7 @@
                         등록된 품목이 없습니다
                       </p>
                       <p class="text-xs text-slate-400 mb-4">
-                        반품할 자재를 추가해 주세요.
+                        반품할 품목을 추가해 주세요.
                       </p>
                       <button
                         type="button"
@@ -300,7 +300,7 @@
                         class="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-md shadow-orange-500/20 transition-all active:scale-[0.98] flex items-center gap-1.5"
                       >
                         <i class="fa-solid fa-plus"></i>
-                        자재 선택
+                        품목 선택
                       </button>
                     </div>
                   </td>
@@ -395,7 +395,7 @@ export default {
       this.$toast?.success(`${list.length}개 품목이 추가되었습니다.`);
     },
 
-    // 자재 선택 모달 오픈 (target 있으면 행 교체, 없으면 신규 추가)
+    // 품목 선택 모달 오픈 (target 있으면 행 교체, 없으면 신규 추가)
     openMaterialSelect(target = null) {
       this.modalStore.openModal(
         MaterialSelectModal,
@@ -419,7 +419,7 @@ export default {
       );
     },
 
-    // 자재 정보를 신규 반품 품목 행 객체로 변환한다
+    // 품목 정보를 신규 반품 품목 행 객체로 변환한다
     buildItemFromMaterial(m) {
       return {
         id: 0,
@@ -439,7 +439,7 @@ export default {
       };
     },
 
-    // 선택된 자재 목록을 품목에 반영한다
+    // 선택된 품목 목록을 품목에 반영한다
     applyMaterials(list, target = null) {
       if (!Array.isArray(list) || !list.length) return;
       if (target) {
@@ -483,7 +483,7 @@ export default {
       if (!this.form.items.length) return;
       const ok = await this.$confirm?.(
         "반품 품목을 전체 삭제하시겠습니까?",
-        "전체 삭제 확인",
+        "전체 삭제 확인", "danger",
       );
       if (ok === false) return;
       this.form.items = [];

@@ -84,7 +84,7 @@
                   </span>
                   <span
                     v-if="showMaterialCount && materialCountMap[item.id]"
-                    v-tip="`자재 갯수 · ${materialCountMap[item.id]}개`"
+                    v-tip="`품목 갯수 · ${materialCountMap[item.id]}개`"
                     class="material-count"
                   >
                     <i class="fa-solid fa-box material-count-icon"></i>
@@ -148,7 +148,7 @@ export default {
   props: {
     modelValue: { type: [Number, null], default: null },
     placeholder: { type: String, default: "카테고리 선택" },
-    // 카테고리별 소속 자재 갯수 뱃지 노출 여부 (opt-in: 활성화 시 /api/material/list 호출)
+    // 카테고리별 소속 품목 갯수 뱃지 노출 여부 (opt-in: 활성화 시 /api/material/list 호출)
     showMaterialCount: { type: Boolean, default: false },
   },
   emits: ["update:modelValue", "change"],
@@ -164,7 +164,7 @@ export default {
     };
   },
   computed: {
-    // category_id → 소속 자재 개수 (opt-in)
+    // category_id → 소속 품목 개수 (opt-in)
     materialCountMap() {
       if (!this.showMaterialCount) return {};
       const map = Object.create(null);
@@ -321,7 +321,7 @@ export default {
       }
     },
 
-    // 전체 자재 로드 → category_id 별 갯수 매핑에 사용 (showMaterialCount=true 때만)
+    // 전체 품목 로드 → category_id 별 갯수 매핑에 사용 (showMaterialCount=true 때만)
     async loadAllMaterials() {
       try {
         const res = await api.post("/api/material/list", {});

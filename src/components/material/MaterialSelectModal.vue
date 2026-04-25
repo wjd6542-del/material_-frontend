@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between">
       <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
         <i class="fa-solid fa-boxes-stacked text-blue-500"></i>
-        자재 선택
+        품목 선택
       </h2>
       <button
         type="button"
@@ -83,7 +83,7 @@
                 <span class="flex-1 truncate">{{ item.name }}</span>
                 <span
                   v-if="materialCountMap[item.id]"
-                  v-tip="`자재 갯수 · ${materialCountMap[item.id]}개`"
+                  v-tip="`품목 갯수 · ${materialCountMap[item.id]}개`"
                   class="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700 text-[10px] font-semibold"
                 >
                   <i class="fa-solid fa-box text-[9px]"></i>
@@ -124,7 +124,7 @@
         </div>
       </div>
 
-      <!-- 오른쪽: 자재 목록 -->
+      <!-- 오른쪽: 품목 목록 -->
       <section class="flex-1 flex flex-col overflow-hidden">
         <div class="px-3 py-2.5 border-b flex items-center gap-2">
           <div class="relative flex-1">
@@ -134,7 +134,7 @@
             <input
               v-model="keyword"
               type="text"
-              placeholder="자재명/자재번호 검색..."
+              placeholder="품목명/품목번호 검색..."
               class="w-full pl-9 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -155,7 +155,7 @@
             class="h-full flex flex-col items-center justify-center text-slate-400 py-10"
           >
             <i class="fa-regular fa-folder-open text-3xl text-slate-300 mb-2"></i>
-            <p class="text-sm">자재가 없습니다</p>
+            <p class="text-sm">품목이 없습니다</p>
           </div>
           <table v-else class="w-full text-sm">
             <thead class="bg-slate-50 text-slate-500 sticky top-0">
@@ -167,8 +167,8 @@
                     @change="toggleAllFiltered"
                   />
                 </th>
-                <th class="text-left px-4 py-2.5 font-semibold">자재번호</th>
-                <th class="text-left px-4 py-2.5 font-semibold">자재명</th>
+                <th class="text-left px-4 py-2.5 font-semibold">품목번호</th>
+                <th class="text-left px-4 py-2.5 font-semibold">품목명</th>
                 <th class="text-left px-4 py-2.5 font-semibold">규격</th>
                 <th class="text-center px-4 py-2.5 font-semibold">단위</th>
                 <th class="text-right px-4 py-2.5 font-semibold">구매단가</th>
@@ -263,7 +263,7 @@ export default {
 
   props: {
     onConfirm: { type: Function, default: null },
-    // 선택된 자재의 price 필드에 매핑할 원본 필드명
+    // 선택된 품목의 price 필드에 매핑할 원본 필드명
     // 발주/구매: "inbound_price", 판매: "outbound_price1" 등
     priceField: { type: String, default: "inbound_price" },
   },
@@ -288,7 +288,7 @@ export default {
   },
 
   computed: {
-    // category_id → 소속 자재 갯수 (트리 뱃지용)
+    // category_id → 소속 품목 갯수 (트리 뱃지용)
     materialCountMap() {
       const map = Object.create(null);
       for (const m of this.allMaterials) {
@@ -412,7 +412,7 @@ export default {
       }
     },
 
-    // 전체 자재 로드 → 카테고리별 갯수 뱃지용 (1회만 호출)
+    // 전체 품목 로드 → 카테고리별 갯수 뱃지용 (1회만 호출)
     async loadAllMaterialsForCount() {
       try {
         const res = await api.post("/api/material/list", {});
@@ -433,7 +433,7 @@ export default {
       this.selectedCategoryId = id;
     },
 
-    // 카테고리 선택 및 트리 검색어를 초기화하고 자재 목록을 다시 로드한다
+    // 카테고리 선택 및 트리 검색어를 초기화하고 품목 목록을 다시 로드한다
     resetCategory() {
       this.treeKeyword = "";
       if (this.selectedCategoryId == null) {
