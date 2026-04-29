@@ -130,17 +130,17 @@
           </td>
         </tr>
       </tbody>
+      <tfoot v-if="items.length">
+        <tr class="border-t-2 border-gray-800 bg-gray-50">
+          <td colspan="3" class="py-3 text-right text-base font-semibold">
+            총 수량
+          </td>
+          <td class="py-3 text-right text-base font-bold text-teal-600 font-mono">
+            {{ formatNumber(totalQuantity) }}
+          </td>
+        </tr>
+      </tfoot>
     </table>
-
-    <!-- 합계 -->
-    <div class="flex justify-end mt-6">
-      <div
-        class="w-64 border-t-2 border-gray-800 pt-3 flex justify-between text-lg font-semibold"
-      >
-        <span>총 수량</span>
-        <span class="text-teal-600">{{ formatNumber(totalQuantity) }}</span>
-      </div>
-    </div>
 
     <!-- 버튼 영역 -->
     <div class="flex justify-end gap-2 mt-10 no-print">

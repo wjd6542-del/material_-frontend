@@ -62,7 +62,47 @@
           :pageSize="10"
           :pageSizeOptions="[10, 20, 50, 100]"
           @cell-click="onCellClick"
-        />
+        >
+          <template #is_unpaid="{ row }">
+            <span
+              v-if="row.is_unpaid"
+              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-50 text-red-600 text-xs font-bold"
+            >
+              <i class="fa-solid fa-circle-exclamation text-[10px]"></i>
+              미지급
+            </span>
+            <span
+              v-else
+              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 text-xs font-bold"
+            >
+              <i class="fa-solid fa-circle-check text-[10px]"></i>
+              지급 완료
+            </span>
+          </template>
+
+          <template #elapsed_days="{ row }">
+            <span v-if="!row.is_unpaid" class="text-slate-300">-</span>
+            <span
+              v-else-if="elapsedDays(row.created_at) >= 30"
+              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-50 text-red-600 text-xs font-bold"
+            >
+              <i class="fa-solid fa-triangle-exclamation text-[10px]"></i>
+              {{ elapsedDays(row.created_at) }}일 경과
+            </span>
+            <span
+              v-else-if="elapsedDays(row.created_at) >= 8"
+              class="inline-flex px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 text-xs font-bold"
+            >
+              {{ elapsedDays(row.created_at) }}일 경과
+            </span>
+            <span
+              v-else
+              class="inline-flex px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 text-xs font-bold"
+            >
+              {{ elapsedDays(row.created_at) }}일 경과
+            </span>
+          </template>
+        </BaseTable>
       </div>
     </div>
   </div>
@@ -117,15 +157,20 @@ export default {
           sortable: true,
         },
         {
+          key: "supplier_name",
+          label: "거래처",
+          sortable: true,
+          width: "160px",
+        },
+        {
           key: "username",
           label: "작성자",
           sortable: true,
           width: "100px",
         },
         {
-          key: "is_unpaid_label",
+          key: "is_unpaid",
           label: "지급 여부",
-          type: "text",
           align: "center",
           width: "110px",
           sortable: true,
@@ -143,6 +188,12 @@ export default {
           align: "center",
           width: "200px",
           sortable: true,
+        },
+        {
+          key: "elapsed_days",
+          label: "경과일",
+          align: "center",
+          width: "120px",
         },
       ],
 
@@ -222,8 +273,21 @@ export default {
       const list = Array.isArray(res.data) ? res.data : [];
       this.rows = list.map((r) => ({
         ...r,
-        is_unpaid_label: r.is_unpaid ? "미지급" : "지급 완료",
+        supplier_name: r.supplier?.name || "-",
       }));
+    },
+
+    // 등록일 ~ 오늘 사이 경과 일수 (음수 차단)
+    elapsedDays(createdAt) {
+      if (!createdAt) return 0;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const d = new Date(createdAt);
+      d.setHours(0, 0, 0, 0);
+      return Math.max(
+        0,
+        Math.round((today.getTime() - d.getTime()) / 86400000),
+      );
     },
 
     // 셀클릭시

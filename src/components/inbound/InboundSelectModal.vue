@@ -5,14 +5,7 @@
         <i class="fa-solid fa-truck-ramp-box text-blue-500"></i>
         구매 정보 불러오기
       </h2>
-      <button
-        type="button"
-        @click="modal.closeModal()"
-        class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-      >
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-    </div>
+      </div>
 
     <!-- 상단 통합 필터 (거래처 · 검색) -->
     <div class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 flex items-center gap-2 flex-nowrap">

@@ -69,6 +69,7 @@
             pagination
             :pageSize="10"
             :pageSizeOptions="[10, 20, 50, 100]"
+            @cell-click="onCellClick"
           />
         </div>
       </div>
@@ -177,6 +178,7 @@ import BaseDateText from "@/components/base/BaseDateText.vue";
 import { useModalStore } from "@/stores/modal";
 import StockPrintModal from "@/components/stock/StockPrintModal.vue";
 import MaterialDetailModal from "@/components/material/MaterialDetailModal.vue";
+import ShelfLocationViewerModal from "@/components/warehouse/ShelfLocationViewerModal.vue";
 
 import api from "@/api/api";
 
@@ -225,8 +227,10 @@ export default {
         {
           key: "location_code",
           label: "선반위치",
+          type: "button",
           sortable: true,
-          width: "100px",
+          width: "120px",
+          align: "center",
         },
         {
           key: "quantity",
@@ -327,6 +331,24 @@ export default {
         { material_id: row.id },
         "lg",
       );
+    },
+
+    // 테이블 셀 클릭 처리
+    onCellClick(data) {
+      if (!data) return;
+      // 선반위치 셀 클릭 시 선반 위치 시각화 모달 오픈
+      if (data.key === "location_code") {
+        const shelfId = data.row?.shelf_id;
+        if (!shelfId) {
+          this.$toast?.error?.("연결된 선반 정보가 없습니다.");
+          return;
+        }
+        this.modal.openModal(
+          ShelfLocationViewerModal,
+          { shelf_id: shelfId },
+          "xl",
+        );
+      }
     },
 
     // 품목 옵션을 로드한다

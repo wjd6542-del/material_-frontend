@@ -58,6 +58,7 @@ import SatisticsReturnPage from "@/pages/statistics/SatisticsReturnPage.vue"
 // 기타
 import SettingPage from "@/pages/setting/SettingPage.vue"
 import SupplierPage from "@/pages/setting/SupplierPage.vue"
+import SupplierBalancePage from "@/pages/supplier/SupplierBalancePage.vue"
 import UserManagerPage from "@/pages/user/UserManagerPage.vue"
 import UserManagerIpPage from "@/pages/user/UserManagerIpPage.vue"
 
@@ -274,10 +275,16 @@ const routes = [
 						component: SettingPage,
 						meta: { title: "환경설정", auth: true, permission: "setting.view" },
 					},
+					// 거래처 (별도 그룹으로 분리)
 					{
-						path: "setting/supplier",
+						path: "supplier",
 						component: SupplierPage,
-						meta: { title: "거래처", auth: true, permission: "supplier.view" },
+						meta: { title: "거래처 관리", auth: true, permission: "supplier.view" },
+					},
+					{
+						path: "supplier/balance",
+						component: SupplierBalancePage,
+						meta: { title: "거래처 금액 정보", auth: true, permission: "supplier.balance.view" },
 					},
 
 					// 사업자 정보

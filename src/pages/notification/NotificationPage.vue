@@ -115,6 +115,14 @@ export default {
         },
 
         {
+          key: "username",
+          label: "작성자",
+          sortable: true,
+          align: "center",
+          width: "120px",
+        },
+
+        {
           key: "message",
           label: "메시지",
           sortable: true,
@@ -196,7 +204,11 @@ export default {
       }
 
       const res = await api.post("/api/notification/list", where);
-      this.rows = res.data;
+      const list = Array.isArray(res.data) ? res.data : [];
+      this.rows = list.map((r) => ({
+        ...r,
+        username: r.user?.name || r.user?.username || "-",
+      }));
     },
 
     // 선택된 알림들을 일괄 읽음 처리한다

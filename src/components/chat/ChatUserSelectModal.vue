@@ -5,14 +5,7 @@
         <i class="fa-solid fa-user-plus text-blue-500"></i>
         DM 시작할 사용자 선택
       </h2>
-      <button
-        type="button"
-        @click="modal.closeModal()"
-        class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-      >
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-    </div>
+      </div>
 
     <!-- 검색 -->
     <div class="relative">

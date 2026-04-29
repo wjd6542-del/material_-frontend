@@ -5,14 +5,7 @@
         <i class="fa-solid fa-warehouse text-blue-500"></i>
         선반 위치 선택
       </h2>
-      <button
-        type="button"
-        @click="modal.closeModal()"
-        class="w-9 h-9 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-      >
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-    </div>
+      </div>
 
     <!-- 단계별 드릴다운 -->
     <div class="flex-1 flex gap-3 overflow-hidden border rounded-xl bg-white">

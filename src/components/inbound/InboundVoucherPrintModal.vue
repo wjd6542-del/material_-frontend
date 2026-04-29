@@ -1,7 +1,7 @@
 ﻿<template>
   <div class="print-area bg-white text-gray-800 p-8">
     <!-- 헤더 -->
-    <div class="flex justify-between items-center border-b pb-4 mb-6">
+    <div class="flex justify-between items-center border-b pb-4 mb-4">
       <div class="flex items-center gap-2 text-2xl font-bold">
         <i class="fa-solid fa-truck-arrow-right text-blue-600"></i>
         구매 전표
@@ -12,21 +12,77 @@
       </div>
     </div>
 
-    <!-- 정보 -->
-    <div class="grid grid-cols-3 gap-4 text-sm mb-6">
-      <div class="space-y-1">
-        <div><span class="text-gray-400">전표번호</span></div>
-        <div class="font-medium">{{ data.inbound_no }}</div>
+    <!-- 구매 정보 / 사업자 정보 (좌우 분할) -->
+    <div class="grid grid-cols-2 gap-6 border-b pb-4 mb-6">
+      <!-- 왼쪽: 구매 정보 -->
+      <div>
+        <div class="text-[11px] font-bold text-gray-400 mb-2 uppercase">
+          구매 정보
+        </div>
+        <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+          <div>
+            <div class="text-xs text-gray-400">전표번호</div>
+            <div class="font-medium">{{ data.inbound_no || "-" }}</div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-400">거래처</div>
+            <div class="font-medium">
+              {{ data.supplier?.name || "-" }}
+            </div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-400">구매일자</div>
+            <div class="font-medium">
+              <BaseDateText :value="data.purchase_date" />
+            </div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-400">담당자</div>
+            <div class="font-medium">{{ data.user?.name || "-" }}</div>
+          </div>
+        </div>
       </div>
 
-      <div class="space-y-1">
-        <div><span class="text-gray-400">담당자</span></div>
-        <div class="font-medium">{{ data.user?.name || "-" }}</div>
+      <!-- 오른쪽: 사업자 정보 -->
+      <div>
+        <div class="text-[11px] font-bold text-gray-400 mb-2 uppercase">
+          사업자 정보
+        </div>
+        <div class="text-base font-bold text-gray-800">
+          {{ business.company_name || "-" }}
+        </div>
+        <div class="mt-1 text-xs text-gray-500 space-y-0.5">
+          <div>
+            대표자: {{ business.ceo_name || "-" }}
+            <span class="mx-2 text-gray-300">|</span>
+            사업자등록번호: {{ business.registration_no || "-" }}
+          </div>
+          <div v-if="business.address || business.address_detail">
+            {{
+              [business.address, business.address_detail]
+                .filter(Boolean)
+                .join(" ")
+            }}
+          </div>
+          <div v-if="business.phone || business.mobile || business.fax">
+            <span v-if="business.phone">대표전화 {{ business.phone }}</span>
+            <span v-if="business.mobile" class="ms-2">
+              대표전화2 {{ business.mobile }}
+            </span>
+            <br />
+            <span v-if="business.fax"> FAX {{ business.fax }} </span>
+          </div>
+        </div>
       </div>
+    </div>
 
-      <div class="space-y-1">
-        <div><span class="text-gray-400">연락처</span></div>
-        <div class="font-medium">{{ tell }}</div>
+    <!-- 메모 -->
+    <div v-if="data.memo" class="mb-6">
+      <div class="text-gray-400 text-sm mb-1">메모</div>
+      <div
+        class="text-sm text-gray-700 whitespace-pre-wrap p-3 bg-gray-50 rounded border border-gray-100"
+      >
+        {{ data.memo }}
       </div>
     </div>
 
@@ -99,24 +155,37 @@
 
           <td class="py-2 text-right font-medium">
             {{
-              formatNumber(
-                row.supply_amount || row.quantity * (row.price || 0),
-              )
+              formatNumber(row.supply_amount || row.quantity * (row.price || 0))
             }}
           </td>
         </tr>
       </tbody>
+      <tfoot v-if="items.length">
+        <tr class="border-t-2 border-gray-800 bg-gray-50">
+          <td colspan="3" class="py-3 pl-2 text-left text-base font-semibold">
+            총 합계
+          </td>
+          <td
+            class="py-3 text-right text-base font-bold text-blue-600 font-mono"
+          >
+            {{ formatNumber(totalQuantity) }}
+          </td>
+          <td
+            class="py-3 text-right text-base font-bold text-blue-600 font-mono"
+          >
+            {{ formatNumber(totalPrice) }}
+          </td>
+          <td
+            class="py-3 text-right text-base font-bold text-blue-600 font-mono"
+          >
+            {{ formatNumber(total_amount) }}
+            <span
+              class="text-xs text-gray-500 font-sans font-medium ml-1"
+            ></span>
+          </td>
+        </tr>
+      </tfoot>
     </table>
-
-    <!-- 합계 -->
-    <div class="flex justify-end mt-6">
-      <div
-        class="w-64 border-t-2 border-gray-800 pt-3 flex justify-between text-lg font-semibold"
-      >
-        <span>총 금액</span>
-        <span class="text-blue-600"> {{ formatNumber(total_amount) }} 원 </span>
-      </div>
-    </div>
 
     <!-- 버튼 영역 -->
     <div class="flex justify-end gap-2 mt-10 no-print">
@@ -153,6 +222,7 @@ export default {
     return {
       modal: useModalStore(),
       data: {},
+      business: {},
       total_amount: 0,
       tell: import.meta.env.VITE_TELL,
     };
@@ -162,6 +232,19 @@ export default {
     // 전표 품목 배열을 반환한다
     items() {
       return this.data?.items || [];
+    },
+
+    // 수량 합계
+    totalQuantity() {
+      return this.items.reduce(
+        (sum, it) => sum + (Number(it.quantity) || 0),
+        0,
+      );
+    },
+
+    // 단가 합계
+    totalPrice() {
+      return this.items.reduce((sum, it) => sum + (Number(it.price) || 0), 0);
     },
   },
 
@@ -200,10 +283,21 @@ export default {
       this.data = res.data;
       this.totalAmount(res.data);
     },
+
+    // 사업자 정보를 로드한다
+    async loadBusiness() {
+      try {
+        const res = await api.post("/api/business/info");
+        this.business = res.data || {};
+      } catch (e) {
+        this.business = {};
+      }
+    },
   },
 
-  // 마운트 시 전표 상세를 로드한다
+  // 마운트 시 사업자 정보 및 전표 상세를 로드한다
   mounted() {
+    this.loadBusiness();
     this.loadData();
   },
 };

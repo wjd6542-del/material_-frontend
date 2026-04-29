@@ -130,9 +130,9 @@
 
             <div>
               <label class="form-label">미수금 여부</label>
-              <select v-model="form.payment_status" class="field">
-                <option value="paid">완납 (미수금 없음)</option>
-                <option value="unpaid">미수 (미수금 발생)</option>
+              <select v-model="form.is_unpaid" class="field">
+                <option :value="true">미수 (미수금 발생)</option>
+                <option :value="false">수금 완료</option>
               </select>
             </div>
 
@@ -541,8 +541,8 @@ export default {
         supplier_id: null,
         outbound_date: "",
         vat_applied: true,
-        // "paid"=완납, "unpaid"=미수(미수금 발생)
-        payment_status: "paid",
+        // 미수금 여부 (true: 미수 상태, false: 수금 완료)
+        is_unpaid: true,
         memo: "",
         items: [],
       },
@@ -619,7 +619,8 @@ export default {
           material_name: raw.material_name || "",
           spec: raw.spec || "",
           unit: raw.unit || "",
-          supplier_id: null,
+          // 신규 행은 헤더 거래처와 자동 동기화
+          supplier_id: this.form.supplier_id || null,
           warehouse_id: raw.warehouse_id ?? null,
           location_id: raw.location_id ?? null,
           shelf_id: raw.shelf_id ?? null,
@@ -636,12 +637,18 @@ export default {
       this.$toast?.success(`${list.length}개 품목이 추가되었습니다. 판매가를 입력하세요.`);
     },
 
-    // 헤더 거래처 변경 시 → 거래처에 등록된 메모를 폼 메모에 기본 주입
+    // 헤더 거래처 변경 시
+    // 1) 거래처에 등록된 메모를 폼 메모에 기본 주입
+    // 2) 모든 판매 품목 행의 supplier_id 를 헤더 거래처와 동기화
     onSupplierChange() {
       const s = this.selectedSupplier;
       if (s && s.memo) {
         this.form.memo = s.memo;
       }
+      const sid = this.form.supplier_id || null;
+      this.form.items.forEach((it) => {
+        it.supplier_id = sid;
+      });
     },
 
     // 수량/판매가 변경 시 공급가액 = qty*price 로 재계산 + 부가세 동기화
@@ -727,7 +734,8 @@ export default {
         material_name: m.name || "",
         spec: m.spec || "",
         unit: m.unit || "",
-        supplier_id: null,
+        // 신규 행은 헤더 거래처와 자동 동기화
+        supplier_id: this.form.supplier_id || null,
         shelf_id: null,
         location_id: null,
         warehouse_id: null,
@@ -847,6 +855,18 @@ export default {
         this.$toast?.error("판매 품목을 최소 1개 이상 등록하세요.");
         return;
       }
+
+      const count = this.form.items.length;
+      const total = this.totalAmount.toLocaleString();
+      const msg = this.isEdit
+        ? `판매 전표를 수정하시겠습니까?\n\n품목 ${count}건 · 합계 ${total}원`
+        : `판매 등록을 진행하시겠습니까?\n\n품목 ${count}건 · 합계 ${total}원`;
+      const ok = await this.$confirm?.(
+        msg,
+        this.isEdit ? "수정 확인" : "등록 확인",
+        "info",
+      );
+      if (ok === false) return;
 
       this.saving = true;
       try {

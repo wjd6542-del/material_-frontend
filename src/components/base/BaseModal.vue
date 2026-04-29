@@ -7,9 +7,19 @@
       :style="{ zIndex: 200 + index * 10 }"
     >
       <div
-        class="bg-white rounded-xl shadow-xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col"
+        class="relative bg-white rounded-xl shadow-xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col"
         :class="sizeClass(entry.size)"
       >
+        <!-- 공용 닫기 버튼 (우측 상단) -->
+        <button
+          type="button"
+          @click="modal.closeModal()"
+          class="absolute top-2.5 right-2.5 z-10 w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+          aria-label="닫기"
+        >
+          <i class="fa-solid fa-xmark text-base"></i>
+        </button>
+
         <!-- 동적 모달 컴포넌트 - 바디 영역만 스크롤 -->
         <div class="p-4 md:p-6 overflow-y-auto flex-1 min-h-0">
           <component :is="entry.component" v-bind="entry.props" />

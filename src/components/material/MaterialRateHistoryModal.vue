@@ -11,14 +11,7 @@
           기본 요율 저장 시점마다 스냅샷이 기록됩니다
         </p>
       </div>
-      <button
-        type="button"
-        @click="modal.closeModal()"
-        class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-      >
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-    </div>
+      </div>
 
     <!-- 본체 -->
     <div class="flex-1 overflow-auto border rounded-lg">

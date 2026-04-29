@@ -5,14 +5,7 @@
         <i class="fa-solid fa-boxes-stacked text-blue-500"></i>
         품목 선택
       </h2>
-      <button
-        type="button"
-        @click="modal.closeModal()"
-        class="w-9 h-9 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-      >
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-    </div>
+      </div>
 
     <div class="flex-1 flex overflow-hidden border rounded-xl">
       <!-- 왼쪽: 카테고리 트리 -->
@@ -81,14 +74,6 @@
                   {{ item.path }} ›
                 </span>
                 <span class="flex-1 truncate">{{ item.name }}</span>
-                <span
-                  v-if="materialCountMap[item.id]"
-                  v-tip="`품목 갯수 · ${materialCountMap[item.id]}개`"
-                  class="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700 text-[10px] font-semibold"
-                >
-                  <i class="fa-solid fa-box text-[9px]"></i>
-                  {{ materialCountMap[item.id] }}
-                </span>
               </li>
             </ul>
             <div v-else class="text-center text-slate-400 text-xs py-6">
@@ -104,8 +89,6 @@
               :selected-id="selectedCategoryId"
               :expanded-ids="expandedIds"
               :is-root="true"
-              :material-count-map="materialCountMap"
-              :show-material-count="true"
               @select="onCategorySelect"
               @toggle="toggleNode"
             />
@@ -125,22 +108,31 @@
       </div>
 
       <!-- 오른쪽: 품목 목록 -->
-      <section class="flex-1 flex flex-col overflow-hidden">
-        <div class="px-3 py-2.5 border-b flex items-center gap-2">
-          <div class="relative flex-1">
+      <section class="flex-1 flex flex-col overflow-hidden min-w-0">
+        <div class="px-3 py-2 border-b flex items-center gap-2">
+          <div class="relative flex-1 min-w-0">
             <i
-              class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 text-xs"
+              class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-300 text-[10px]"
             ></i>
             <input
               v-model="keyword"
               type="text"
               placeholder="품목명/품목번호 검색..."
-              class="w-full pl-9 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full h-[30px] pl-7 pr-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <span class="text-xs text-slate-400 shrink-0">
-            {{ filtered.length }}개
-          </span>
+          <div class="flex-1 min-w-0">
+            <MultiCheck
+              v-model="selectedTagIds"
+              :items="tags"
+              idKey="id"
+              textKey="name"
+              :search-keys="['code']"
+              sub-text-key="code"
+              placeholder="태그 검색"
+              search-placeholder="태그명/코드 검색..."
+            />
+          </div>
         </div>
 
         <div class="flex-1 overflow-auto">
@@ -256,10 +248,11 @@
 import api from "@/api/api";
 import { useModalStore } from "@/stores/modal";
 import TreeSelectNode from "@/components/base/TreeSelectNode.vue";
+import MultiCheck from "@/components/base/MultiCheck.vue";
 
 export default {
   name: "MaterialSelectModal",
-  components: { TreeSelectNode },
+  components: { TreeSelectNode, MultiCheck },
 
   props: {
     onConfirm: { type: Function, default: null },
@@ -278,27 +271,17 @@ export default {
       selectedCategoryId: null,
       treeKeyword: "",
       materials: [],
-      allMaterials: [], // 카테고리 트리 뱃지용 (필터와 무관한 전체)
       keyword: "",
       loading: false,
       selectedIds: new Set(),
       selectedMap: new Map(),
       sidebarWidth: 280,
+      tags: [],
+      selectedTagIds: [],
     };
   },
 
   computed: {
-    // category_id → 소속 품목 갯수 (트리 뱃지용)
-    materialCountMap() {
-      const map = Object.create(null);
-      for (const m of this.allMaterials) {
-        const cid = m.category_id;
-        if (cid == null) continue;
-        map[cid] = (map[cid] || 0) + 1;
-      }
-      return map;
-    },
-
     filtered() {
       const kw = this.keyword.trim().toLowerCase();
       if (!kw) return this.materials;
@@ -336,6 +319,9 @@ export default {
 
   watch: {
     selectedCategoryId() {
+      this.loadMaterials();
+    },
+    selectedTagIds() {
       this.loadMaterials();
     },
   },
@@ -403,6 +389,9 @@ export default {
       try {
         const body = {};
         if (this.selectedCategoryId) body.category_id = this.selectedCategoryId;
+        if (this.selectedTagIds && this.selectedTagIds.length) {
+          body.tag_ids = this.selectedTagIds;
+        }
         const res = await api.post("/api/material/list", body);
         this.materials = Array.isArray(res.data) ? res.data : [];
       } catch {
@@ -412,13 +401,13 @@ export default {
       }
     },
 
-    // 전체 품목 로드 → 카테고리별 갯수 뱃지용 (1회만 호출)
-    async loadAllMaterialsForCount() {
+    // 태그 옵션 로드 (검색 영역용)
+    async loadTags() {
       try {
-        const res = await api.post("/api/material/list", {});
-        this.allMaterials = Array.isArray(res.data) ? res.data : [];
+        const res = await api.post("/api/tag/list");
+        this.tags = Array.isArray(res.data) ? res.data : [];
       } catch {
-        this.allMaterials = [];
+        this.tags = [];
       }
     },
 
@@ -512,7 +501,7 @@ export default {
   mounted() {
     this.loadTree();
     this.loadMaterials();
-    this.loadAllMaterialsForCount();
+    this.loadTags();
   },
 };
 </script>

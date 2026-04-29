@@ -29,45 +29,48 @@
       </div>
     </div>
 
-    <!-- 드롭다운: 트리거 바로 아래 강제 고정 -->
-    <div
-      v-if="open"
-      class="absolute left-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden"
-      style="top: calc(100% + 4px); z-index: 9999"
-    >
-      <div class="p-2 bg-gray-50 border-b">
-        <input
-          ref="searchInput"
-          v-model="keyword"
-          type="text"
-          :placeholder="searchPlaceholder"
-          class="w-full px-2 py-1.5 text-xs border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-        />
-      </div>
+    <!-- 드롭다운: body 로 Teleport 하여 부모 overflow 클립 영향 없이 표시 -->
+    <Teleport to="body">
+      <div
+        v-if="open"
+        ref="dropdown"
+        :style="dropdownStyle"
+        class="bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden"
+      >
+        <div class="p-2 bg-gray-50 border-b">
+          <input
+            ref="searchInput"
+            v-model="keyword"
+            type="text"
+            :placeholder="searchPlaceholder"
+            class="w-full px-2 py-1.5 text-xs border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          />
+        </div>
 
-      <div class="max-h-56 overflow-y-auto">
-        <div
-          v-for="item in filteredOptions"
-          :key="item[valueKey]"
-          class="px-3 py-1.5 text-xs hover:bg-blue-50 cursor-pointer flex justify-between items-center group transition-colors"
-          @click="select(item)"
-        >
-          <span class="text-gray-700 group-hover:text-blue-700 font-medium">
-            {{ item[labelKey] }}
-          </span>
-          <i
-            v-if="item[valueKey] === modelValue"
-            class="fa-solid fa-check text-blue-500 text-[10px]"
-          ></i>
-        </div>
-        <div
-          v-if="filteredOptions.length === 0"
-          class="px-3 py-5 text-gray-400 text-center text-xs"
-        >
-          {{ emptyText }}
+        <div class="max-h-56 overflow-y-auto">
+          <div
+            v-for="item in filteredOptions"
+            :key="item[valueKey]"
+            class="px-3 py-1.5 text-xs hover:bg-blue-50 cursor-pointer flex justify-between items-center group transition-colors"
+            @click="select(item)"
+          >
+            <span class="text-gray-700 group-hover:text-blue-700 font-medium">
+              {{ item[labelKey] }}
+            </span>
+            <i
+              v-if="item[valueKey] === modelValue"
+              class="fa-solid fa-check text-blue-500 text-[10px]"
+            ></i>
+          </div>
+          <div
+            v-if="filteredOptions.length === 0"
+            class="px-3 py-5 text-gray-400 text-center text-xs"
+          >
+            {{ emptyText }}
+          </div>
         </div>
       </div>
-    </div>
+    </Teleport>
   </div>
 </template>
 
@@ -86,7 +89,18 @@ export default {
   },
   emits: ["update:modelValue", "change"],
   data() {
-    return { open: false, keyword: "" };
+    return {
+      open: false,
+      keyword: "",
+      // Teleport 된 드롭다운의 fixed 위치 (트리거 rect 기반)
+      dropdownStyle: {
+        position: "fixed",
+        top: "0px",
+        left: "0px",
+        width: "0px",
+        zIndex: 10000,
+      },
+    };
   },
   computed: {
     // 현재 선택된 옵션의 라벨을 반환한다
@@ -138,12 +152,35 @@ export default {
     },
   },
   methods: {
+    // 트리거 위치를 기반으로 Teleport 드롭다운 좌표를 갱신한다
+    updateDropdownPosition() {
+      const el = this.$refs.wrapper;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const dd = this.$refs.dropdown;
+      const ddHeight = dd ? dd.offsetHeight : 240; // 추정값
+      // 화면 하단 공간 부족 시 위로 띄움
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const openUp = spaceBelow < ddHeight + 12 && rect.top > ddHeight + 12;
+      const top = openUp ? rect.top - ddHeight - 4 : rect.bottom + 4;
+      this.dropdownStyle = {
+        position: "fixed",
+        top: `${Math.round(top)}px`,
+        left: `${Math.round(rect.left)}px`,
+        width: `${Math.round(rect.width)}px`,
+        zIndex: 10000,
+      };
+    },
+
     // 드롭다운 열림 상태를 토글하고 검색창 포커스를 처리한다
     toggle() {
       this.open = !this.open;
       this.keyword = "";
       if (this.open) {
         this.$nextTick(() => {
+          this.updateDropdownPosition();
+          // 첫 paint 후 한 번 더 보정 (실제 dropdown height 반영)
+          this.$nextTick(() => this.updateDropdownPosition());
           if (this.$refs.searchInput) this.$refs.searchInput.focus();
         });
       }
@@ -160,20 +197,31 @@ export default {
       this.$emit("change", "");
       this.open = false;
     },
-    // 컴포넌트 외부 클릭 시 드롭다운을 닫는다
+    // 컴포넌트 외부 클릭 시 드롭다운을 닫는다 (Teleport 된 dropdown 도 wrapper 외부로 보지 않도록 분기)
     handleClickOutside(e) {
-      if (this.$refs.wrapper && !this.$refs.wrapper.contains(e.target)) {
-        this.open = false;
-      }
+      const w = this.$refs.wrapper;
+      const dd = this.$refs.dropdown;
+      if (!w) return;
+      if (w.contains(e.target)) return;
+      if (dd && dd.contains(e.target)) return;
+      this.open = false;
+    },
+    // 스크롤·리사이즈 시 드롭다운이 트리거에서 떨어지지 않도록 동기화
+    handleViewportChange() {
+      if (this.open) this.updateDropdownPosition();
     },
   },
-  // 마운트 시 외부 클릭 리스너를 등록한다
+  // 마운트 시 외부 클릭/스크롤/리사이즈 리스너 등록
   mounted() {
     document.addEventListener("click", this.handleClickOutside, true);
+    window.addEventListener("scroll", this.handleViewportChange, true);
+    window.addEventListener("resize", this.handleViewportChange);
   },
-  // 언마운트 직전 외부 클릭 리스너를 제거한다
+  // 언마운트 직전 리스너들을 제거한다
   beforeUnmount() {
     document.removeEventListener("click", this.handleClickOutside, true);
+    window.removeEventListener("scroll", this.handleViewportChange, true);
+    window.removeEventListener("resize", this.handleViewportChange);
   },
 };
 </script>

@@ -1,28 +1,9 @@
 <template>
   <div class="p-1">
-    <div class="flex items-center justify-between mb-4 border-b pb-4">
-      <h2 class="text-base font-semibold mb-3">
+    <div class="mb-4 border-b pb-4">
+      <h2 class="text-base font-semibold">
         {{ id ? "사용자 정보 수정" : "신규 사용자 등록" }}
       </h2>
-      <button
-        @click="modal.closeModal()"
-        class="text-gray-400 hover:text-gray-600"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </button>
     </div>
 
     <div class="space-y-5">

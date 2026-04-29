@@ -411,6 +411,31 @@ export const permissions: PermissionGroup[] = [
 	},
 
 	{
+		group: "supplier",
+		label: "거래처 관리",
+		icon: "fa-handshake",
+		pages: [
+			{
+				code: "supplier.view",
+				name: "거래처 관리",
+				action: "view",
+				path: "/supplier",
+				actions: [
+					{ code: "supplier.create", name: "거래처 등록", action: "create" },
+					{ code: "supplier.update", name: "거래처 수정", action: "update" },
+					{ code: "supplier.delete", name: "거래처 삭제", action: "delete" },
+				],
+			},
+			{
+				code: "supplier.balance.view",
+				name: "거래처 금액 정보",
+				action: "view",
+				path: "/supplier/balance",
+			},
+		],
+	},
+
+	{
 		group: "setting",
 		label: "환경설정",
 		icon: "fa-gear",
@@ -422,17 +447,6 @@ export const permissions: PermissionGroup[] = [
 				path: "/setting",
 				actions: [
 					{ code: "setting.update", name: "환경설정 저장", action: "update" },
-				],
-			},
-			{
-				code: "supplier.view",
-				name: "거래처",
-				action: "view",
-				path: "/setting/supplier",
-				actions: [
-					{ code: "supplier.create", name: "거래처 등록", action: "create" },
-					{ code: "supplier.update", name: "거래처 수정", action: "update" },
-					{ code: "supplier.delete", name: "거래처 삭제", action: "delete" },
 				],
 			},
 			{
