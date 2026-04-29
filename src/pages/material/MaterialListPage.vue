@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="p-4 lg:p-6">
     <!-- 테이블 -->
     <div
@@ -87,21 +87,22 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import BaseTable from "@/components/base/BaseTable.vue";
 import { useModalStore } from "@/stores/modal";
 import MaterialModal from "@/components/material/MaterialModal.vue";
 import MaterialPriceHistoryModal from "@/components/material/MaterialPriceHistoryModal.vue";
 import BaseInput from "@/components/base/BaseInput.vue";
 import MultiCheck from "@/components/base/MultiCheck.vue";
-
-import SearchSelect from "@/components/base/SearchSelect.vue";
 import CategoryTreeSelect from "@/components/base/CategoryTreeSelect.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
 import ImageModal from "@/components/base/ImageModal.vue";
 import { useAuthStore } from "@/stores/auth";
+import { createListMixin } from "@/mixins/listPage";
+import { createRefDataMixin } from "@/mixins/refData";
 
-import api from "@/api/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default {
   name: "MaterialListPage",
@@ -109,208 +110,71 @@ export default {
   components: {
     BaseTable,
     MaterialModal,
-    SearchSelect,
     CategoryTreeSelect,
     DateRangePicker,
     BaseInput,
     MultiCheck,
   },
 
+  mixins: [
+    createListMixin({
+      endpoint: "/api/material/list",
+      deleteEndpoint: "/api/material/batchDelete",
+      tableRef: "materialTable",
+      initialWhere: { category_id: "", keyword: "", tag_ids: [] },
+      initialDateRange: () => ({ start: null, end: null }),
+      // 응답 row 의 첫 이미지를 절대 URL 로 정규화
+      mapRow: (row) => {
+        const images = (row.images || []).map((img) => ({
+          ...img,
+          file_url: API_URL + img.file_url,
+        }));
+        return { ...row, image: images[0]?.file_url || "" };
+      },
+    }),
+    createRefDataMixin(["categories", "tags"]),
+  ],
+
   data() {
     return {
       auth: useAuthStore(),
       modal: useModalStore(),
-      columns: [
-        {
-          key: "price_history",
-          label: "이력",
-          type: "button",
-          width: "90px",
-          align: "center",
-        },
-        {
-          key: "qrcode",
-          label: "QR",
-          type: "img",
-          width: "80px",
-          align: "center",
-          sortable: true,
-        },
-        {
-          key: "image",
-          label: "이미지",
-          type: "img",
-          width: "100px",
-          align: "center",
-          sortable: true,
-        },
-        {
-          key: "code",
-          label: "코드",
-          width: "200px",
-          sortable: true,
-        },
-        {
-          key: "name",
-          label: "품목명",
-          minWidth: "200px",
-        },
-
-        {
-          key: "category_name",
-          label: "카테고리",
-          type: "text",
-          align: "center",
-          width: "120px",
-          sortable: true,
-        },
-        {
-          key: "spec",
-          label: "규격",
-          type: "text",
-          align: "center",
-          width: "120px",
-          sortable: true,
-        },
-        {
-          key: "unit",
-          label: "단위",
-          type: "text",
-          align: "center",
-          width: "120px",
-          sortable: true,
-        },
-        {
-          key: "safety_stock",
-          label: "안전재고",
-          type: "text",
-          align: "right",
-          width: "120px",
-          sortable: true,
-        },
-        {
-          key: "memo",
-          label: "메모",
-          type: "text",
-          width: "200px",
-          sortable: true,
-        },
-        {
-          key: "created_at",
-          label: "등록일",
-          type: "date",
-          align: "center",
-          width: "230px",
-          sortable: true,
-        },
-      ],
-
-      rows: [],
-
       categorys: [],
       tags: [],
-
-      dateRange: {
-        start: null,
-        end: null,
-      },
-      where: {
-        category_id: "",
-        keyword: "",
-        tag_ids: [],
-      },
-
-      url: import.meta.env.VITE_API_URL,
+      columns: [
+        { key: "price_history", label: "이력", type: "button", width: "90px", align: "center" },
+        { key: "qrcode", label: "QR", type: "img", width: "80px", align: "center", sortable: true },
+        { key: "image", label: "이미지", type: "img", width: "100px", align: "center", sortable: true },
+        { key: "code", label: "코드", width: "200px", sortable: true },
+        { key: "name", label: "품목명", minWidth: "200px" },
+        { key: "category_name", label: "카테고리", type: "text", align: "center", width: "120px", sortable: true },
+        { key: "spec", label: "규격", type: "text", align: "center", width: "120px", sortable: true },
+        { key: "unit", label: "단위", type: "text", align: "center", width: "120px", sortable: true },
+        { key: "safety_stock", label: "안전재고", type: "text", align: "right", width: "120px", sortable: true },
+        { key: "memo", label: "메모", type: "text", width: "200px", sortable: true },
+        { key: "created_at", label: "등록일", type: "date", align: "center", width: "230px", sortable: true },
+      ],
     };
   },
 
   methods: {
-    // 삭제
-    // 선택된 품목들을 사용자 확인 후 일괄 삭제한다
-    async batchDelete() {
-      const rows = this.$refs.materialTable.getSelectedRows();
-      if (!rows.length) {
-        this.$toast.error("테이블에서 데이터를 선택하세요");
-        return;
-      }
-
-      let ids = [];
-      for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        ids.push({ id: row.id });
-      }
-
-      const ok = await this.$confirm(
-        `선택된 정보를 삭제하시겠습니까?`,
-        "삭제 확인", "danger",
-      );
-      if (!ok) return;
-
-      try {
-        await api.post("/api/material/batchDelete", ids);
-        this.$toast.success("선택 품목이 삭제되었습니다");
-        this.loadList();
-      } catch (e) {
-        this.$toast.error(e.message);
-      }
-    },
-
-    // 추가 처리
     // 품목 등록 모달을 연다
     openModal() {
       this.modal.openModal(MaterialModal, { onSaved: this.loadList });
     },
 
-    // 데이터 로드 처리
-    // 검색 조건을 반영하여 품목 목록을 서버에서 로드한다
-    async loadList() {
-      this.rows = [];
-      const where = {
-        ...this.where,
-      };
-
-      if (this.dateRange?.start) {
-        where.startDate = this.dateRange.start.toISOString();
-      }
-      if (this.dateRange?.end) {
-        where.endDate = this.dateRange.end.toISOString();
-      }
-      const res = await api.post("/api/material/list", where);
-
-      const list = res.data.map((row) => {
-        const images = (row.images || []).map((img) => ({
-          ...img,
-          file_url: this.url + img.file_url,
-        }));
-
-        return {
-          ...row,
-          image: images[0]?.file_url || "",
-        };
-      });
-
-      this.rows = list;
-    },
-
-    // 셀클릭시
-    // 품목명/코드 셀 클릭 시 상세 모달, 이미지 셀 클릭 시 이미지 모달을 연다
+    // 셀 클릭: 품목명/코드 → 상세 모달, 이미지 → 이미지 모달, 이력 → 가격 이력
     onCellClick(data) {
-      // 품목명 클릭시 모달 상세 오픈
-      if (data.key == "name" || data.key == "code") {
-        if (!this.auth.hasPermission("material.update")) {
-          return;
-        }
-
+      if (data.key === "name" || data.key === "code") {
+        if (!this.auth.hasPermission("material.update")) return;
         this.modal.openModal(MaterialModal, {
           id: data.row.id,
           onSaved: this.loadList,
         });
-      } else if (data.key == "image") {
-        if (!data.value) {
-          return;
-        }
+      } else if (data.key === "image") {
+        if (!data.value) return;
         this.modal.openModal(ImageModal, { image: data.value });
-      } else if (data.key == "price_history") {
+      } else if (data.key === "price_history") {
         this.modal.openModal(
           MaterialPriceHistoryModal,
           {
@@ -323,27 +187,10 @@ export default {
       }
     },
 
-    // 카테고리 옵션을 로드한다
-    async loadCategory() {
-      const res = await api.post("/api/category/list");
-      this.categorys = res.data;
-    },
-
-    // 태그 옵션을 로드한다
-    async loadTags() {
-      try {
-        const res = await api.post("/api/tag/list");
-        this.tags = Array.isArray(res.data) ? res.data : [];
-      } catch (e) {
-        this.tags = [];
-      }
-    },
   },
-  // 마운트 시 카테고리/태그/품목 목록을 순차 로드한다
+
   mounted() {
-    this.loadCategory();
-    this.loadTags();
-    this.loadList();
+    this.loadRefData();
   },
 };
 </script>

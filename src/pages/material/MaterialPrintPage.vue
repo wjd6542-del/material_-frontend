@@ -163,10 +163,12 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
 import html2pdf from "html2pdf.js";
 import MultiCheck from "@/components/base/MultiCheck.vue";
+import { formatTimestamp } from "@/utils/date";
 
 export default {
   name: "MaterialQrPrint",
@@ -437,20 +439,7 @@ export default {
 
     // 타임스탬프가 포함된 다운로드 파일명을 생성한다
     getDownloadFileName(prefix = "material_label", ext = "csv") {
-      const now = new Date();
-      const pad = (n) => String(n).padStart(2, "0");
-
-      const ts = [
-        now.getFullYear(),
-        pad(now.getMonth() + 1),
-        pad(now.getDate()),
-        "_",
-        pad(now.getHours()),
-        pad(now.getMinutes()),
-        pad(now.getSeconds()),
-      ].join("");
-
-      return `${prefix}_${ts}.${ext}`;
+      return `${prefix}_${formatTimestamp()}.${ext}`;
     },
 
     // 현재 라벨 데이터를 CSV 파일로 다운로드한다
@@ -458,7 +447,7 @@ export default {
       const rows = this.buildLabelRows();
 
       if (!rows.length) {
-        alert("다운로드할 라벨 데이터가 없습니다.");
+        this.$toast?.error?.("다운로드할 라벨 데이터가 없습니다.");
         return;
       }
 

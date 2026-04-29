@@ -2,60 +2,32 @@
   <div class="min-h-full p-4 md:p-6 bg-gradient-to-br from-slate-50 via-white to-orange-50/30">
     <div class="w-full">
       <!-- 헤더 -->
-      <div
-        class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl shadow-xl shadow-slate-900/10 p-6 md:p-8 mb-6"
+      <RegisterHeader
+        accent="orange"
+        icon="fa-solid fa-rotate-left"
+        subtitle="Return Order"
+        :title="isEdit ? '반품 수정' : '반품 등록'"
+        description="반품 품목·위치·수량·반품사유를 입력하여 전표를 생성합니다."
       >
-        <div
-          class="absolute inset-0 opacity-10"
-          style="
-            background-image: radial-gradient(#fff 1px, transparent 1px);
-            background-size: 18px 18px;
-          "
-        ></div>
-        <div
-          class="absolute -top-10 -right-10 w-48 h-48 bg-orange-500 rounded-full mix-blend-overlay filter blur-3xl opacity-40"
-        ></div>
-
-        <div class="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div class="flex items-center gap-4">
-            <div
-              class="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center shadow-xl"
-            >
-              <i class="fa-solid fa-rotate-left text-white text-xl"></i>
-            </div>
-            <div>
-              <div class="text-[11px] font-bold uppercase tracking-widest text-orange-300 mb-1">
-                Return Order
-              </div>
-              <h2 class="text-xl md:text-2xl font-black text-white tracking-tight">
-                {{ isEdit ? "반품 수정" : "반품 등록" }}
-              </h2>
-              <p class="text-xs text-slate-400 mt-1">
-                반품 품목·위치·수량·반품사유를 입력하여 전표를 생성합니다.
-              </p>
-            </div>
-          </div>
-
-          <div class="self-start md:self-center flex items-center gap-2">
-            <button
-              type="button"
-              @click="openInboundSelect"
-              class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border border-white/20 bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all shadow-sm"
-            >
-              <i class="fa-solid fa-file-import"></i>
-              구매 정보 불러오기
-            </button>
-            <button
-              type="button"
-              @click="goList"
-              class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 backdrop-blur-sm transition-all"
-            >
-              <i class="fa-solid fa-list"></i>
-              목록으로
-            </button>
-          </div>
-        </div>
-      </div>
+        <template #actions>
+          <button
+            type="button"
+            @click="openInboundSelect"
+            class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border border-white/20 bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all shadow-sm"
+          >
+            <i class="fa-solid fa-file-import"></i>
+            구매 정보 불러오기
+          </button>
+          <button
+            type="button"
+            @click="goList"
+            class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 backdrop-blur-sm transition-all"
+          >
+            <i class="fa-solid fa-list"></i>
+            목록으로
+          </button>
+        </template>
+      </RegisterHeader>
 
       <!-- 본문 카드 -->
       <form
@@ -64,28 +36,15 @@
       >
         <!-- 기본 정보 -->
         <section class="p-6 md:p-8 border-b border-slate-100">
-          <div class="flex items-center gap-3 mb-6">
-            <div class="relative shrink-0">
-              <div
-                class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-md shadow-orange-500/20"
-              >
-                <i class="fa-solid fa-file-lines text-white text-sm"></i>
-              </div>
-              <span
-                class="absolute -top-1.5 -right-1.5 bg-white text-[9px] font-black text-slate-400 px-1.5 py-0.5 rounded-full border border-slate-200 shadow-sm"
-              >01</span>
-            </div>
-            <div>
-              <h3 class="text-[15px] font-black text-slate-800 tracking-tight">
-                반품 기본 정보
-              </h3>
-              <p class="text-[11px] text-slate-400 mt-0.5">
-                반품번호와 메모를 입력합니다
-              </p>
-            </div>
-          </div>
+          <SectionHeader
+            number="01"
+            icon="fa-solid fa-file-lines"
+            title="반품 기본 정보"
+            description="반품번호와 메모를 입력합니다"
+            accent="orange"
+          />
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6">
             <div>
               <label class="form-label">
                 반품번호 <span class="text-red-500">*</span>
@@ -117,32 +76,17 @@
 
         <!-- 반품 품목 -->
         <section class="p-6 md:p-8 bg-slate-50/40">
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-3">
-              <div class="relative shrink-0">
-                <div
-                  class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-md shadow-orange-500/20"
-                >
-                  <i class="fa-solid fa-boxes-stacked text-white text-sm"></i>
-                </div>
-                <span
-                  class="absolute -top-1.5 -right-1.5 bg-white text-[9px] font-black text-slate-400 px-1.5 py-0.5 rounded-full border border-slate-200 shadow-sm"
-                >02</span>
-              </div>
-              <div>
-                <h3 class="text-[15px] font-black text-slate-800 tracking-tight">
-                  반품 품목
-                </h3>
-                <p class="text-[11px] text-slate-400 mt-0.5">
-                  반품할 품목·위치·수량·반품사유를 입력합니다
-                </p>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2 shrink-0">
+          <SectionHeader
+            number="02"
+            icon="fa-solid fa-boxes-stacked"
+            title="반품 품목"
+            description="반품할 품목·위치·수량·반품사유를 입력합니다"
+            accent="orange"
+          >
+            <template #actions>
               <button
                 type="button"
-                @click="clearAllItems"
+                @click="clearAllItems('반품 품목을 전체 삭제하시겠습니까?')"
                 :disabled="!form.items.length"
                 class="px-3 py-2 rounded-xl border border-red-200 bg-white hover:bg-red-50 text-red-600 text-xs font-bold transition-all active:scale-[0.98] flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
               >
@@ -157,10 +101,10 @@
                 <i class="fa-solid fa-plus"></i>
                 품목 선택
               </button>
-            </div>
-          </div>
+            </template>
+          </SectionHeader>
 
-          <div class="rounded-2xl border border-slate-200 bg-white">
+          <div class="rounded-2xl border border-slate-200 bg-white mt-4">
             <table class="w-full text-sm">
               <thead class="bg-slate-50 text-slate-500">
                 <tr>
@@ -184,7 +128,6 @@
                     {{ i + 1 }}
                   </td>
 
-                  <!-- 품목 -->
                   <td class="td">
                     <button
                       type="button"
@@ -203,7 +146,6 @@
                     </button>
                   </td>
 
-                  <!-- 창고>위치>선반 -->
                   <td class="td">
                     <button
                       type="button"
@@ -218,7 +160,6 @@
                     </button>
                   </td>
 
-                  <!-- 수량 -->
                   <td class="td">
                     <input
                       v-model.number="it.quantity"
@@ -229,7 +170,6 @@
                     />
                   </td>
 
-                  <!-- 원가 -->
                   <td class="td">
                     <input
                       v-model.number="it.cost_price"
@@ -240,7 +180,6 @@
                     />
                   </td>
 
-                  <!-- 판매가 -->
                   <td class="td">
                     <input
                       v-model.number="it.sale_price"
@@ -251,7 +190,6 @@
                     />
                   </td>
 
-                  <!-- 반품사유 -->
                   <td class="td">
                     <select v-model="it.reasonType" class="cell-input">
                       <option value="단순변심">단순변심</option>
@@ -261,7 +199,6 @@
                     </select>
                   </td>
 
-                  <!-- 관리 -->
                   <td class="td text-center">
                     <button
                       type="button"
@@ -342,18 +279,25 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
 import DatePicker from "@/components/base/DatePicker.vue";
+import RegisterHeader from "@/components/voucher/RegisterHeader.vue";
+import SectionHeader from "@/components/voucher/SectionHeader.vue";
 import MaterialSelectModal from "@/components/material/MaterialSelectModal.vue";
 import ShelfSelectModal from "@/components/warehouse/ShelfSelectModal.vue";
 import InboundSelectModal from "@/components/inbound/InboundSelectModal.vue";
 import { useModalStore } from "@/stores/modal";
+import { voucherMixin } from "@/mixins/voucher";
+import { formatDateOnly } from "@/utils/date";
 
 export default {
   name: "ReturnOrderRegisterPage",
 
-  components: { DatePicker },
+  components: { DatePicker, RegisterHeader, SectionHeader },
+
+  mixins: [voucherMixin],
 
   data() {
     return {
@@ -370,37 +314,25 @@ export default {
     };
   },
 
-  computed: {
-    isEdit() {
-      return !!this.$route.query.id;
-    },
-  },
-
   methods: {
-    // 구매 정보 불러오기 모달 오픈
     openInboundSelect() {
       this.modalStore.openModal(
         InboundSelectModal,
-        {
-          onConfirm: (list) => this.applyInboundItems(list),
-        },
+        { onConfirm: (list) => this.applyInboundItems(list) },
         "xl",
       );
     },
 
-    // 구매에서 가져온 품목 리스트를 반품 품목에 주입한다
     applyInboundItems(list) {
       if (!Array.isArray(list) || !list.length) return;
       list.forEach((it) => this.form.items.push(it));
       this.$toast?.success(`${list.length}개 품목이 추가되었습니다.`);
     },
 
-    // 품목 선택 모달 오픈 (target 있으면 행 교체, 없으면 신규 추가)
     openMaterialSelect(target = null) {
       this.modalStore.openModal(
         MaterialSelectModal,
         {
-          // 반품: 판매가 필드를 기본으로 매핑
           priceField: "outbound_price1",
           onConfirm: (list) => this.applyMaterials(list, target),
         },
@@ -408,19 +340,16 @@ export default {
       );
     },
 
-    // 창고>위치>선반 선택 모달 오픈
     openShelfSelect(target) {
       this.modalStore.openModal(
         ShelfSelectModal,
-        {
-          onConfirm: (payload) => this.applyShelf(payload, target),
-        },
+        { onConfirm: (payload) => this.applyShelf(payload, target) },
         "xl",
       );
     },
 
-    // 품목 정보를 신규 반품 품목 행 객체로 변환한다
-    buildItemFromMaterial(m) {
+    // 반품: 원가/판매가/반품사유 필드를 가진 라인 아이템
+    buildReturnItem(m) {
       return {
         id: 0,
         material_id: m.id,
@@ -439,7 +368,6 @@ export default {
       };
     },
 
-    // 선택된 품목 목록을 품목에 반영한다
     applyMaterials(list, target = null) {
       if (!Array.isArray(list) || !list.length) return;
       if (target) {
@@ -449,21 +377,23 @@ export default {
         target.material_name = first.name || "";
         target.spec = first.spec || "";
         target.unit = first.unit || "";
-        if (!target.sale_price) target.sale_price = Number(first.outbound_price1) || Number(first.price) || 0;
-        if (!target.cost_price) target.cost_price = Number(first.inbound_price) || 0;
+        if (!target.sale_price) {
+          target.sale_price =
+            Number(first.outbound_price1) || Number(first.price) || 0;
+        }
+        if (!target.cost_price) {
+          target.cost_price = Number(first.inbound_price) || 0;
+        }
         if (rest.length) {
           const idx = this.form.items.indexOf(target);
-          const newRows = rest.map((m) => this.buildItemFromMaterial(m));
+          const newRows = rest.map((m) => this.buildReturnItem(m));
           this.form.items.splice(idx + 1, 0, ...newRows);
         }
       } else {
-        list.forEach((m) =>
-          this.form.items.push(this.buildItemFromMaterial(m)),
-        );
+        list.forEach((m) => this.form.items.push(this.buildReturnItem(m)));
       }
     },
 
-    // 선반 선택 결과를 행에 반영한다
     applyShelf(payload, target) {
       const { shelf, location, warehouse } = payload || {};
       if (!shelf || !target) return;
@@ -473,33 +403,14 @@ export default {
       target.shelf_label = shelf.name;
     },
 
-    // 지정 인덱스의 품목 행을 제거한다
-    removeItem(i) {
-      this.form.items.splice(i, 1);
-    },
-
-    // 품목 전체를 일괄 삭제한다
-    async clearAllItems() {
-      if (!this.form.items.length) return;
-      const ok = await this.$confirm?.(
-        "반품 품목을 전체 삭제하시겠습니까?",
-        "전체 삭제 확인", "danger",
-      );
-      if (ok === false) return;
-      this.form.items = [];
-    },
-
-    // 목록 페이지로 이동
     goList() {
       this.$router.push("/returnorder");
     },
 
-    // 반품번호 생성
     mkReturnNo() {
       return "RET-" + Date.now();
     },
 
-    // 수정 모드일 때 기존 전표 로드
     async loadData() {
       const id = this.$route.query.id;
       if (!id) return;
@@ -514,13 +425,11 @@ export default {
       }
     },
 
-    // 반품 전표 저장
     async save() {
       if (!this.form.items.length) {
         this.$toast?.error("반품 품목을 최소 1개 이상 등록하세요.");
         return;
       }
-
       this.saving = true;
       try {
         await api.post("/api/returnorder/save", this.form);
@@ -541,11 +450,7 @@ export default {
       this.loadData();
     } else {
       this.form.return_no = this.mkReturnNo();
-      const d = new Date();
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, "0");
-      const dd = String(d.getDate()).padStart(2, "0");
-      this.form.return_date = `${yyyy}-${mm}-${dd}`;
+      this.form.return_date = formatDateOnly(new Date());
     }
   },
 };

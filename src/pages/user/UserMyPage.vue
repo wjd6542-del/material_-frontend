@@ -272,7 +272,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import { useAuthStore } from "@/stores/auth";
 import api from "@/api/api";
 

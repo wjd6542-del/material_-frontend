@@ -291,16 +291,17 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
+import { createShapeEditorMixin } from "@/mixins/shapeEditor";
 
 export default {
+  name: "WarehousePage",
+  mixins: [createShapeEditorMixin()],
+
   data() {
     return {
-      // 로컬 shape 객체: { _localId, id, name, code, memo, sort, points, rotation, color, shapeType }
-      shapes: [],
-      selected: [],
-      isEditMode: false,
       selectedShapeType: "rect",
       shapeTypes: [
         { key: "triangle", icon: "△", label: "삼각형" },
@@ -310,19 +311,6 @@ export default {
         { key: "nieun", icon: "ㄴ", label: "ㄴ형" },
         { key: "giyeok", icon: "ㄱ", label: "ㄱ형" },
       ],
-      isSaving: false,
-      gridSize: 20,
-      dragState: {
-        active: false,
-        type: null,
-        startX: 0,
-        startY: 0,
-        target: null,
-        subIdx: null,
-        originPoints: [],
-      },
-      selectionBox: null,
-      selectionStart: { x: 0, y: 0 },
     };
   },
 
@@ -330,196 +318,8 @@ export default {
   async mounted() {
     await this.loadData();
   },
-  computed: {
-    // 다중 선택 중 가장 최근에 선택된 shape를 반환한다
-    selectedShape() {
-      return this.selected[this.selected.length - 1] || null;
-    },
-  },
+
   methods: {
-    /* 🛠 좌표 변환 핵심: 화면 픽셀 -> SVG viewBox(1000) 좌표 */
-    getSVGPoint(e) {
-      const svg = this.$refs.svgCanvas;
-      const pt = svg.createSVGPoint();
-      pt.x = e.clientX;
-      pt.y = e.clientY;
-      // 화면 좌표를 SVG의 CTM(좌표 변환 행렬)을 이용해 역계산
-      const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
-      return { x: svgP.x, y: svgP.y };
-    },
-
-    // 좌표값을 그리드 단위로 스냅한다
-    snap(v) {
-      return Math.round(v / this.gridSize) * this.gridSize;
-    },
-    // 포인트 배열을 SVG polygon용 문자열로 변환한다
-    pointsToString(p) {
-      return p.map((v) => `${v.x},${v.y}`).join(" ");
-    },
-
-    // 다각형 포인트들의 중심 좌표를 계산한다
-    getCenter(p) {
-      return {
-        x: p.reduce((a, b) => a + b.x, 0) / p.length,
-        y: p.reduce((a, b) => a + b.y, 0) / p.length,
-      };
-    },
-
-    // 각 변의 중점 좌표 배열을 반환한다 (정점 추가용)
-    getMidPoints(p) {
-      return p.map((v, i) => {
-        const next = p[(i + 1) % p.length];
-        return { x: (v.x + next.x) / 2, y: (v.y + next.y) / 2 };
-      });
-    },
-
-    // 회전 핸들의 위치(중심 오른쪽)를 반환한다
-    getRotateHandle(s) {
-      const c = this.getCenter(s.points);
-      return { x: c.x + 80, y: c.y };
-    },
-
-    // 특정 shape가 현재 선택되어 있는지 확인한다
-    isSelected(s) {
-      return this.selected.includes(s);
-    },
-
-    /* 🖱 이벤트 핸들러 */
-    // 빈 캔버스 클릭 시 선택 해제 및 드래그 선택 박스를 시작한다
-    handleCanvasMouseDown(e) {
-      if (e.target !== this.$refs.svgCanvas) return;
-      const pt = this.getSVGPoint(e);
-      this.selected = [];
-      this.dragState = { active: true, type: "select" };
-      this.selectionStart = pt;
-      this.selectionBox = { ...pt, w: 0, h: 0 };
-    },
-
-    // shape 클릭 시 선택 처리 및 이동 드래그를 시작한다 (Ctrl로 다중 선택)
-    handleShapeMouseDown(e, shape) {
-      const isCtrl = e.ctrlKey || e.metaKey;
-      if (isCtrl) {
-        if (this.isSelected(shape))
-          this.selected = this.selected.filter((s) => s !== shape);
-        else this.selected.push(shape);
-      } else {
-        if (!this.isSelected(shape)) this.selected = [shape];
-      }
-
-      if (this.selected.length > 0) {
-        const pt = this.getSVGPoint(e);
-        this.dragState = {
-          active: true,
-          type: "move",
-          startX: pt.x,
-          startY: pt.y,
-          originPoints: this.selected.map((s) =>
-            s.points.map((p) => ({ ...p })),
-          ),
-        };
-      }
-    },
-
-    // 정점 클릭 시 정점 이동 드래그를 시작한다
-    handleVertexMouseDown(shape, idx) {
-      this.dragState = {
-        active: true,
-        type: "vertex",
-        target: shape,
-        subIdx: idx,
-      };
-    },
-
-    // 회전 핸들 클릭 시 회전 드래그를 시작한다
-    handleRotateMouseDown(shape, e) {
-      const pt = this.getSVGPoint(e);
-      this.dragState = {
-        active: true,
-        type: "rotate",
-        target: shape,
-        startX: pt.x,
-        startY: pt.y,
-      };
-    },
-
-    // 드래그 중 마우스 이동에 따라 이동/정점 편집/회전/선택 박스를 갱신한다
-    handleMouseMove(e) {
-      if (!this.dragState.active) return;
-      const pt = this.getSVGPoint(e);
-
-      if (this.dragState.type === "move") {
-        const dx = this.snap(pt.x - this.dragState.startX);
-        const dy = this.snap(pt.y - this.dragState.startY);
-
-        this.selected.forEach((shape, i) => {
-          shape.points = this.dragState.originPoints[i].map((p) => ({
-            x: p.x + dx,
-            y: p.y + dy,
-          }));
-        });
-      } else if (this.dragState.type === "vertex") {
-        this.dragState.target.points[this.dragState.subIdx] = {
-          x: this.snap(pt.x),
-          y: this.snap(pt.y),
-        };
-      } else if (this.dragState.type === "rotate") {
-        const shape = this.dragState.target;
-        const c = this.getCenter(shape.points);
-        const angle =
-          Math.atan2(pt.y - c.y, pt.x - c.x) -
-          Math.atan2(this.dragState.startY - c.y, this.dragState.startX - c.x);
-        const cos = Math.cos(angle);
-        const sin = Math.sin(angle);
-
-        shape.points = shape.points.map((p) => ({
-          x: cos * (p.x - c.x) - sin * (p.y - c.y) + c.x,
-          y: sin * (p.x - c.x) + cos * (p.y - c.y) + c.y,
-        }));
-        this.dragState.startX = pt.x;
-        this.dragState.startY = pt.y;
-      } else if (this.dragState.type === "select") {
-        this.selectionBox = {
-          x: Math.min(this.selectionStart.x, pt.x),
-          y: Math.min(this.selectionStart.y, pt.y),
-          w: Math.abs(pt.x - this.selectionStart.x),
-          h: Math.abs(pt.y - this.selectionStart.y),
-        };
-      }
-    },
-
-    // 드래그 종료 시 선택 박스 내 shape 선택 및 스냅 보정을 수행한다
-    handleMouseUp() {
-      if (this.dragState.type === "select" && this.selectionBox) {
-        const b = this.selectionBox;
-        this.selected = this.shapes.filter((s) => {
-          const c = this.getCenter(s.points);
-          return c.x > b.x && c.x < b.x + b.w && c.y > b.y && c.y < b.y + b.h;
-        });
-      }
-      // 최종 스냅 보정 (원형은 스냅하면 찌그러지므로 제외)
-      if (["move", "rotate", "vertex"].includes(this.dragState.type)) {
-        if (this.selectedShape) {
-          this.selected.forEach((s) => {
-            if (s.shapeType === "circle") {
-              s.points = s.points.map((p) => ({
-                x: Math.round(p.x),
-                y: Math.round(p.y),
-              }));
-            } else {
-              s.points = s.points.map((p) => ({
-                x: this.snap(p.x),
-                y: this.snap(p.y),
-              }));
-            }
-          });
-        }
-      }
-      this.dragState.active = false;
-      this.selectionBox = null;
-    },
-
-    /* 💾 데이터 관리 */
-
     // API에서 창고 목록 로드
     // 응답 예시: [{ id, code, name, memo, sort, points, rotation, color }]
     async loadData() {
@@ -554,9 +354,6 @@ export default {
       try {
         for (let i = 0; i < this.shapes.length; i++) {
           const s = this.shapes[i];
-
-          console.log("check > >> ", s);
-
           const payload = {
             name: s.name,
             code: s.code,
@@ -687,30 +484,23 @@ export default {
 
     // 현재 선택된 shape를 서버와 로컬에서 삭제한다
     async deleteShape() {
-      if (!confirm("정말 삭제하시겠습니까?")) return;
+      const ok = await this.$confirm?.(
+        "정말 삭제하시겠습니까?",
+        "삭제 확인",
+        "danger",
+      );
+      if (ok === false) return;
       const target = this.selectedShape;
       if (target.id) {
         try {
           await api.post(`/api/warehouse/delete/${target.id}`);
         } catch (err) {
-          this.$toast.success("삭제 실패: " + (err?.message || "서버 오류"));
+          this.$toast.error("삭제 실패: " + (err?.message || "서버 오류"));
           return;
         }
       }
       this.shapes = this.shapes.filter((s) => s._localId !== target._localId);
       this.selected = [];
-    },
-
-    // 지정 위치에 새 정점을 삽입한다 (스냅 적용)
-    insertPoint(shape, index, pos) {
-      shape.points.splice(index, 0, {
-        x: this.snap(pos.x),
-        y: this.snap(pos.y),
-      });
-    },
-    // 정점을 제거한다 (최소 3개 유지)
-    removePoint(shape, i) {
-      if (shape.points.length > 3) shape.points.splice(i, 1);
     },
   },
 };

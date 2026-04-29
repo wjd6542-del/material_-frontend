@@ -72,7 +72,8 @@
   </li>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 export default {
   name: "TreeSelectNode",
   props: {

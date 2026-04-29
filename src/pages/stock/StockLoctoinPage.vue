@@ -519,10 +519,21 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
+import { createSvgZoomPanMixin } from "@/mixins/svgZoomPan";
+import { rackVisualsMixin } from "@/mixins/rackVisuals";
+import { createRefDataMixin } from "@/mixins/refData";
 
 export default {
+  name: "StockLocationPage",
+  mixins: [
+    createSvgZoomPanMixin({ size: 1000, minZoom: 200, maxZoom: 3000 }),
+    rackVisualsMixin,
+    createRefDataMixin(["warehouses"]),
+  ],
+
   data() {
     return {
       racks: [],
@@ -533,11 +544,6 @@ export default {
       searchText: "",
       detailSearchText: "",
       where: { warehouse_id: "" },
-      viewBox: { x: 0, y: 0, w: 1000, h: 1000 },
-      minZoom: 200,
-      maxZoom: 3000,
-      isPanning: false,
-      panStart: { x: 0, y: 0, vx: 0, vy: 0 },
       url: import.meta.env.VITE_API_URL,
     };
   },
@@ -599,58 +605,13 @@ export default {
 
       return wh.stocks.reduce((sum, s) => sum + (s.quantity || 0), 0);
     },
-    // 포인트 배열을 SVG polygon용 문자열로 변환한다
-    pointsToString(p) {
-      if (!p || !p.length) return "";
-      return p.map((v) => `${v.x},${v.y}`).join(" ");
-    },
-    // 다각형 포인트들의 중심 좌표를 계산한다
-    getCenter(p) {
-      if (!p || !p.length) return { x: 0, y: 0 };
-      return {
-        x: p.reduce((a, b) => a + b.x, 0) / p.length,
-        y: p.reduce((a, b) => a + b.y, 0) / p.length,
-      };
-    },
-    // 선택/검색/재고 여부에 따른 rack 상태 문자열을 반환한다
+    // 선택/검색/재고 여부에 따른 rack 상태 (rackVisuals 가 사용)
     rackState(rack) {
       if (this.selectedRack?.id === rack.id) return "selected";
       if (this.searchText) {
         return this.matchedRackIds.includes(rack.id) ? "matched" : "dimmed";
       }
       return rack.stocks?.length ? "hasStock" : "empty";
-    },
-    // 상태별 rack 채움 색상을 반환한다
-    rackFill(rack) {
-      const state = this.rackState(rack);
-      if (state === "selected") return "#2563eb";
-      if (state === "matched") return "#10b981";
-      if (state === "dimmed") return "#f8fafc";
-      if (state === "hasStock") return rack.color || "#1e293b";
-      return "#f1f5f9";
-    },
-    // 상태별 rack 테두리 색상을 반환한다
-    rackStroke(rack) {
-      const state = this.rackState(rack);
-      if (state === "selected") return "#ffffff";
-      if (state === "matched") return "#a7f3d0";
-      if (state === "dimmed") return "#e2e8f0";
-      if (state === "hasStock") return "#0f172a";
-      return "#e2e8f0";
-    },
-    // dimmed 상태일 때 투명도를 낮춰 반환한다
-    rackOpacity(rack) {
-      return this.rackState(rack) === "dimmed" ? 0.25 : 1;
-    },
-    // 상태별 rack 라벨 색상을 반환한다
-    rackTextColor(rack) {
-      const state = this.rackState(rack);
-      if (state === "empty" || state === "dimmed") return "#94a3b8";
-      return "#ffffff";
-    },
-    // 특정 rack의 총 재고 수량을 계산한다
-    totalQty(rack) {
-      return (rack.stocks || []).reduce((sum, v) => sum + v.qty, 0);
     },
     // 창고 선택 시 뷰를 리셋하고 해당 창고 데이터를 로드한다
     async selectWarehouse(wh) {
@@ -667,113 +628,20 @@ export default {
     },
     // 특정 rack으로 스크롤한다 (미구현)
     scrollToRack() {},
-    // 화면 좌표를 SVG viewBox 좌표로 변환한다
-    svgPoint(e) {
-      const svg = this.$refs.svg;
-      if (!svg) return { x: 0, y: 0 };
-      const pt = svg.createSVGPoint();
-      pt.x = e.clientX;
-      pt.y = e.clientY;
-      const ctm = svg.getScreenCTM();
-      if (!ctm) return { x: 0, y: 0 };
-      const p = pt.matrixTransform(ctm.inverse());
-      return { x: p.x, y: p.y };
-    },
-    // 휠 이벤트로 마우스 포인터 기준의 확대/축소를 수행한다
-    handleWheel(e) {
-      const scale = e.deltaY > 0 ? 1.15 : 1 / 1.15;
-      const newW = Math.min(
-        Math.max(this.viewBox.w * scale, this.minZoom),
-        this.maxZoom,
-      );
-      const p = this.svgPoint(e);
-      const ratio = newW / this.viewBox.w;
-      this.viewBox = {
-        x: p.x - (p.x - this.viewBox.x) * ratio,
-        y: p.y - (p.y - this.viewBox.y) * ratio,
-        w: newW,
-        h: newW,
-      };
-    },
-    // 버튼으로 확대한다
-    zoomIn() {
-      this.zoomBy(1 / 1.25);
-    },
-    // 버튼으로 축소한다
-    zoomOut() {
-      this.zoomBy(1.25);
-    },
-    // 현재 중심을 기준으로 주어진 배율만큼 확대/축소한다
-    zoomBy(scale) {
-      const newW = Math.min(
-        Math.max(this.viewBox.w * scale, this.minZoom),
-        this.maxZoom,
-      );
-      const cx = this.viewBox.x + this.viewBox.w / 2;
-      const cy = this.viewBox.y + this.viewBox.h / 2;
-      this.viewBox = {
-        x: cx - newW / 2,
-        y: cy - newW / 2,
-        w: newW,
-        h: newW,
-      };
-    },
-    // 뷰박스를 초기 상태로 리셋한다
-    resetZoom() {
-      this.viewBox = { x: 0, y: 0, w: 1000, h: 1000 };
-    },
-    // 배경 드래그 시작 시 팬 초기 상태를 저장한다
-    handlePanStart(e) {
-      if (e.target.closest("g")) return;
-      this.isPanning = true;
-      this.panStart = {
-        x: e.clientX,
-        y: e.clientY,
-        vx: this.viewBox.x,
-        vy: this.viewBox.y,
-      };
-    },
-    // 팬 중 마우스 이동에 맞춰 뷰박스 좌표를 이동시킨다
-    handlePanMove(e) {
-      if (!this.isPanning) return;
-      const svg = this.$refs.svg;
-      const rect = svg.getBoundingClientRect();
-      const scale = this.viewBox.w / rect.width;
-      this.viewBox = {
-        ...this.viewBox,
-        x: this.panStart.vx - (e.clientX - this.panStart.x) * scale,
-        y: this.panStart.vy - (e.clientY - this.panStart.y) * scale,
-      };
-    },
-    // 팬 종료 처리
-    handlePanEnd() {
-      this.isPanning = false;
-    },
+
     // 선택된 창고의 위치별 재고 맵 데이터를 로드한다
     async loadData() {
       try {
         const res = await api.post("/api/stock/locationStock", this.where);
         this.racks = res.data;
-
-        console.log(this.racks);
       } catch (e) {
-        console.error(e);
-      }
-    },
-    // 창고 목록을 로드한다
-    async loadWarehouses() {
-      try {
-        const res = await api.post("/api/warehouse/list");
-        this.warehouses = res.data;
-        console.log("정보 확인!!", res.data);
-      } catch (e) {
-        console.error(e);
+        this.$toast?.error?.("재고 데이터 로드 실패");
       }
     },
   },
   // 마운트 시 창고 목록을 로드한다
   mounted() {
-    this.loadWarehouses();
+    this.loadRefData();
   },
 };
 </script>

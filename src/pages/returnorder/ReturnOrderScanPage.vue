@@ -179,7 +179,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import { AgGridVue } from "ag-grid-vue3";

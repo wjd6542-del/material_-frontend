@@ -283,10 +283,15 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
+import { createTransferListMixin } from "@/mixins/transferList";
 
 export default {
+  name: "MenuPermissionBoard",
+  mixins: [createTransferListMixin()],
+
   props: {
     roleId: Number,
   },
@@ -335,21 +340,19 @@ export default {
     // 역할의 권한 정보와 전체 권한 목록을 로드하고 분리한다
     async loadPermissions() {
       try {
-        const res = await api.post("/api/permission/list");
-        const res_role = await api.post(`/api/role/${this.roleId}`, {
-          id: this.roleId,
-        });
-
+        const [res, res_role] = await Promise.all([
+          api.post("/api/permission/list"),
+          api.post(`/api/role/${this.roleId}`, { id: this.roleId }),
+        ]);
         this.role = res_role.data;
         this.all = res.data;
 
         const assignedIds =
           this.role?.permissions?.map((p) => p.permission_id) || [];
-
         this.assigned = this.all.filter((p) => assignedIds.includes(p.id));
         this.unassigned = this.all.filter((p) => !assignedIds.includes(p.id));
       } catch (e) {
-        console.error("데이터 로드 실패:", e);
+        this.$toast?.error?.("권한 정보를 불러오지 못했습니다.");
       }
     },
 
@@ -404,30 +407,6 @@ export default {
     // 특정 action의 할당 권한 개수를 반환한다
     getAssignedCount(action) {
       return this.assigned.filter((p) => p.action === action).length;
-    },
-
-    // 미할당 → 할당으로 단일 권한을 이동한다
-    addPermission(item) {
-      this.assigned.push(item);
-      this.unassigned = this.unassigned.filter((p) => p.id !== item.id);
-    },
-
-    // 할당 → 미할당으로 단일 권한을 이동한다
-    removePermission(item) {
-      this.unassigned.push(item);
-      this.assigned = this.assigned.filter((p) => p.id !== item.id);
-    },
-
-    // 미할당 전체를 할당으로 이동한다
-    addAll() {
-      this.assigned.push(...this.unassigned);
-      this.unassigned = [];
-    },
-
-    // 할당 전체를 미할당으로 이동한다
-    removeAll() {
-      this.unassigned.push(...this.assigned);
-      this.assigned = [];
     },
 
     // 검색 결과만 할당으로 이동한다

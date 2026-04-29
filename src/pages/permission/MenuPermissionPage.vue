@@ -154,7 +154,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import MenuPermissionBoard from "./MenuPermissionBoard.vue";
 import PermissionSeedModal from "@/components/permission/PermissionSeedModal.vue";
 import RoleSeedModal from "@/components/permission/RoleSeedModal.vue";

@@ -29,7 +29,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import { markRaw } from "vue";
 
 import Setting from "@/components/setting/Setting.vue";

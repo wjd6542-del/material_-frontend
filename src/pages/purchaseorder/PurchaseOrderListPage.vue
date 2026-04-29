@@ -98,24 +98,23 @@
           @cell-click="onCellClick"
         >
           <template #days_left="{ row }">
-            <span v-if="!row.delivery_date" class="text-slate-300">-</span>
-            <span
+            <span v-if="!row.delivery_date" class="badge-muted">-</span>
+            <Badge
               v-else-if="daysLeft(row.delivery_date) < 0"
-              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-50 text-red-600 text-xs font-bold"
+              variant="error"
+              icon="fa-solid fa-triangle-exclamation"
             >
-              <i class="fa-solid fa-triangle-exclamation text-[10px]"></i>
               납기일 초과됨
-            </span>
-            <span
+            </Badge>
+            <Badge
               v-else-if="daysLeft(row.delivery_date) === 0"
-              class="inline-flex px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 text-xs font-bold"
-              >D-DAY</span
+              variant="warning"
             >
-            <span
-              v-else
-              class="inline-flex px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 text-xs font-bold"
-              >D-{{ daysLeft(row.delivery_date) }}</span
-            >
+              D-DAY
+            </Badge>
+            <Badge v-else variant="info">
+              D-{{ daysLeft(row.delivery_date) }}
+            </Badge>
           </template>
         </BaseTable>
       </div>
@@ -123,24 +122,26 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import BaseTable from "@/components/base/BaseTable.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
 import BaseInput from "@/components/base/BaseInput.vue";
 import SearchSelect from "@/components/base/SearchSelect.vue";
+import Badge from "@/components/ui/Badge.vue";
 import PurchaseOrderVoucherPrintModal from "@/components/purchaseorder/PurchaseOrderVoucherPrintModal.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useModalStore } from "@/stores/modal";
-import api from "@/api/api";
+import { createListMixin } from "@/mixins/listPage";
+import { createRefDataMixin } from "@/mixins/refData";
+import { formatDateOnly, todayRange, startOfDay } from "@/utils/date";
 
-function formatDateOnly(v) {
-  if (!v) return "-";
-  const d = new Date(v);
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
+const STATUS_LABELS = {
+  draft: "임시저장",
+  ordered: "발주완료",
+  received: "구매완료",
+  canceled: "취소",
+};
 
 export default {
   name: "PurchaseOrderListPage",
@@ -150,40 +151,52 @@ export default {
     DateRangePicker,
     BaseInput,
     SearchSelect,
+    Badge,
   },
+
+  mixins: [
+    createListMixin({
+      endpoint: "/api/purchaseOrder/list",
+      deleteEndpoint: "/api/purchaseOrder/batchDelete",
+      tableRef: "orderTable",
+      initialWhere: { order_no: "", supplier_id: "", status: "" },
+      // 발주일자 / 납기일자 두 개의 DateRange 를 별도 키로 직렬화
+      initialDateRange: null,
+      transformWhere: (w, vm) => {
+        if (vm.orderDateRange?.start) {
+          w.orderStartDate = vm.orderDateRange.start.toISOString();
+        }
+        if (vm.orderDateRange?.end) {
+          w.orderEndDate = vm.orderDateRange.end.toISOString();
+        }
+        if (vm.deliveryDateRange?.start) {
+          w.deliveryStartDate = vm.deliveryDateRange.start.toISOString();
+        }
+        if (vm.deliveryDateRange?.end) {
+          w.deliveryEndDate = vm.deliveryDateRange.end.toISOString();
+        }
+        return w;
+      },
+    }),
+    createRefDataMixin(["suppliers"]),
+  ],
 
   data() {
     return {
       auth: useAuthStore(),
       modal: useModalStore(),
+      orderDateRange: todayRange(),
+      deliveryDateRange: { start: null, end: null },
+      suppliers: [],
+      statusOptions: Object.entries(STATUS_LABELS).map(([value, text]) => ({
+        text,
+        value,
+      })),
       columns: [
-        {
-          key: "qrcode",
-          label: "QR",
-          type: "img",
-          width: "80px",
-          align: "center",
-        },
-        {
-          key: "order_no",
-          label: "발주번호",
-          width: "180px",
-          align: "center",
-          sortable: true,
-        },
-        {
-          key: "supplier_name",
-          label: "거래처",
-          width: "200px",
-          sortable: true,
-        },
-        {
-          key: "created_by_name",
-          label: "작업자",
-          align: "center",
-          width: "100px",
-          sortable: true,
-        },
+        { key: "qrcode", label: "QR", type: "img", width: "80px", align: "center" },
+        { key: "order_no", label: "발주번호", width: "180px", align: "center", sortable: true },
+        { key: "supplier_name", label: "거래처", width: "200px", sortable: true },
+        { key: "created_by_name", label: "작업자", align: "center", width: "100px", sortable: true },
         {
           key: "order_date",
           label: "발주일자",
@@ -200,58 +213,18 @@ export default {
           sortable: true,
           formatter: formatDateOnly,
         },
-        {
-          key: "days_left",
-          label: "경과일",
-          width: "120px",
-          align: "center",
-        },
+        { key: "days_left", label: "경과일", width: "120px", align: "center" },
         {
           key: "status",
           label: "상태",
           width: "100px",
           align: "center",
           sortable: true,
-          formatter: (v) =>
-            ({
-              draft: "임시저장",
-              ordered: "발주완료",
-              received: "구매완료",
-              canceled: "취소",
-            })[v] || v,
+          formatter: (v) => STATUS_LABELS[v] || v,
         },
-        {
-          key: "memo",
-          label: "메모",
-          type: "text",
-          width: "250px",
-        },
-        {
-          key: "voucher",
-          label: "전표",
-          type: "button",
-          width: "90px",
-          align: "center",
-        },
+        { key: "memo", label: "메모", type: "text", width: "250px" },
+        { key: "voucher", label: "전표", type: "button", width: "90px", align: "center" },
       ],
-      rows: [],
-      suppliers: [],
-      statusOptions: [
-        { text: "임시저장", value: "draft" },
-        { text: "발주완료", value: "ordered" },
-        { text: "구매완료", value: "received" },
-        { text: "취소", value: "canceled" },
-      ],
-      where: {
-        order_no: "",
-        supplier_id: "",
-        status: "",
-      },
-      orderDateRange: {
-        start: new Date(new Date().setHours(0, 0, 0, 0)),
-        end: new Date(new Date().setHours(23, 59, 59, 999)),
-      },
-      deliveryDateRange: { start: null, end: null },
     };
   },
 
@@ -264,75 +237,12 @@ export default {
     // 오늘 기준 납기일까지 남은 일수 (음수: 초과, 0: D-DAY, 양수: 남음)
     daysLeft(deliveryDate) {
       if (!deliveryDate) return null;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const d = new Date(deliveryDate);
-      d.setHours(0, 0, 0, 0);
+      const today = startOfDay(new Date());
+      const d = startOfDay(deliveryDate);
       return Math.round((d.getTime() - today.getTime()) / 86400000);
     },
 
-    // 선택된 발주 항목을 일괄 삭제한다
-    async batchDelete() {
-      const rows = this.$refs.orderTable.getSelectedRows();
-      if (!rows.length) {
-        this.$toast.error("테이블에서 데이터를 선택하세요");
-        return;
-      }
-
-      const ok = await this.$confirm(
-        `선택된 정보를 삭제하시겠습니까?`,
-        "삭제 확인", "danger",
-      );
-      if (!ok) return;
-
-      try {
-        await api.post(
-          "/api/purchaseOrder/batchDelete",
-          rows.map((r) => ({ id: r.id })),
-        );
-        this.$toast.success("선택 항목이 삭제되었습니다");
-        this.loadList();
-      } catch (e) {
-        this.$toast.error(e.message);
-      }
-    },
-
-    // 거래처 목록을 로드한다
-    async loadSuppliers() {
-      try {
-        const res = await api.post("/api/supplier/list", {});
-        this.suppliers = Array.isArray(res.data) ? res.data : [];
-      } catch (e) {
-        this.$toast?.error?.("거래처 목록을 불러오지 못했습니다.");
-      }
-    },
-
-    // 검색 조건을 반영해 발주 목록을 로드한다
-    async loadList() {
-      this.rows = [];
-      const where = { ...this.where };
-      if (this.orderDateRange?.start) {
-        where.orderStartDate = this.orderDateRange.start.toISOString();
-      }
-      if (this.orderDateRange?.end) {
-        where.orderEndDate = this.orderDateRange.end.toISOString();
-      }
-      if (this.deliveryDateRange?.start) {
-        where.deliveryStartDate = this.deliveryDateRange.start.toISOString();
-      }
-      if (this.deliveryDateRange?.end) {
-        where.deliveryEndDate = this.deliveryDateRange.end.toISOString();
-      }
-
-      try {
-        const res = await api.post("/api/purchaseOrder/list", where);
-        this.rows = res.data;
-      } catch (e) {
-        this.$toast?.error?.("목록 로드 실패");
-      }
-    },
-
-    // 셀 클릭 처리: 발주번호는 수정 페이지, 전표는 전표 모달
+    // 셀 클릭: 발주번호 → 새 탭 수정 페이지, 전표 → 전표 모달
     onCellClick(data) {
       if (data.key === "order_no") {
         if (!this.auth.hasPermission("purchaseorder.update")) return;
@@ -354,8 +264,7 @@ export default {
   },
 
   mounted() {
-    this.loadSuppliers();
-    this.loadList();
+    this.loadRefData();
   },
 };
 </script>

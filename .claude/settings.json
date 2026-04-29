@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -n \"methods\\\\|mounted\\\\|},$\" /Users/wjd/프로젝트/material-frontend/src/pages/stock/StockDetailPage.vue)",
+      "Bash(grep -rL 'lang=\"ts\"' src --include=\"*.vue\")",
+      "Read(//tmp/**)"
+    ]
+  }
+}

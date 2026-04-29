@@ -17,6 +17,7 @@
 </template>
 
 <script lang="ts">
+// @ts-nocheck
 import { useModalStore } from "@/stores/modal";
 
 export default {

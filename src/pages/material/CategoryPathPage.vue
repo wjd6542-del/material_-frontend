@@ -284,8 +284,10 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
+import { formatDateMinute } from "@/utils/date";
 
 export default {
   name: "CategoryPathPage",
@@ -367,13 +369,7 @@ export default {
   methods: {
     // 현재 시각 표기 (YYYY-MM-DD HH:mm)
     fmtNow() {
-      const d = new Date();
-      const y = d.getFullYear();
-      const mo = String(d.getMonth() + 1).padStart(2, "0");
-      const da = String(d.getDate()).padStart(2, "0");
-      const h = String(d.getHours()).padStart(2, "0");
-      const m = String(d.getMinutes()).padStart(2, "0");
-      return `${y}-${mo}-${da} ${h}:${m}`;
+      return formatDateMinute(new Date());
     },
 
     // 검색어 하이라이트

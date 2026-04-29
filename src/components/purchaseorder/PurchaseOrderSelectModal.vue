@@ -217,15 +217,19 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
 import { useModalStore } from "@/stores/modal";
 import SearchSelect from "@/components/base/SearchSelect.vue";
+import { createRefDataMixin } from "@/mixins/refData";
 
 export default {
   name: "PurchaseOrderSelectModal",
 
   components: { SearchSelect },
+
+  mixins: [createRefDataMixin(["suppliers"])],
 
   props: {
     // 적용 시 호출되는 콜백. 인자로 병합된 item 배열 전달
@@ -354,16 +358,6 @@ export default {
       this.statusFilter = "";
     },
 
-    // 거래처 목록 로드 (상단 필터용)
-    async loadSuppliers() {
-      try {
-        const res = await api.post("/api/supplier/list", {});
-        this.suppliers = Array.isArray(res.data) ? res.data : [];
-      } catch {
-        this.suppliers = [];
-      }
-    },
-
     // 발주 상세(아이템) 조회 및 캐싱
     async loadDetail(po) {
       if (this.detailCache[po.id]) return this.detailCache[po.id];
@@ -461,7 +455,7 @@ export default {
 
   mounted() {
     this.loadOrders();
-    this.loadSuppliers();
+    this.loadRefData();
   },
 };
 </script>

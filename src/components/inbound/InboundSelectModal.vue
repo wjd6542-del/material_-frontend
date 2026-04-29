@@ -205,15 +205,21 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
 import { useModalStore } from "@/stores/modal";
 import SearchSelect from "@/components/base/SearchSelect.vue";
+import { formatDateOnly } from "@/utils/date";
+import { buildLocationLabel } from "@/utils/location";
+import { createRefDataMixin } from "@/mixins/refData";
 
 export default {
   name: "InboundSelectModal",
 
   components: { SearchSelect },
+
+  mixins: [createRefDataMixin(["suppliers"])],
 
   props: {
     // 적용 시 호출되는 콜백. 인자로 병합된 item 배열 전달
@@ -279,15 +285,7 @@ export default {
 
   methods: {
     // 날짜 포맷 (YYYY-MM-DD)
-    fmtDate(v) {
-      if (!v) return "-";
-      const d = new Date(v);
-      if (Number.isNaN(d.getTime())) return String(v);
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      return `${y}-${m}-${day}`;
-    },
+    fmtDate: formatDateOnly,
 
     // 구매 목록 조회
     async loadOrders() {
@@ -306,16 +304,6 @@ export default {
     resetFilters() {
       this.supplierFilter = null;
       this.keyword = "";
-    },
-
-    // 거래처 목록 로드 (상단 필터용)
-    async loadSuppliers() {
-      try {
-        const res = await api.post("/api/supplier/list", {});
-        this.suppliers = Array.isArray(res.data) ? res.data : [];
-      } catch {
-        this.suppliers = [];
-      }
     },
 
     // 구매 상세(아이템) 조회 및 캐싱
@@ -380,7 +368,6 @@ export default {
             const w = it.warehouse || {};
             const l = it.location || {};
             const s = it.shelf || {};
-            const parts = [w.name, l.name, s.name].filter(Boolean);
             merged.push({
               id: 0,
               material_id: it.material_id ?? m.id ?? null,
@@ -391,8 +378,7 @@ export default {
               warehouse_id: it.warehouse_id ?? w.id ?? null,
               location_id: it.location_id ?? l.id ?? null,
               shelf_id: it.shelf_id ?? s.id ?? null,
-              shelf_label:
-                it.shelf_label || (parts.length ? parts.join(" > ") : ""),
+              shelf_label: it.shelf_label || buildLocationLabel(it),
               quantity: Number(it.quantity) || 0,
               cost_price: Number(it.price) || 0,
               sale_price: 0,
@@ -416,7 +402,7 @@ export default {
 
   mounted() {
     this.loadOrders();
-    this.loadSuppliers();
+    this.loadRefData();
   },
 };
 </script>

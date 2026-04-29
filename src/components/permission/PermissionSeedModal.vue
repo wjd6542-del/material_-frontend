@@ -111,7 +111,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import { useModalStore } from "@/stores/modal";
 import { getSeedPermissions } from "@/data/permissions";
 import api from "@/api/api";

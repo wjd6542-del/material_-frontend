@@ -159,7 +159,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import { AgGridVue } from "ag-grid-vue3";
@@ -379,8 +380,6 @@ export default {
           "구매 확인",
         );
         if (!ok) return;
-
-        console.log("check > ", rows);
 
         await api.post("/api/inbound/save", {
           id: 0,

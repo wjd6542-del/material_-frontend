@@ -85,7 +85,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import { useModalStore } from "@/stores/modal";
 import { getSeedRoles } from "@/data/roles";
 import api from "@/api/api";

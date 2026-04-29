@@ -1,35 +1,29 @@
-﻿<template>
+<template>
   <div>
-    <!-- 🔎 검색 영역 -->
+    <!-- 검색 + 액션 영역 -->
     <div class="bg-white border rounded-xl shadow-sm p-4 mb-4">
-      <div
-        class="flex flex-col md:flex-row md:items-end md:justify-between gap-4"
-      >
-        <div class="flex items-center gap-2 flex-wrap">
-          <button
-            @click="addRow"
-            class="px-3 py-1.5 text-sm rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition flex items-center gap-1"
-          >
-            <i class="fa-solid fa-plus"></i>
-            {{ "추가" }}
-          </button>
-
-          <button
-            @click="saveRows"
-            class="px-3 py-1.5 text-sm rounded-lg bg-green-500 text-white hover:bg-green-600 transition flex items-center gap-1"
-          >
-            <i class="fa-solid fa-save"></i>
-            {{ "저장" }}
-          </button>
-
-          <button
-            @click="deleteRows"
-            class="px-3 py-1.5 text-sm rounded-lg bg-red-500 text-white hover:bg-red-600 transition flex items-center gap-1"
-          >
-            <i class="fa-solid fa-trash"></i>
-            {{ "삭제" }}
-          </button>
-        </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <button
+          @click="addRow"
+          class="px-3 py-1.5 text-sm rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition flex items-center gap-1"
+        >
+          <i class="fa-solid fa-plus"></i>
+          추가
+        </button>
+        <button
+          @click="saveRows"
+          class="px-3 py-1.5 text-sm rounded-lg bg-green-500 text-white hover:bg-green-600 transition flex items-center gap-1"
+        >
+          <i class="fa-solid fa-save"></i>
+          저장
+        </button>
+        <button
+          @click="deleteRows"
+          class="px-3 py-1.5 text-sm rounded-lg bg-red-500 text-white hover:bg-red-600 transition flex items-center gap-1"
+        >
+          <i class="fa-solid fa-trash"></i>
+          삭제
+        </button>
       </div>
     </div>
 
@@ -51,142 +45,22 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
 import { AgGridVue } from "ag-grid-vue3";
-const statusMap = {
-  true: "활성",
-  false: "비활성",
-};
+import { createAgGridMixin } from "@/mixins/agGridList";
 
 export default {
-  name: "locationTable",
+  name: "LocationTable",
   components: { AgGridVue },
 
-  data() {
-    return {
-      gridApi: null,
-      columnApi: null,
-      tempId: -1,
-      KEYS: [],
-      search: {
-        keys: [],
-      },
-
-      rowData: [],
-      columnDefs: [],
-
-      gridOptions: {
-        getRowId: (params) => String(params.data.id), // ⭐ 필수
-        rowSelection: {
-          mode: "multiRow",
-          checkboxes: true, // 🔥 반드시 필요
-          headerCheckbox: true,
-        },
-        onCellValueChanged: (params) => {
-          if (params.oldValue !== params.newValue) {
-            params.node.setSelected(true);
-          }
-        },
-        rowClassRules: {
-          "row-inactive": (params) => params.data?.is_active === false,
-        },
-      },
-
-      defaultColDef: {
-        sortable: true,
-        filter: true,
-        editable: true,
-        resizable: true,
-      },
-
-      warehouseMap: {},
-    };
-  },
-
-  methods: {
-    // 셀 편집 종료 시 해당 행을 선택 상태로 유지한다
-    onCellEditingStopped(params) {
-      params.api.setNodesSelected({
-        nodes: [params.node],
-        newValue: true,
-        clearSelection: false,
-      });
-    },
-
-    // AG Grid 준비 완료 시 API 참조 저장 및 컬럼 크기를 조정한다
-    onGridReady(params) {
-      this.gridApi = params.api;
-      this.columnApi = params.columnApi;
-      setTimeout(() => {
-        params.api.sizeColumnsToFit();
-      }, 0);
-    },
-
-    /* =========================
-     * 데이터 로드
-     * ========================= */
-    // 위치 목록과 컬럼 정의(창고 셀렉터 포함)를 서버에서 로드한다
-    async loadList() {
-      this.rowData = [];
-      const res = await api.post("/api/location/list", this.search);
-
-      this.rowData = res.data;
-
-      const warehouses = this.warehouses;
-      const warehouseMap = this.warehouseMap;
-
-      // 해더  및 기능 설정
-      this.columnDefs = [
-        {
-          headerName: "창고",
-          field: "warehouse_id",
-          filter: "agTextColumnFilter",
-          flex: 0.5,
-          editable: true,
-          cellEditor: "agSelectCellEditor",
-          cellEditorParams: {
-            values: warehouses.map((w) => w.id),
-          },
-          valueParser: (params) => Number(params.newValue),
-          valueFormatter: (params) => warehouseMap[params.value] || "",
-        },
-        {
-          headerName: "코드",
-          field: "code",
-          filter: "agTextColumnFilter",
-          flex: 0.5,
-        },
-
-        {
-          headerName: "위치명",
-          field: "name",
-          filter: "agTextColumnFilter",
-          flex: 0.5,
-        },
-        {
-          headerName: "정렬",
-          field: "sort",
-          filter: "agNumberColumnFilter",
-          flex: 0.5,
-        },
-      ];
-    },
-
-    /* =========================
-     * 행 추가
-     * ========================= */
-    // 최대 sort 값을 계산해 신규 위치 행을 그리드 상단에 추가한다
-    addRow() {
-      let maxSort = 0;
-
-      this.gridApi.forEachNode((node) => {
-        if (node.data.sort > maxSort) {
-          maxSort = node.data.sort;
-        }
-      });
-      const newRow = {
-        id: this.tempId--,
+  mixins: [
+    createAgGridMixin({
+      listEndpoint: "/api/location/list",
+      saveEndpoint: "/api/location/batchSave",
+      deleteEndpoint: "/api/location/batchDelete",
+      newRowDefaults: () => ({
         warehouse_id: "",
         code: "",
         name: "",
@@ -194,76 +68,53 @@ export default {
         y: 15,
         width: 3,
         height: 3,
-        sort: maxSort + 1,
-      };
+      }),
+    }),
+  ],
 
-      const res = this.gridApi.applyTransaction({ add: [newRow], addIndex: 0 });
-      res.add[0].setSelected(true);
+  data() {
+    return {
+      warehouses: [],
+      warehouseMap: {},
+    };
+  },
+
+  computed: {
+    // 창고 셀렉터를 포함한 컬럼 정의 (warehouseMap 의존)
+    columnDefs() {
+      return [
+        {
+          headerName: "창고",
+          field: "warehouse_id",
+          filter: "agTextColumnFilter",
+          flex: 0.5,
+          editable: true,
+          cellEditor: "agSelectCellEditor",
+          cellEditorParams: { values: this.warehouses.map((w) => w.id) },
+          valueParser: (params) => Number(params.newValue),
+          valueFormatter: (params) => this.warehouseMap[params.value] || "",
+        },
+        { headerName: "코드", field: "code", filter: "agTextColumnFilter", flex: 0.5 },
+        { headerName: "위치명", field: "name", filter: "agTextColumnFilter", flex: 0.5 },
+        { headerName: "정렬", field: "sort", filter: "agNumberColumnFilter", flex: 0.5 },
+      ];
     },
+  },
 
-    /* =========================
-     * 저장
-     * ========================= */
-    // 선택된 위치 행들을 서버에 일괄 저장한다
-    async saveRows() {
-      const rows = this.gridApi.getSelectedRows();
-      try {
-        if (rows.length === 0) {
-          this.$toast.error("선택된 정보가 없습니다");
-          return;
-        }
-
-        await api.post("/api/location/batchSave", rows);
-        this.$toast.success("저장 완료");
-        this.loadList();
-      } catch (e) {
-        console.error(e);
-        this.$toast.error("저장 실패");
-      }
-    },
-
-    // 일괄 삭제 처리
-    // 선택된 위치를 사용자 확인 후 서버에서 일괄 삭제한다
-    async deleteRows() {
-      const rows = this.gridApi.getSelectedRows();
-
-      if (rows.length === 0) {
-        this.$toast.error("선택된 정보가 없습니다");
-        return;
-      }
-
-      const ok = await this.$confirm(
-        `선택된 ${rows.length}개 항목을 삭제하시겠습니까?`,
-        "삭제 확인", "danger",
-      );
-
-      if (!ok) return;
-
-      try {
-        await api.post("/api/location/batchDelete", rows);
-        this.$toast.success("삭제 완료");
-        this.loadList();
-      } catch (e) {
-        this.$toast.error("삭제 중 오류가 발생했습니다");
-      }
-    },
-
-    // 창고 목록 호출
-    // 창고 목록을 로드하고 id→name 맵을 구성한다
+  methods: {
+    // 창고 목록 로드 + id→name 맵 구성
     async loadWarehouse() {
       const res = await api.post("/api/warehouse/list");
-      const warehouses = res.data;
-      this.warehouses = res.data;
+      this.warehouses = res.data || [];
       this.warehouseMap = Object.fromEntries(
-        warehouses.map((w) => [w.id, w.name]),
+        this.warehouses.map((w) => [w.id, w.name]),
       );
     },
   },
 
-  // 마운트 시 창고와 위치 목록을 순차적으로 로드한다
+  // mixin 의 mounted 가 loadList 를 호출하므로 창고를 먼저 로드 후 list 를 다시 트리거
   async mounted() {
     await this.loadWarehouse();
-    await this.loadList();
   },
 };
 </script>

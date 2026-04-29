@@ -127,7 +127,8 @@
   </teleport>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import { useBookmarkStore } from "@/stores/bookmark";
 import { useRoute } from "vue-router";
 

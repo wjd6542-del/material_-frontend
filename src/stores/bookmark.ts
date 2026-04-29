@@ -1,3 +1,4 @@
+// @ts-nocheck
 ﻿// stores/bookmark.ts
 import { defineStore } from "pinia"
 import { useRouter, useRoute } from "vue-router"

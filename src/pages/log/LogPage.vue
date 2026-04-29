@@ -59,8 +59,10 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
+import { formatDateTime } from "@/utils/date";
 import { AgGridVue } from "ag-grid-vue3";
 import { addYears } from "date-fns";
 import { useModalStore } from "@/stores/modal";
@@ -155,21 +157,6 @@ export default {
       }, 0);
     },
 
-    // 날짜 값을 YYYY-MM-DD HH:mm:ss 형식으로 포맷팅한다
-    formatDate(value) {
-      const d = new Date(value);
-
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, "0");
-      const dd = String(d.getDate()).padStart(2, "0");
-
-      const hh = String(d.getHours()).padStart(2, "0");
-      const mi = String(d.getMinutes()).padStart(2, "0");
-      const ss = String(d.getSeconds()).padStart(2, "0");
-
-      return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
-    },
-
     /* =========================
      * 데이터 로드
      * ========================= */
@@ -232,10 +219,7 @@ export default {
           field: "created_at",
           flex: 0.5,
           cellClass: "text-center",
-          cellRenderer: (p) => {
-            if (!p.value) return "";
-            return this.formatDate(p.value);
-          },
+          cellRenderer: (p) => (p.value ? formatDateTime(p.value) : ""),
         },
         {
           headerName: "이전",

@@ -25,9 +25,7 @@
         </div>
 
         <div v-if="open" class="flex items-baseline overflow-hidden shrink-0">
-          <span
-            class="text-[22px] font-black text-white tracking-tighter uppercase"
-          >
+          <span class="text-[22px] font-black text-white tracking-tighter uppercase">
             WMS
           </span>
           <span
@@ -42,7 +40,7 @@
       <button
         v-if="isMobile && open"
         class="text-gray-400 hover:text-white p-1"
-        @click="$emit('close')"
+        @click="emit('close')"
       >
         <i class="fa-solid fa-xmark text-base"></i>
       </button>
@@ -69,15 +67,15 @@
                 ? 'text-blue-500'
                 : 'text-gray-400 group-hover:text-white',
             ]"
-          >
-          </i>
+          ></i>
           <span
             v-if="open"
             class="flex-1 ml-2 text-[13px] font-medium truncate"
-            >{{ menu.label }}</span
           >
+            {{ menu.label }}
+          </span>
           <i
-            v-if="menu.children && open"
+            v-if="open"
             class="fa-solid fa-chevron-down text-[10px] transition-transform opacity-50"
             :class="{ 'rotate-180': menu.open }"
           />
@@ -85,13 +83,11 @@
 
         <!-- [Case 2] 단일 메뉴 -->
         <RouterLink
-          v-else-if="
-            menu.to && (!menu.permission || hasPermission(menu.permission))
-          "
+          v-else-if="menu.to && (!menu.permission || hasPermission(menu.permission))"
           :to="menu.to"
           class="menu-item group"
           :class="{ 'active-link': isActive(menu.to) }"
-          @click="isMobile && $emit('close')"
+          @click="isMobile && emit('close')"
         >
           <i
             class="fa-solid w-5 text-center text-base shrink-0 transition-colors"
@@ -101,21 +97,17 @@
                 ? 'text-white'
                 : 'text-gray-400 group-hover:text-white',
             ]"
-          >
-          </i>
-          <span v-if="open" class="ml-2 text-[13px] font-medium truncate">{{
-            menu.label
-          }}</span>
-
+          ></i>
+          <span v-if="open" class="ml-2 text-[13px] font-medium truncate">
+            {{ menu.label }}
+          </span>
           <div v-if="isActive(menu.to)" class="active-bar"></div>
         </RouterLink>
 
-        <!-- 🔥 [열림상태] 서브메뉴 -->
+        <!-- [열림 상태] 하위 메뉴 -->
         <transition name="submenu">
           <div
-            v-if="
-              open && menu.children && menu.open && hasAnyChildPermission(menu)
-            "
+            v-if="open && menu.children && menu.open && hasAnyChildPermission(menu)"
             class="mt-0.5 ml-3.5 border-l border-gray-800 space-y-0"
           >
             <template v-for="sub in menu.children" :key="sub.to">
@@ -124,7 +116,7 @@
                 :to="sub.to"
                 class="sub-item"
                 :class="{ 'active-sub': isActive(sub.to) }"
-                @click="isMobile && $emit('close')"
+                @click="isMobile && emit('close')"
               >
                 {{ sub.label }}
               </RouterLink>
@@ -132,11 +124,9 @@
           </div>
         </transition>
 
-        <!-- 🔥 [닫힘상태] 호버 팝업 메뉴 (데스크탑 전용) -->
+        <!-- [닫힘 상태] 호버 팝업 메뉴 (데스크탑 전용) -->
         <div
-          v-if="
-            !open && !isMobile && menu.children && hasAnyChildPermission(menu)
-          "
+          v-if="!open && !isMobile && menu.children && hasAnyChildPermission(menu)"
           class="absolute left-full top-0 ml-2 z-[100] hidden group-hover:block"
         >
           <div class="absolute left-[-12px] top-0 w-[12px] h-full"></div>
@@ -169,21 +159,50 @@
   </aside>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+// @ts-nocheck
+import { ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { getMenuTree } from "@/data/permissions";
 
-// permissions 트리를 사이드바 메뉴 데이터 구조로 매핑한다
-function buildMenus(): any[] {
-  const toSub = (n: any) => ({
+interface SubMenu {
+  to: string;
+  label: string;
+  permission?: string;
+}
+
+interface Menu {
+  icon: string;
+  label: string;
+  to?: string;
+  permission?: string;
+  open?: boolean;
+  children?: SubMenu[];
+}
+
+defineProps<{
+  open?: boolean;
+  isMobile?: boolean;
+}>();
+
+const emit = defineEmits<{
+  (e: "close"): void;
+}>();
+
+const route = useRoute();
+const auth = useAuthStore();
+
+// permissions 트리를 사이드바 메뉴 데이터 구조로 매핑
+function buildMenus(): Menu[] {
+  const toSub = (n: any): SubMenu => ({
     to: n.path,
     label: n.label,
     permission: n.permission,
   });
 
   return getMenuTree().map((n: any) => {
-    if (n.children && n.children.length) {
+    if (n.children?.length) {
       return {
         icon: n.icon,
         label: n.label,
@@ -200,62 +219,51 @@ function buildMenus(): any[] {
   });
 }
 
-export default defineComponent({
-  props: {
-    open: { type: Boolean, default: true },
-    isMobile: { type: Boolean, default: false },
-  },
+const menus = ref<Menu[]>(buildMenus());
 
-  emits: ["close"],
+// 부모 메뉴 펼침 토글 (사이드바 열린 상태에서만)
+function toggle(menu: Menu) {
+  if (menu.children) menu.open = !menu.open;
+}
 
-  data() {
-    return {
-      menus: buildMenus(),
-    };
-  },
-  methods: {
-    // 부모 메뉴의 펼침 상태를 토글한다 (사이드바가 열려 있을 때만)
-    toggle(menu: any) {
-      if (this.open) menu.open = !menu.open;
-    },
-    // 주어진 경로가 현재 활성 라우트인지 판단한다
-    isActive(path: string) {
-      const currentPath = this.$route.path;
-      if (path === "/dashboard" && currentPath === "/") return true;
-      return currentPath === path;
-    },
-    // 부모 메뉴의 하위 중 활성 항목이 있는지 확인한다
-    isParentActive(menu: any) {
-      return menu.children?.some((sub: any) => this.isActive(sub.to));
-    },
-    // 현재 경로에 해당하는 부모 메뉴를 자동 펼침 처리한다
-    updateMenuOpen(path: string) {
-      this.menus.forEach((menu: any) => {
-        if (menu.children?.some((c: any) => c.to === path)) menu.open = true;
-      });
-    },
-    // auth 스토어로 특정 권한 보유 여부를 확인한다
-    hasPermission(permission: string) {
-      return useAuthStore().hasPermission(permission);
-    },
-    // 부모 메뉴의 자식 중 사용자가 볼 수 있는 항목이 하나라도 있는지 확인한다
-    hasAnyChildPermission(menu: any) {
-      return menu.children?.some(
-        (sub: any) => !sub.permission || this.hasPermission(sub.permission),
-      );
-    },
-  },
-  // 마운트 시 현재 경로 기준으로 메뉴 펼침 상태를 초기화한다
-  mounted() {
-    this.updateMenuOpen(this.$route.path);
-  },
-  watch: {
-    // 라우트 경로 변경 시 부모 메뉴 펼침 상태를 갱신한다
-    "$route.path"(newPath) {
-      this.updateMenuOpen(newPath);
-    },
-  },
-});
+// 주어진 경로가 현재 활성 라우트인가
+function isActive(path: string): boolean {
+  if (path === "/dashboard" && route.path === "/") return true;
+  return route.path === path;
+}
+
+// 부모 메뉴의 하위 중 활성 항목이 있는가
+function isParentActive(menu: Menu): boolean {
+  return menu.children?.some((sub) => isActive(sub.to)) || false;
+}
+
+// 권한 보유 여부 (auth 스토어 캐싱됨)
+function hasPermission(code: string): boolean {
+  return auth.hasPermission(code);
+}
+
+// 부모 메뉴의 자식 중 사용자가 볼 수 있는 항목이 하나라도 있는가
+function hasAnyChildPermission(menu: Menu): boolean {
+  return (
+    menu.children?.some(
+      (sub) => !sub.permission || hasPermission(sub.permission),
+    ) || false
+  );
+}
+
+// 현재 경로에 해당하는 부모 메뉴를 자동 펼침 처리
+function updateMenuOpen(path: string) {
+  menus.value.forEach((menu) => {
+    if (menu.children?.some((c) => c.to === path)) menu.open = true;
+  });
+}
+
+// 마운트 시 + 라우트 변경 시 부모 메뉴 펼침 갱신
+watch(
+  () => route.path,
+  (newPath) => updateMenuOpen(newPath),
+  { immediate: true },
+);
 </script>
 
 <style scoped>

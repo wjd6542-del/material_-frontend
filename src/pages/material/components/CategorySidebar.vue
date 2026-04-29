@@ -101,7 +101,8 @@
   </aside>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import CategoryItem from "../CategoryItem.vue";
 import { filterTree } from "@/utils/categoryTree";
 

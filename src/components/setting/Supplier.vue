@@ -410,7 +410,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
 import DaumPostcodeModal from "@/components/base/DaumPostcodeModal.vue";
 import SupplierHistoryModal from "@/components/setting/SupplierHistoryModal.vue";

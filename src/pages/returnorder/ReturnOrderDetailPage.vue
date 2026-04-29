@@ -1,65 +1,44 @@
-﻿<template>
+<template>
   <div>
     <div class="lg:col-span-3">
       <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <!-- 판매 수량 -->
-        <div
-          class="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
-        >
+        <div class="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
           <div class="flex items-center justify-between">
             <div class="text-sm text-gray-500">판매 수량</div>
-            <div
-              class="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-100 text-blue-600"
-            >
+            <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-100 text-blue-600">
               <i class="fa-solid fa-box"></i>
             </div>
           </div>
-
           <div class="mt-3 text-2xl font-bold text-gray-800">
             {{ formatNumber(summary?.quantity ?? 0) }}
           </div>
         </div>
 
-        <!-- 판매 금액 -->
-        <div
-          class="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
-        >
+        <div class="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
           <div class="flex items-center justify-between">
             <div class="text-sm text-gray-500">판매 금액</div>
-            <div
-              class="w-10 h-10 flex items-center justify-center rounded-xl bg-purple-100 text-purple-600"
-            >
+            <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-purple-100 text-purple-600">
               <i class="fa-solid fa-sack-dollar"></i>
             </div>
           </div>
-
           <div class="mt-3 text-2xl font-bold text-purple-600">
             {{ formatNumber(summary?.sale_amount ?? 0) }}
           </div>
         </div>
 
-        <!-- 원가 -->
-        <div
-          class="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
-        >
+        <div class="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
           <div class="flex items-center justify-between">
             <div class="text-sm text-gray-500">원가</div>
-            <div
-              class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 text-gray-600"
-            >
+            <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 text-gray-600">
               <i class="fa-solid fa-coins"></i>
             </div>
           </div>
-
           <div class="mt-3 text-2xl font-bold text-gray-700">
             {{ formatNumber(summary?.cost_amount ?? 0) }}
           </div>
         </div>
 
-        <!-- 손익 -->
-        <div
-          class="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
-        >
+        <div class="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
           <div class="flex items-center justify-between">
             <div class="text-sm text-gray-500">손익</div>
             <div
@@ -73,7 +52,6 @@
               <i class="fa-solid fa-chart-line"></i>
             </div>
           </div>
-
           <div
             class="mt-3 text-2xl font-bold"
             :class="summary?.profit >= 0 ? 'text-green-600' : 'text-red-500'"
@@ -85,10 +63,7 @@
     </div>
 
     <div class="grid grid-cols-1 gap-6 mt-5">
-      <!-- 테이블 -->
-      <div
-        class="lg:col-span-8 bg-white rounded-xl shadow border border-gray-200"
-      >
+      <div class="lg:col-span-8 bg-white rounded-xl shadow border border-gray-200">
         <div class="flex items-center justify-between px-5 py-4 border-b">
           <h2 class="text-base font-semibold text-gray-800">반품 세부내역</h2>
         </div>
@@ -100,7 +75,6 @@
             :showQuickButtons="true"
             @change="loadList"
           />
-
           <SearchSelect
             v-model="where.material_id"
             :options="materials"
@@ -109,7 +83,6 @@
             placeholder="품목 선택"
             @change="loadList"
           />
-
           <SearchSelect
             v-model="where.warehouse_id"
             :options="warehouses"
@@ -118,7 +91,6 @@
             placeholder="창고 선택"
             @change="loadList"
           />
-
           <SearchSelect
             v-model="where.location_id"
             :options="locations"
@@ -131,7 +103,7 @@
 
         <div class="p-4">
           <BaseTable
-            ref="outboundDetailTable"
+            ref="returnDetailTable"
             :columns="columns"
             :rows="rows"
             sortable
@@ -146,215 +118,79 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import BaseTable from "@/components/base/BaseTable.vue";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
-
+import { createListMixin } from "@/mixins/listPage";
+import { createRefDataMixin } from "@/mixins/refData";
 import api from "@/api/api";
 
 export default {
   name: "ReturnOrderDetailPage",
 
-  components: {
-    BaseTable,
-    SearchSelect,
-    DateRangePicker,
-  },
+  components: { BaseTable, SearchSelect, DateRangePicker },
 
-  data() {
-    return {
-      columns: [
-        {
-          key: "qrcode",
-          label: "QR",
-          type: "img",
-          width: "100px",
-          align: "center",
-          sortable: true,
-        },
-        {
-          key: "return_no",
-          label: "반품번호",
-          width: "200px",
-          align: "center",
-          sortable: true,
-        },
-        {
-          key: "material_code",
-          label: "품목코드",
-          sortable: true,
-          align: "center",
-          width: "230px",
-        },
-
-        {
-          key: "material_name",
-          label: "품목명",
-          sortable: true,
-          width: "280px",
-        },
-        {
-          key: "warehouse_name",
-          label: "창고",
-          sortable: true,
-          align: "center",
-          width: "80px",
-        },
-        {
-          key: "location",
-          label: "창고 위치",
-          sortable: true,
-          align: "center",
-          width: "130px",
-          sortable: true,
-        },
-        {
-          key: "quantity",
-          label: "수량",
-          type: "number",
-          align: "right",
-          width: "80px",
-          sortable: true,
-        },
-        {
-          key: "cost_amount",
-          label: "원가",
-          type: "currency",
-          align: "right",
-          width: "250px",
-          sortable: true,
-        },
-        {
-          key: "sale_amount",
-          label: "판매금액",
-          type: "currency",
-          align: "right",
-          width: "250px",
-          sortable: true,
-        },
-        {
-          key: "profit",
-          label: "손익",
-          type: "currency",
-          align: "right",
-          width: "250px",
-          sortable: true,
-        },
-
-        {
-          key: "created_at",
-          label: "등록일",
-          type: "date",
-          align: "center",
-          width: "200px",
-          sortable: true,
-        },
-      ],
-
-      dateRange: {
-        start: new Date(new Date().setHours(0, 0, 0, 0)),
-        end: new Date(new Date().setHours(23, 59, 59, 999)),
-      },
-
-      // 검색 조건
-      where: {
+  mixins: [
+    createListMixin({
+      endpoint: "/api/returnorder/detail/list",
+      initialWhere: {
         material_id: "",
         warehouse_id: "",
         supplier_id: "",
         location_id: "",
         key_word: "",
-        startDate: null,
-        endDate: null,
       },
+    }),
+    createRefDataMixin(["materials", "warehouses", "locations"]),
+  ],
 
-      rows: [],
+  data() {
+    return {
+      columns: [
+        { key: "qrcode", label: "QR", type: "img", width: "100px", align: "center", sortable: true },
+        { key: "return_no", label: "반품번호", width: "200px", align: "center", sortable: true },
+        { key: "material_code", label: "품목코드", sortable: true, align: "center", width: "230px" },
+        { key: "material_name", label: "품목명", sortable: true, width: "280px" },
+        { key: "warehouse_name", label: "창고", sortable: true, align: "center", width: "80px" },
+        { key: "location", label: "창고 위치", sortable: true, align: "center", width: "130px" },
+        { key: "quantity", label: "수량", type: "number", align: "right", width: "80px", sortable: true },
+        { key: "cost_amount", label: "원가", type: "currency", align: "right", width: "250px", sortable: true },
+        { key: "sale_amount", label: "판매금액", type: "currency", align: "right", width: "250px", sortable: true },
+        { key: "profit", label: "손익", type: "currency", align: "right", width: "250px", sortable: true },
+        { key: "created_at", label: "등록일", type: "date", align: "center", width: "200px", sortable: true },
+      ],
       materials: [],
       warehouses: [],
       locations: [],
-
       total: 0,
       group: null,
       summary: null,
-
-      groupMap: {
-        quantity: "판매 수량",
-        sale_amount: "판매 금액",
-        cost_amount: "원가",
-        profit: "손익",
-      },
     };
   },
 
   methods: {
-    // 요약 값 색상을 결정한다 (profit은 부호별 색)
-    valueColor(key) {
-      if (key === "profit") {
-        return this.summary?.[key] >= 0 ? "text-green-600" : "text-red-500";
-      }
-      return "text-gray-800";
-    },
-    // 숫자를 천단위 구분자 문자열로 포맷팅한다
     formatNumber(val) {
       return Number(val || 0).toLocaleString();
     },
-    // 보드의 총계/그룹/요약 카운트를 로드한다
-    async loadBoadCount() {
-      const res = await api.post("/api/returnorder/boardCount");
-      this.total = res.data.totalCount;
-      this.group = res.data.groupCount;
-      this.summary = res.data.summary;
-    },
 
-    // 데이터 로드 처리
-    // 검색 조건으로 반품 세부 내역을 로드한다
-    async loadList() {
-      this.rows = [];
-
-      const where = {
-        ...this.where,
-      };
-
-      if (this.dateRange?.start) {
-        where.startDate = this.dateRange.start.toISOString();
+    // 보드 카운트 로드
+    async loadBoardCount() {
+      try {
+        const res = await api.post("/api/returnorder/boardCount");
+        this.total = res.data?.totalCount || 0;
+        this.group = res.data?.groupCount || null;
+        this.summary = res.data?.summary || null;
+      } catch (e) {
+        // ignore
       }
-      if (this.dateRange?.end) {
-        where.endDate = this.dateRange.end.toISOString();
-      }
-
-      const res = await api.post("/api/returnorder/detail/list", where);
-      console.log(res.data);
-      this.rows = res.data;
-    },
-
-    // 품목 옵션을 로드한다
-    async loadMaterial() {
-      const res = await api.post("/api/material/list");
-      this.materials = res.data;
-    },
-
-    // 창고 옵션을 로드한다
-    async loadWarehouse() {
-      const res = await api.post("/api/warehouse/list");
-      this.warehouses = res.data;
-    },
-
-    // 위치 옵션을 로드한다 (코드-이름 결합형 라벨)
-    async loadLocation() {
-      const res = await api.post("/api/location/list");
-      this.locations = res.data.map((row) => ({
-        ...row,
-        name: `${row.code} - ${row.name}`,
-      }));
     },
   },
-  // 마운트 시 세부 내역/참조 데이터/카운트를 병렬 로드한다
+
   mounted() {
-    this.loadList();
-    this.loadMaterial();
-    this.loadWarehouse();
-    this.loadBoadCount();
-    this.loadLocation();
+    this.loadBoardCount();
+    this.loadRefData();
   },
 };
 </script>

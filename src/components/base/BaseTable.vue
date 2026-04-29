@@ -21,14 +21,11 @@
             <th
               v-for="col in columns"
               :key="col.key"
-              class="border text-center border-gray-300 px-3 py-2 font-medium select-none"
+              class="border border-gray-300 px-3 py-2 font-medium select-none"
               :class="[
                 col.thClass,
-                {
-                  'cursor-pointer': sortable && col.sortable,
-                  'text-right': col.align === 'right',
-                  'text-center': col.align === 'center',
-                },
+                alignClass(col, 'center'),
+                { 'cursor-pointer': sortable && col.sortable },
               ]"
               :style="{
                 width: col.width,
@@ -94,13 +91,7 @@
               v-for="col in columns"
               :key="col.key"
               class="border border-gray-200 px-3 py-2"
-              :class="[
-                col.tdClass,
-                {
-                  'text-right': col.align === 'right',
-                  'text-center': col.align === 'center',
-                },
-              ]"
+              :class="[col.tdClass, alignClass(col)]"
               :style="{
                 width: col.width,
                 minWidth: col.minWidth,
@@ -218,7 +209,10 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
+import { formatDateTime } from "@/utils/date";
+
 export default {
   name: "BaseTable",
 
@@ -314,6 +308,13 @@ export default {
     page(v) {
       this.inputPage = v;
     },
+    // rows 변화로 페이지가 범위를 벗어나면 마지막 페이지(또는 1)로 보정
+    "sortedRows.length"() {
+      const max = Math.max(1, this.totalPages);
+      if (this.page > max) {
+        this.page = max;
+      }
+    },
   },
 
   methods: {
@@ -328,42 +329,27 @@ export default {
       );
     },
 
-    // 날짜 값을 YYYY-MM-DD HH:mm:ss 형식으로 포맷팅한다
-    formatDate(value) {
-      const d = new Date(value);
-
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, "0");
-      const dd = String(d.getDate()).padStart(2, "0");
-
-      const hh = String(d.getHours()).padStart(2, "0");
-      const mi = String(d.getMinutes()).padStart(2, "0");
-      const ss = String(d.getSeconds()).padStart(2, "0");
-
-      return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+    // align 별 Tailwind 클래스 반환 (기본값: 좌측 정렬)
+    alignClass(col, fallback = "text-left") {
+      if (col.align === "right") return "text-right";
+      if (col.align === "center") return "text-center";
+      if (col.align === "left") return "text-left";
+      return fallback;
     },
 
-    // 컬럼 타입별 값 포맷팅을 수행한다 (숫자/통화/날짜/이미지 등)
+    // 컬럼 타입별 값 포맷팅을 수행한다 (숫자/통화/날짜)
     formatValue(value, column) {
       if (value === null || value === undefined) return "-";
-
       if (column.formatter) return column.formatter(value);
 
       switch (column.type) {
         case "number":
           return Number(value || 0).toLocaleString();
-
         case "currency":
           return Number(value).toLocaleString() + "원";
-
         case "date":
-          return this.formatDate(value);
-
         case "datetime":
-          return this.formatDate(value);
-
-        case "img":
-          return `<img src="${value}">`;
+          return formatDateTime(value);
         default:
           return value;
       }
@@ -409,10 +395,11 @@ export default {
       });
     },
 
-    // 현재 페이지를 변경하고 이벤트를 emit한다
+    // 현재 페이지를 변경하고 이벤트를 emit한다 (범위 보정 포함)
     changePage(p) {
-      this.page = p;
-      this.$emit("update:page", p);
+      const max = Math.max(1, this.totalPages);
+      this.page = Math.max(1, Math.min(p, max));
+      this.$emit("update:page", this.page);
     },
 
     // 입력창 값으로 페이지 이동 (범위 보정 포함)

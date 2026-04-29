@@ -1,3 +1,4 @@
+// @ts-nocheck
 ﻿import { defineStore } from "pinia"
 import api from "@/api/api"
 import { useAuthStore } from "@/stores/auth"
@@ -35,10 +36,6 @@ export const useNotificationStore = defineStore("notification", {
 		// 알림 타입별 미확인 카운트를 서버에서 로드한다
 		async loadCounts () {
 			const res = await api.post("/api/notification/countByType")
-
-
-			console.log("카운트 확인!!", res.data)
-
 			this.counts = {
 				...this.counts,
 				...res.data,

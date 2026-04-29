@@ -62,4 +62,33 @@
   .td {
     @apply px-2 py-1 align-middle border border-slate-100;
   }
+
+  /* 상태/카테고리 표시용 통일 뱃지 */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold whitespace-nowrap;
+  }
+  .badge-icon {
+    @apply text-[10px];
+  }
+  .badge-success {
+    @apply bg-emerald-50 text-emerald-600;
+  }
+  .badge-error {
+    @apply bg-red-50 text-red-600;
+  }
+  .badge-warning {
+    @apply bg-amber-50 text-amber-600;
+  }
+  .badge-info {
+    @apply bg-blue-50 text-blue-600;
+  }
+  .badge-indigo {
+    @apply bg-indigo-50 text-indigo-600;
+  }
+  .badge-neutral {
+    @apply bg-slate-100 text-slate-600;
+  }
+  .badge-muted {
+    @apply text-slate-300 font-normal;
+  }
 }

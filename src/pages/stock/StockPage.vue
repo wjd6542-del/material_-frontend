@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="p-4 lg:p-6">
     <div class="grid grid-cols-1 lg:grid-cols-10 gap-6">
       <!-- 테이블 -->
@@ -51,10 +51,7 @@
         </div>
 
         <div class="p-4 pb-0 flex items-center gap-1">
-          <button
-            @click="openModal"
-            class="btn btn-primary"
-          >
+          <button @click="openModal" class="btn btn-primary">
             <i class="fa-solid fa-clipboard-list"></i>
             현재고 전표
           </button>
@@ -62,7 +59,7 @@
 
         <div class="p-4">
           <BaseTable
-            ref="inboundDetailTable"
+            ref="stockTable"
             :columns="columns"
             :rows="rows"
             sortable
@@ -100,8 +97,6 @@
               </div>
               <div class="text-sm text-gray-400 mt-1">전체 창고 기준</div>
             </div>
-
-            <!-- 우측 강조 아이콘 -->
             <i class="fa-solid fa-boxes-stacked text-4xl text-gray-200"></i>
           </div>
         </div>
@@ -141,7 +136,6 @@
             >
               <div class="flex items-center gap-2">
                 <i class="fa-solid fa-plus text-green-500 text-xs"></i>
-
                 <div class="flex flex-col">
                   <span class="font-medium text-gray-700">
                     {{ row.name }}
@@ -151,7 +145,6 @@
                   </span>
                 </div>
               </div>
-
               <div class="text-green-600 font-semibold text-xs">NEW</div>
             </button>
 
@@ -169,20 +162,19 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import BaseTable from "@/components/base/BaseTable.vue";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
 import BaseDateText from "@/components/base/BaseDateText.vue";
-
 import { useModalStore } from "@/stores/modal";
 import StockPrintModal from "@/components/stock/StockPrintModal.vue";
 import MaterialDetailModal from "@/components/material/MaterialDetailModal.vue";
 import ShelfLocationViewerModal from "@/components/warehouse/ShelfLocationViewerModal.vue";
-
+import { createListMixin } from "@/mixins/listPage";
+import { createRefDataMixin } from "@/mixins/refData";
 import api from "@/api/api";
-
-// stock
 
 export default {
   name: "StockPage",
@@ -194,84 +186,36 @@ export default {
     BaseDateText,
   },
 
-  data() {
-    return {
-      modal: useModalStore(),
-      columns: [
-        {
-          key: "qrcode",
-          label: "QR",
-          type: "img",
-          width: "80px",
-          align: "center",
-          sortable: true,
-        },
-        {
-          key: "material_code",
-          label: "품목코드",
-          sortable: true,
-          width: "200px",
-        },
-        {
-          key: "material_name",
-          label: "품목명",
-          sortable: true,
-          width: "200px",
-        },
-        {
-          key: "warehouse_name",
-          label: "창고위치",
-          sortable: true,
-          width: "100px",
-        },
-        {
-          key: "location_code",
-          label: "선반위치",
-          type: "button",
-          sortable: true,
-          width: "120px",
-          align: "center",
-        },
-        {
-          key: "quantity",
-          label: "수량",
-          type: "number",
-          align: "right",
-          width: "100px",
-        },
-        {
-          key: "updated_at",
-          label: "변경일",
-          type: "date",
-          align: "center",
-          width: "200px",
-          sortable: true,
-        },
-      ],
-
-      dateRange: {
-        start: new Date(new Date().setHours(0, 0, 0, 0)),
-        end: new Date(new Date().setHours(23, 59, 59, 999)),
-      },
-
-      // 검색 조건
-      where: {
+  mixins: [
+    createListMixin({
+      endpoint: "/api/stock/list",
+      tableRef: "stockTable",
+      initialWhere: {
         material_id: "",
         warehouse_id: "",
         supplier_id: "",
         location_id: "",
         key_word: "",
-        startDate: null,
-        endDate: null,
       },
+    }),
+    createRefDataMixin(["materials", "warehouses", "locationsRaw"]),
+  ],
 
-      rows: [],
+  data() {
+    return {
+      modal: useModalStore(),
+      columns: [
+        { key: "qrcode", label: "QR", type: "img", width: "80px", align: "center", sortable: true },
+        { key: "material_code", label: "품목코드", sortable: true, width: "200px" },
+        { key: "material_name", label: "품목명", sortable: true, width: "200px" },
+        { key: "warehouse_name", label: "창고위치", sortable: true, width: "100px" },
+        { key: "location_code", label: "선반위치", type: "button", sortable: true, width: "120px", align: "center" },
+        { key: "quantity", label: "수량", type: "number", align: "right", width: "100px" },
+        { key: "updated_at", label: "변경일", type: "date", align: "center", width: "200px", sortable: true },
+      ],
       materials: [],
       warehouses: [],
       locations: [],
-
-      // 카드 영역
-
       newMaterialList: [],
       lowStockList: [],
       total_stock: 0,
@@ -279,51 +223,27 @@ export default {
   },
 
   methods: {
-    // 모달로 리스트출력
-    // 저재고 상세 페이지로 이동한다
+    // 저재고 상세 페이지로 이동
     goLowStockPage() {
       this.$router.push("/login");
     },
 
-    //품목 페이지로 이동
-    // 품목 목록 페이지로 이동한다
+    // 품목 목록 페이지로 이동
     goNewMaterialPage() {
       this.$router.push("/materials");
     },
 
-    // 숫자에 천단위 구분자를 적용해 포맷팅한다
+    // 천단위 구분자
     formatNumber(v) {
       return new Intl.NumberFormat().format(v || 0);
     },
 
-
-    // 데이터 로드 처리
-    // 검색 조건을 반영해 재고 목록을 로드한다
-    async loadList() {
-      this.rows = [];
-
-      const where = {
-        ...this.where,
-      };
-
-      if (this.dateRange?.start) {
-        where.startDate = this.dateRange.start.toISOString();
-      }
-      if (this.dateRange?.end) {
-        where.endDate = this.dateRange.end.toISOString();
-      }
-
-      const res = await api.post("/api/stock/list", where);
-      this.rows = res.data;
-    },
-
-    // 현재고 전표
-    // 재고 인쇄 모달을 연다
+    // 현재고 전표 모달
     openModal() {
       this.modal.openModal(StockPrintModal, {}, "xl");
     },
 
-    // 신규 품목 아이템 클릭 → 품목 상세 모달 오픈
+    // 신규 품목 → 상세 모달
     openMaterialDetail(row) {
       if (!row?.id) return;
       this.modal.openModal(
@@ -333,10 +253,9 @@ export default {
       );
     },
 
-    // 테이블 셀 클릭 처리
+    // 셀 클릭: 선반위치 → 위치 시각화 모달
     onCellClick(data) {
       if (!data) return;
-      // 선반위치 셀 클릭 시 선반 위치 시각화 모달 오픈
       if (data.key === "location_code") {
         const shelfId = data.row?.shelf_id;
         if (!shelfId) {
@@ -351,53 +270,24 @@ export default {
       }
     },
 
-    // 품목 옵션을 로드한다
-    async loadMaterial() {
-      const res = await api.post("/api/material/list");
-      this.materials = res.data;
-    },
-
-    // 창고 옵션을 로드한다
-    async loadWarehouse() {
-      const res = await api.post("/api/warehouse/list");
-      this.warehouses = res.data;
-    },
-
-    // 위치 옵션을 로드한다
-    async loadLocation() {
-      const res = await api.post("/api/location/list");
-      this.locations = res.data;
-    },
-
-    // 이번 달 신규 품목 목록을 로드한다
-    async newMonthMaterial() {
-      const res = await api.post("/api/material/newMonthMaterial");
-      this.newMaterialList = res.data;
-    },
-
-    // 안전재고 미달 품목 목록을 로드한다
-    async lowStockMaterials() {
-      const res = await api.post("/api/stock/lowStockMaterials");
-      this.lowStockList = res.data;
-    },
-
-    // 전체 재고 합계를 로드한다
-    async totalStockCount() {
-      const res = await api.post("/api/stock/stockSummary");
-      const data = res.data;
-      this.total_stock = data.total_qty;
-      console.log(data);
+    // 카드 영역 데이터 병렬 로드 (참조 옵션은 mixin 의 loadRefData)
+    async loadCardData() {
+      const [nm, ls, ts] = await Promise.allSettled([
+        api.post("/api/material/newMonthMaterial"),
+        api.post("/api/stock/lowStockMaterials"),
+        api.post("/api/stock/stockSummary"),
+      ]);
+      if (nm.status === "fulfilled") this.newMaterialList = nm.value.data || [];
+      if (ls.status === "fulfilled") this.lowStockList = ls.value.data || [];
+      if (ts.status === "fulfilled") {
+        this.total_stock = ts.value.data?.total_qty || 0;
+      }
     },
   },
-  // 마운트 시 재고/품목/위치/통계 데이터를 병렬 로드한다
+
   mounted() {
-    this.loadList();
-    this.loadMaterial();
-    this.loadWarehouse();
-    this.loadLocation();
-    this.newMonthMaterial();
-    this.lowStockMaterials();
-    this.totalStockCount();
+    this.loadRefData();
+    this.loadCardData();
   },
 };
 </script>

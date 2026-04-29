@@ -296,7 +296,8 @@
   </teleport>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import { useChatStore } from "@/stores/chat";
 import { useAuthStore } from "@/stores/auth";
 import { useModalStore } from "@/stores/modal";

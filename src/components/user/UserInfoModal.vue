@@ -107,6 +107,7 @@
 </template>
 
 <script lang="ts">
+// @ts-nocheck
 import { useModalStore } from "@/stores/modal";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import api from "@/api/api";

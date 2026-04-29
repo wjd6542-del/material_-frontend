@@ -124,9 +124,11 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
 import SearchSelect from "@/components/base/SearchSelect.vue";
+import { todayRange } from "@/utils/date";
 import api from "@/api/api";
 
 export default {
@@ -135,10 +137,7 @@ export default {
 
   data() {
     return {
-      dateRange: {
-        start: new Date(new Date().setHours(0, 0, 0, 0)),
-        end: new Date(new Date().setHours(23, 59, 59, 999)),
-      },
+      dateRange: todayRange(),
       where: { material_id: "", searchText: "" },
       materials: [],
       labels: [],

@@ -320,7 +320,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
 import DaumPostcodeModal from "@/components/base/DaumPostcodeModal.vue";
 
@@ -392,7 +393,6 @@ export default {
     async loadBusiness() {
       try {
         const res = await api.post("/api/business/info");
-        console.log(res.data);
         if (res.data) Object.assign(this.form, res.data);
       } catch (e) {
         // 신규 등록 화면으로 간주

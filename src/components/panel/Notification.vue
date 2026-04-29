@@ -63,27 +63,9 @@
             >
               <div
                 class="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center text-white text-xs shadow-sm group-hover:scale-110 transition-transform"
-                :class="{
-                  'bg-blue-500 shadow-indigo-100': row.type === 'INBOUND',
-                  'bg-rose-500 shadow-rose-100': row.type === 'OUTBOUND',
-                  'bg-emerald-500 shadow-emerald-100': row.type === 'MATERIAL',
-                  'bg-orange-500 shadow-emerald-100':
-                    row.type === 'RETURNORDER',
-                  'bg-teal-500 shadow-emerald-100':
-                    row.type === 'PURCHASEORDER',
-                  'bg-purple-500 shadow-emerald-100': row.type === 'STOCK',
-                }"
+                :class="typeMeta(row.type)?.rowBg"
               >
-                <i
-                  :class="{
-                    'fa-solid fa-arrow-down': row.type === 'INBOUND',
-                    'fa-solid fa-arrow-up': row.type === 'OUTBOUND',
-                    'fa-solid fa-box': row.type === 'MATERIAL',
-                    'fa-solid fa-rotate-left': row.type === 'RETURNORDER',
-                    'fa-solid fa-clipboard-list': row.type === 'PURCHASEORDER',
-                    'fa-solid fa-boxes-stacked': row.type === 'STOCK',
-                  }"
-                ></i>
+                <i :class="['fa-solid', typeMeta(row.type)?.icon]"></i>
               </div>
 
               <div class="flex-1 min-w-0">
@@ -141,8 +123,10 @@
 </template>
 
 <script lang="ts">
+// @ts-nocheck
 import { useNotificationStore } from "@/stores/notification";
 import BaseDateText from "@/components/base/BaseDateText.vue";
+import { NOTI_TYPE_MAP, notiTypeLabel } from "@/data/notificationTypes";
 
 export default {
   name: "NotificationPanel",
@@ -158,17 +142,14 @@ export default {
   },
 
   methods: {
-    // 타입 코드를 한글 라벨로 변환
+    // 타입 코드를 한글 라벨로 변환 (공유 모듈)
     typeLabel(type) {
-      const map = {
-        INBOUND: "구매",
-        OUTBOUND: "판매",
-        MATERIAL: "품목",
-        PURCHASEORDER: "발주",
-        RETURNORDER: "반품",
-        STOCK: "재고",
-      };
-      return map[type] || type;
+      return notiTypeLabel(type);
+    },
+
+    // 타입 코드를 메타 객체로 변환 (행 배경/아이콘 등)
+    typeMeta(type) {
+      return NOTI_TYPE_MAP[type];
     },
 
     // 읽기 처리

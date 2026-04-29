@@ -277,7 +277,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import { useNotificationStore } from "@/stores/notification";
@@ -349,8 +350,6 @@ export default {
     },
     // 사용자 확인 후 재고 이동 처리를 서버에 요청한다
     async submit() {
-      console.log("check ", this.selectedStock);
-
       const select = this.selectedStock;
 
       try {

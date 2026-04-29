@@ -1,16 +1,10 @@
-﻿<template>
+<template>
   <div class="p-4 sm:p-6 space-y-6 bg-gray-50 min-h-screen">
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div
-        class="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all"
-      >
+      <div class="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
         <div class="flex items-center justify-between">
-          <div class="text-xs sm:text-sm text-gray-500 font-medium">
-            판매 수량
-          </div>
-          <div
-            class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-blue-100 text-blue-600"
-          >
+          <div class="text-xs sm:text-sm text-gray-500 font-medium">판매 수량</div>
+          <div class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-blue-100 text-blue-600">
             <i class="fa-solid fa-box text-sm"></i>
           </div>
         </div>
@@ -19,16 +13,10 @@
         </div>
       </div>
 
-      <div
-        class="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all"
-      >
+      <div class="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
         <div class="flex items-center justify-between">
-          <div class="text-xs sm:text-sm text-gray-500 font-medium">
-            판매 금액
-          </div>
-          <div
-            class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-purple-100 text-purple-600"
-          >
+          <div class="text-xs sm:text-sm text-gray-500 font-medium">판매 금액</div>
+          <div class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-purple-100 text-purple-600">
             <i class="fa-solid fa-sack-dollar text-sm"></i>
           </div>
         </div>
@@ -37,14 +25,10 @@
         </div>
       </div>
 
-      <div
-        class="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all"
-      >
+      <div class="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
         <div class="flex items-center justify-between">
           <div class="text-xs sm:text-sm text-gray-500 font-medium">원가</div>
-          <div
-            class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-gray-100 text-gray-600"
-          >
+          <div class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-gray-100 text-gray-600">
             <i class="fa-solid fa-coins text-sm"></i>
           </div>
         </div>
@@ -53,9 +37,7 @@
         </div>
       </div>
 
-      <div
-        class="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all"
-      >
+      <div class="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
         <div class="flex items-center justify-between">
           <div class="text-xs sm:text-sm text-gray-500 font-medium">손익</div>
           <div
@@ -78,9 +60,7 @@
       </div>
     </div>
 
-    <div
-      class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden"
-    >
+    <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
       <div class="flex items-center justify-between px-5 py-4 border-b">
         <h2 class="text-base font-semibold text-gray-800">판매 세부내역</h2>
       </div>
@@ -149,115 +129,48 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import BaseTable from "@/components/base/BaseTable.vue";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
+import { createListMixin } from "@/mixins/listPage";
+import { createRefDataMixin } from "@/mixins/refData";
 import api from "@/api/api";
 
 export default {
   name: "OutboundDetailPage",
   components: { BaseTable, SearchSelect, DateRangePicker },
-  data() {
-    return {
-      columns: [
-        {
-          key: "qrcode",
-          label: "QR CODE",
-          type: "img",
-          width: "100px",
-          align: "center",
-          sortable: true,
-        },
-        {
-          key: "outbound_code",
-          label: "판매번호",
-          width: "180px",
-          align: "center",
-          sortable: true,
-        },
-        {
-          key: "material_code",
-          label: "품목코드",
-          sortable: true,
-          align: "center",
-          width: "180px",
-        },
-        {
-          key: "material_name",
-          label: "품목명",
-          sortable: true,
-          width: "250px",
-        },
-        {
-          key: "warehouse_name",
-          label: "창고",
-          sortable: true,
-          align: "center",
-          width: "100px",
-        },
-        {
-          key: "location",
-          label: "창고 위치",
-          sortable: true,
-          align: "center",
-          width: "130px",
-        },
-        {
-          key: "quantity",
-          label: "수량",
-          type: "number",
-          align: "right",
-          width: "80px",
-          sortable: true,
-        },
-        {
-          key: "cost_amount",
-          label: "원가",
-          type: "currency",
-          align: "right",
-          width: "150px",
-          sortable: true,
-        },
-        {
-          key: "sale_amount",
-          label: "판매금액",
-          type: "currency",
-          align: "right",
-          width: "150px",
-          sortable: true,
-        },
-        {
-          key: "profit",
-          label: "손익",
-          type: "currency",
-          align: "right",
-          width: "150px",
-          sortable: true,
-        },
-        {
-          key: "created_at",
-          label: "등록일",
-          type: "date",
-          align: "center",
-          width: "180px",
-          sortable: true,
-        },
-      ],
-      dateRange: {
-        start: new Date(new Date().setHours(0, 0, 0, 0)),
-        end: new Date(new Date().setHours(23, 59, 59, 999)),
-      },
-      where: {
+
+  mixins: [
+    createListMixin({
+      endpoint: "/api/outbound/detail/list",
+      initialWhere: {
         material_id: "",
         warehouse_id: "",
         supplier_id: "",
         location_id: "",
         key_word: "",
-        startDate: null,
-        endDate: null,
       },
-      rows: [],
+    }),
+    createRefDataMixin(["materials", "warehouses", "locations"]),
+  ],
+
+  data() {
+    return {
+      columns: [
+        { key: "qrcode", label: "QR CODE", type: "img", width: "100px", align: "center", sortable: true },
+        { key: "outbound_code", label: "판매번호", width: "180px", align: "center", sortable: true },
+        { key: "material_code", label: "품목코드", sortable: true, align: "center", width: "180px" },
+        { key: "material_name", label: "품목명", sortable: true, width: "250px" },
+        { key: "warehouse_name", label: "창고", sortable: true, align: "center", width: "100px" },
+        { key: "location", label: "창고 위치", sortable: true, align: "center", width: "130px" },
+        { key: "quantity", label: "수량", type: "number", align: "right", width: "80px", sortable: true },
+        { key: "cost_amount", label: "원가", type: "currency", align: "right", width: "150px", sortable: true },
+        { key: "sale_amount", label: "판매금액", type: "currency", align: "right", width: "150px", sortable: true },
+        { key: "profit", label: "손익", type: "currency", align: "right", width: "150px", sortable: true },
+        { key: "created_at", label: "등록일", type: "date", align: "center", width: "180px", sortable: true },
+      ],
       materials: [],
       warehouses: [],
       locations: [],
@@ -266,63 +179,33 @@ export default {
       summary: null,
     };
   },
+
   methods: {
-    // 숫자를 천단위 구분자 문자열로 포맷팅한다
     formatNumber(val) {
       return Number(val || 0).toLocaleString();
     },
-    // 보드의 총계/그룹/요약 카운트를 로드한다
-    async loadBoadCount() {
-      const res = await api.post("/api/outbound/boardCount");
-      this.total = res.data.totalCount;
-      this.group = res.data.groupCount;
-      this.summary = res.data.summary;
-    },
-    // 검색 조건으로 판매 세부 내역을 로드한다
-    async loadList() {
-      this.rows = [];
-      const where = { ...this.where };
-      if (this.dateRange?.start) {
-        where.startDate = this.dateRange.start.toISOString();
+
+    // 보드 카운트 로드
+    async loadBoardCount() {
+      try {
+        const res = await api.post("/api/outbound/boardCount");
+        this.total = res.data?.totalCount || 0;
+        this.group = res.data?.groupCount || null;
+        this.summary = res.data?.summary || null;
+      } catch (e) {
+        // ignore
       }
-      if (this.dateRange?.end) {
-        where.endDate = this.dateRange.end.toISOString();
-      }
-      const res = await api.post("/api/outbound/detail/list", where);
-      this.rows = res.data;
-    },
-    // 품목 옵션을 로드한다
-    async loadMaterial() {
-      const res = await api.post("/api/material/list");
-      this.materials = res.data;
-    },
-    // 창고 옵션을 로드한다
-    async loadWarehouse() {
-      const res = await api.post("/api/warehouse/list");
-      this.warehouses = res.data;
-    },
-    // 위치 옵션을 로드한다 (코드-이름 결합형 라벨)
-    async loadLocation() {
-      const res = await api.post("/api/location/list");
-      this.locations = res.data.map((row) => ({
-        ...row,
-        name: `${row.code} - ${row.name}`,
-      }));
     },
   },
-  // 마운트 시 세부 내역/참조 데이터/카운트를 병렬 로드한다
+
   mounted() {
-    this.loadList();
-    this.loadMaterial();
-    this.loadWarehouse();
-    this.loadBoadCount();
-    this.loadLocation();
+    this.loadBoardCount();
+    this.loadRefData();
   },
 };
 </script>
 
 <style scoped>
-/* 모바일에서 테이블 스크롤 시 부드럽게 */
 .overflow-x-auto {
   -webkit-overflow-scrolling: touch;
 }

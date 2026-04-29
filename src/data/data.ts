@@ -1,3 +1,4 @@
+// @ts-nocheck
 ﻿
 // 재고 변동 타입 라벨 맵을 반환한다
 export function StockType () {

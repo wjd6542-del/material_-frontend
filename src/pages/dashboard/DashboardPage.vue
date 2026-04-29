@@ -263,7 +263,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
 import VueECharts from "vue-echarts";
 import * as echarts from "echarts/core";
@@ -358,12 +359,21 @@ export default {
     };
   },
   computed: {
-    // 💡 날짜 메우기: 이번 달 1일부터 오늘까지 모든 날짜를 0으로 채워 배열 생성
-    // 이번 달 1일부터 오늘까지의 날짜별 입/출/반품 수량 배열을 생성한다
+    // 이번 달 1일~오늘까지의 날짜별 입/출/반품 수량 배열 (없는 날짜는 0)
     filledChartData() {
       const now = new Date();
-      const currentMonth = now.getMonth() + 1; // 현재 월 (3)
-      const todayDate = now.getDate(); // 현재 일 (23)
+      const monthStr = String(now.getMonth() + 1).padStart(2, "0");
+      const todayDate = now.getDate();
+
+      const inboundMap = Object.fromEntries(
+        (this.inboundChart || []).map((v) => [v.date, v.qty]),
+      );
+      const outboundMap = Object.fromEntries(
+        (this.outboundChart || []).map((v) => [v.date, v.qty]),
+      );
+      const returnMap = Object.fromEntries(
+        (this.returnChart || []).map((v) => [v.date, v.qty]),
+      );
 
       const labels = [];
       const inValues = [];
@@ -371,25 +381,12 @@ export default {
       const returnValues = [];
 
       for (let i = 1; i <= todayDate; i++) {
-        // 콘솔 데이터 형식에 맞춰 'MM-DD' 형식으로 키 생성
-        const monthStr = String(currentMonth).padStart(2, "0");
         const dayStr = String(i).padStart(2, "0");
-        const dateKey = `${monthStr}-${dayStr}`; // 결과: "03-01", "03-02" ... "03-12"
-
+        const dateKey = `${monthStr}-${dayStr}`;
         labels.push(`${dayStr}일`);
-
-        // 형식 일치 (03-12 === 03-12)
-        const inRow = (this.inboundChart || []).find((v) => v.date === dateKey);
-        const outRow = (this.outboundChart || []).find(
-          (v) => v.date === dateKey,
-        );
-        const returenRow = (this.returnChart || []).find(
-          (v) => v.date === dateKey,
-        );
-
-        inValues.push(inRow ? inRow.qty : 0);
-        outValues.push(outRow ? outRow.qty : 0);
-        returnValues.push(returenRow ? returenRow.qty : 0);
+        inValues.push(inboundMap[dateKey] || 0);
+        outValues.push(outboundMap[dateKey] || 0);
+        returnValues.push(returnMap[dateKey] || 0);
       }
       return { labels, inValues, outValues, returnValues };
     },
@@ -514,18 +511,15 @@ export default {
     async loadData() {
       try {
         const { data } = await api.post("/api/dashboard/dashboard");
-        if (data) {
-          this.summary = { ...this.summary, ...(data.summary || {}) };
-
-          this.inboundChart = data.inbound_chart || [];
-          this.outboundChart = data.outbound_chart || [];
-          this.returnChart = data.return_chart || [];
-
-          this.lowStocks = data.low_stock || [];
-          this.logs = data.logs || [];
-        }
+        if (!data) return;
+        this.summary = { ...this.summary, ...(data.summary || {}) };
+        this.inboundChart = data.inbound_chart || [];
+        this.outboundChart = data.outbound_chart || [];
+        this.returnChart = data.return_chart || [];
+        this.lowStocks = data.low_stock || [];
+        this.logs = data.logs || [];
       } catch (e) {
-        console.error("Dashboard data load failed:", e);
+        this.$toast?.error?.("대시보드 데이터를 불러오지 못했습니다.");
       }
     },
     // 숫자를 천단위 구분자 문자열로 포맷팅한다

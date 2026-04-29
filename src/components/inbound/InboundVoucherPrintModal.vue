@@ -202,7 +202,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import { useModalStore } from "@/stores/modal";
 import api from "@/api/api";
 import BaseDateText from "@/components/base/BaseDateText.vue";

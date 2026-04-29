@@ -80,7 +80,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import { useChatStore } from "@/stores/chat";
 import { useModalStore } from "@/stores/modal";
 

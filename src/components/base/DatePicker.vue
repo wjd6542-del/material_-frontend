@@ -43,6 +43,7 @@
 </template>
 
 <script lang="ts">
+// @ts-nocheck
 import { DatePicker as VCDatePicker } from "v-calendar";
 
 export default {

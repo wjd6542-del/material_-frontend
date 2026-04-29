@@ -52,7 +52,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import CategorySidebar from "./components/CategorySidebar.vue";
 import MobileCategorySelector from "./components/MobileCategorySelector.vue";
 import CategoryFormModal from "./components/CategoryFormModal.vue";
@@ -202,7 +203,11 @@ export default {
     // 하위 카테고리 추가 모달을 연다 (최대 depth 체크)
     openAddChildModal(parent) {
       if (parent.depth >= MAX_DEPTH) {
-        alert(`최대 ${MAX_DEPTH}단계까지만 등록할 수 있습니다.`);
+        this.$alert?.(
+          `최대 ${MAX_DEPTH}단계까지만 등록할 수 있습니다.`,
+          "등록 제한",
+          "warning",
+        );
         return;
       }
       this.selectedCategoryId = parent.id;

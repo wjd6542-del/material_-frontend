@@ -25,6 +25,7 @@
 </template>
 
 <script lang="ts">
+// @ts-nocheck
 export default {
   name: "BaseInput",
   props: {

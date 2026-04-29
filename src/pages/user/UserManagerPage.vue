@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div>
     <!-- 테이블 -->
     <div
@@ -9,15 +9,10 @@
       </div>
 
       <div class="p-4 pb-0 flex flex-wrap items-center gap-2">
-        <button
-          @click="openModal"
-          class="btn btn-primary shrink-0"
-        >
+        <button @click="openModal" class="btn btn-primary shrink-0">
           <i class="fa-solid fa-add"></i>
         </button>
-        <div
-          class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[280px] sm:max-w-[450px]"
-        >
+        <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[280px] sm:max-w-[450px]">
           <DateRangePicker
             v-model="dateRange"
             :minuteStep="5"
@@ -25,9 +20,7 @@
             @change="loadList"
           />
         </div>
-        <div
-          class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[200px] sm:max-w-[450px]"
-        >
+        <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[200px] sm:max-w-[450px]">
           <SearchSelect
             v-model="where.role_id"
             :options="roles"
@@ -37,9 +30,7 @@
             @change="loadList"
           />
         </div>
-        <div
-          class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[200px] sm:max-w-[450px]"
-        >
+        <div class="w-full sm:w-auto sm:flex-1 min-w-0 sm:min-w-[200px] sm:max-w-[450px]">
           <BaseInput
             v-model="where.keyword"
             placeholder="아이디/ 사용자명 검색"
@@ -50,7 +41,7 @@
 
       <div class="p-4">
         <BaseTable
-          ref="inboundDetailTable"
+          ref="userTable"
           :columns="columns"
           :rows="rows"
           sortable
@@ -65,15 +56,16 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import BaseTable from "@/components/base/BaseTable.vue";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
 import BaseInput from "@/components/base/BaseInput.vue";
-
 import UserInfoModal from "@/components/user/UserInfoModal.vue";
 import { useModalStore } from "@/stores/modal";
-import api from "@/api/api";
+import { createListMixin } from "@/mixins/listPage";
+import { createRefDataMixin } from "@/mixins/refData";
 
 export default {
   name: "UserManagerPage",
@@ -86,140 +78,53 @@ export default {
     UserInfoModal,
   },
 
+  mixins: [
+    createListMixin({
+      endpoint: "/api/user/list",
+      tableRef: "userTable",
+      initialWhere: { role_id: "", keyword: "" },
+      initialDateRange: () => ({ start: null, end: null }),
+    }),
+    createRefDataMixin(["roles"]),
+  ],
+
   data() {
     return {
       modal: useModalStore(),
-      columns: [
-        {
-          key: "username",
-          label: "아이디",
-          sortable: true,
-          width: "200px",
-        },
-
-        {
-          key: "name",
-          label: "사용자명",
-          sortable: true,
-          width: "200px",
-        },
-        {
-          key: "email",
-          label: "이메일",
-          sortable: true,
-          width: "100px",
-        },
-        {
-          key: "role_name",
-          label: "권한",
-          type: "string",
-          align: "center",
-          width: "100px",
-        },
-        {
-          key: "role_description",
-          label: "권한확인",
-          type: "string",
-          align: "center",
-          width: "100px",
-        },
-
-        {
-          key: "is_active",
-          label: "활성여부",
-          type: "string",
-          align: "center",
-          width: "100px",
-        },
-
-        {
-          key: "created_at",
-          label: "생성일",
-          type: "date",
-          align: "center",
-          width: "200px",
-          sortable: true,
-        },
-        {
-          key: "updated_at",
-          label: "수정일",
-          type: "date",
-          align: "center",
-          width: "200px",
-          sortable: true,
-        },
-      ],
-
-      dateRange: { start: null, end: null },
-
-      // 검색 조건
-      where: {
-        role_id: "",
-        keyword: "",
-        startDate: null,
-        endDate: null,
-      },
-
-      rows: [],
       roles: [],
+      columns: [
+        { key: "username", label: "아이디", sortable: true, width: "200px" },
+        { key: "name", label: "사용자명", sortable: true, width: "200px" },
+        { key: "email", label: "이메일", sortable: true, width: "100px" },
+        { key: "role_name", label: "권한", type: "string", align: "center", width: "100px" },
+        { key: "role_description", label: "권한확인", type: "string", align: "center", width: "100px" },
+        { key: "is_active", label: "활성여부", type: "string", align: "center", width: "100px" },
+        { key: "created_at", label: "생성일", type: "date", align: "center", width: "200px", sortable: true },
+        { key: "updated_at", label: "수정일", type: "date", align: "center", width: "200px", sortable: true },
+      ],
     };
   },
 
   methods: {
-    // 데이터 로드 처리
-    // 검색 조건으로 사용자 목록을 로드한다
-    async loadList() {
-      this.rows = [];
-
-      const where = {
-        ...this.where,
-      };
-
-      if (this.dateRange?.start) {
-        where.startDate = this.dateRange.start.toISOString();
-      }
-
-      if (this.dateRange?.end) {
-        where.endDate = this.dateRange.end.toISOString();
-      }
-
-      const res = await api.post("/api/user/list", where);
-      this.rows = res.data;
-    },
-
-    // 셀클릭시
-    // username 셀 클릭 시 사용자 정보 수정 모달을 연다
+    // username 셀 → 사용자 정보 수정 모달
     onCellClick(data) {
-      // 품목명 클릭시 모달 상세 오픈
-      if (data.key == "username") {
+      if (data.key === "username") {
         this.modal.openModal(
           UserInfoModal,
-          {
-            id: data.row.id,
-            onSaved: this.loadList,
-          },
+          { id: data.row.id, onSaved: this.loadList },
           "xl",
         );
       }
     },
 
-    // 열기 처리
-    // 사용자 등록 모달을 연다
-    async openModal() {
+    // 사용자 등록 모달
+    openModal() {
       this.modal.openModal(UserInfoModal, { onSaved: this.loadList }, "xl");
     },
-
-    // 역할(Role) 목록을 로드한다
-    async loadRole() {
-      const res = await api.post("/api/role/list");
-      this.roles = res.data;
-      console.log(this.roles);
-    },
   },
-  // 마운트 시 사용자와 역할 목록을 로드한다
+
   mounted() {
-    this.loadList();
-    this.loadRole();
+    this.loadRefData();
   },
 };
 </script>

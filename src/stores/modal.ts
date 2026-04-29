@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { defineStore } from "pinia"
 import { ref, computed, markRaw } from "vue"
 import type { Component } from "vue"

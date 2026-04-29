@@ -63,7 +63,8 @@
   </main>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import BaseTable from "@/components/base/BaseTable.vue";
 import MaterialModal from "@/components/material/MaterialModal.vue";
 import { useModalStore } from "@/stores/modal";

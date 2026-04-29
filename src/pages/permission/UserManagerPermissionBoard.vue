@@ -235,10 +235,15 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
+import { createTransferListMixin } from "@/mixins/transferList";
 
 export default {
+  name: "UserManagerPermissionBoard",
+  mixins: [createTransferListMixin()],
+
   props: {
     // user 객체 대신 id를 직접 받습니다.
     user_id: {
@@ -278,8 +283,7 @@ export default {
         const res = await api.post(`/api/user/${id}`, { id });
         this.user = res.data;
       } catch (e) {
-        this.$toast.error("사용자 정보를 불러오는데 실패했습니다.");
-        console.error("user info 로드 실패:", e);
+        this.$toast?.error?.("사용자 정보를 불러오는데 실패했습니다.");
       }
     },
 
@@ -289,9 +293,9 @@ export default {
       try {
         const res = await api.post("/api/role/list");
         this.all = res.data;
-        this.loadPermissions(); // 유저 정보와 룰 리스트를 기반으로 할당/미할당 분리
+        this.loadPermissions();
       } catch (e) {
-        console.error("Roles 로드 실패:", e);
+        this.$toast?.error?.("역할 목록을 불러오지 못했습니다.");
       }
     },
 
@@ -303,30 +307,6 @@ export default {
       const assignedIds = [this.user.role_id];
       this.assigned = this.all.filter((p) => assignedIds.includes(p.id));
       this.unassigned = this.all.filter((p) => !assignedIds.includes(p.id));
-    },
-
-    // 미할당 → 할당으로 단일 역할을 이동한다
-    addPermission(item) {
-      this.assigned.push(item);
-      this.unassigned = this.unassigned.filter((p) => p.id !== item.id);
-    },
-
-    // 할당 → 미할당으로 단일 역할을 이동한다
-    removePermission(item) {
-      this.unassigned.push(item);
-      this.assigned = this.assigned.filter((p) => p.id !== item.id);
-    },
-
-    // 미할당 전체를 할당으로 이동한다
-    addAll() {
-      this.assigned.push(...this.unassigned);
-      this.unassigned = [];
-    },
-
-    // 할당 전체를 미할당으로 이동한다
-    removeAll() {
-      this.unassigned.push(...this.assigned);
-      this.assigned = [];
     },
 
     // 할당 리스트에서 특정 index 행을 한 칸 위로 이동한다

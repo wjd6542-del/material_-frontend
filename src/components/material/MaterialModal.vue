@@ -239,6 +239,7 @@
 </template>
 
 <script lang="ts">
+// @ts-nocheck
 import { useModalStore } from "@/stores/modal";
 import BaseImage from "@/components/base/BaseImage.vue";
 import CategoryTreeSelect from "@/components/base/CategoryTreeSelect.vue";

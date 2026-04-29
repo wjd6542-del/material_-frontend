@@ -6,9 +6,7 @@
       </div>
 
       <div class="p-4 bg-gray-50 border-b border-gray-100">
-        <div
-          class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5"
-        >
+        <div class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
           <div class="sm:col-span-2 xl:col-span-2">
             <label class="form-label">조회 기간</label>
             <DateRangePicker
@@ -46,11 +44,7 @@
 
           <div>
             <label class="form-label">상태</label>
-            <select
-              v-model="where.status"
-              @change="loadList"
-              class="field"
-            >
+            <select v-model="where.status" @change="loadList" class="field">
               <option value="">전체</option>
               <option value="draft">임시저장</option>
               <option value="ordered">발주완료</option>
@@ -60,10 +54,7 @@
           </div>
 
           <div class="sm:col-span-2 lg:col-span-4 xl:col-span-5 flex justify-end">
-            <button
-              @click="resetFilters"
-              class="btn"
-            >
+            <button @click="resetFilters" class="btn">
               <i class="fa-solid fa-rotate-right"></i>
               초기화
             </button>
@@ -89,180 +80,63 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import BaseTable from "@/components/base/BaseTable.vue";
 import SearchSelect from "@/components/base/SearchSelect.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
-import api from "@/api/api";
+import { createListMixin } from "@/mixins/listPage";
+import { createRefDataMixin } from "@/mixins/refData";
+import { formatDateOnly } from "@/utils/date";
 
-function formatDateOnly(v) {
-  if (!v) return "-";
-  const d = new Date(v);
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
+const INITIAL_WHERE = {
+  material_id: "",
+  supplier_id: "",
+  status: "",
+};
 
 export default {
   name: "PurchaseOrderDetailPage",
 
-  components: {
-    BaseTable,
-    SearchSelect,
-    DateRangePicker,
-  },
+  components: { BaseTable, SearchSelect, DateRangePicker },
+
+  mixins: [
+    createListMixin({
+      endpoint: "/api/purchaseOrder/detail/list",
+      initialWhere: INITIAL_WHERE,
+    }),
+    createRefDataMixin(["materials", "suppliers"]),
+  ],
 
   data() {
     return {
       columns: [
-        {
-          key: "order_no",
-          label: "발주번호",
-          width: "180px",
-          align: "center",
-          sortable: true,
-        },
-        {
-          key: "supplier_name",
-          label: "거래처",
-          sortable: true,
-          width: "160px",
-        },
-        {
-          key: "material_name",
-          label: "품목명",
-          sortable: true,
-          width: "240px",
-        },
-        {
-          key: "spec",
-          label: "규격",
-          sortable: true,
-          width: "160px",
-        },
-        {
-          key: "quantity",
-          label: "수량",
-          type: "number",
-          align: "right",
-          width: "100px",
-        },
-        {
-          key: "price",
-          label: "단가",
-          type: "currency",
-          align: "right",
-          width: "140px",
-        },
-        {
-          key: "supply_amount",
-          label: "판매가",
-          type: "currency",
-          align: "right",
-          width: "150px",
-        },
-        {
-          key: "order_date",
-          label: "발주일",
-          align: "center",
-          width: "140px",
-          sortable: true,
-          formatter: formatDateOnly,
-        },
-        {
-          key: "delivery_date",
-          label: "납기일",
-          align: "center",
-          width: "140px",
-          sortable: true,
-          formatter: formatDateOnly,
-        },
-        {
-          key: "created_at",
-          label: "등록일",
-          type: "date",
-          align: "center",
-          width: "180px",
-          sortable: true,
-        },
+        { key: "order_no", label: "발주번호", width: "180px", align: "center", sortable: true },
+        { key: "supplier_name", label: "거래처", sortable: true, width: "160px" },
+        { key: "material_name", label: "품목명", sortable: true, width: "240px" },
+        { key: "spec", label: "규격", sortable: true, width: "160px" },
+        { key: "quantity", label: "수량", type: "number", align: "right", width: "100px" },
+        { key: "price", label: "단가", type: "currency", align: "right", width: "140px" },
+        { key: "supply_amount", label: "판매가", type: "currency", align: "right", width: "150px" },
+        { key: "order_date", label: "발주일", align: "center", width: "140px", sortable: true, formatter: formatDateOnly },
+        { key: "delivery_date", label: "납기일", align: "center", width: "140px", sortable: true, formatter: formatDateOnly },
+        { key: "created_at", label: "등록일", type: "date", align: "center", width: "180px", sortable: true },
       ],
-
-      dateRange: {
-        start: new Date(new Date().setHours(0, 0, 0, 0)),
-        end: new Date(new Date().setHours(23, 59, 59, 999)),
-      },
-
-      where: {
-        material_id: "",
-        supplier_id: "",
-        status: "",
-        startDate: null,
-        endDate: null,
-      },
-
-      rows: [],
       materials: [],
       suppliers: [],
     };
   },
 
   methods: {
-    // 검색 조건으로 발주 세부 내역을 로드한다
-    async loadList() {
-      try {
-        const where = { ...this.where };
-        if (this.dateRange?.start) {
-          where.startDate =
-            typeof this.dateRange.start === "string"
-              ? this.dateRange.start
-              : this.dateRange.start.toISOString();
-        }
-        if (this.dateRange?.end) {
-          where.endDate =
-            typeof this.dateRange.end === "string"
-              ? this.dateRange.end
-              : this.dateRange.end.toISOString();
-        }
-
-        const res = await api.post("/api/purchaseOrder/detail/list", where);
-        this.rows = res.data;
-        console.log(res.data);
-      } catch (e) {
-        console.error("데이터 로드 실패:", e);
-      }
-    },
-
-    // 검색 조건을 초기화하고 목록을 재조회한다
     resetFilters() {
-      this.where = {
-        material_id: "",
-        supplier_id: "",
-        status: "",
-        startDate: null,
-        endDate: null,
-      };
+      this.where = { ...INITIAL_WHERE };
       this.dateRange = { start: null, end: null };
       this.loadList();
-    },
-
-    // 품목 옵션을 로드한다
-    async loadMaterial() {
-      const res = await api.post("/api/material/list");
-      this.materials = res.data;
-    },
-
-    // 거래처 옵션을 로드한다
-    async loadSupplier() {
-      const res = await api.post("/api/supplier/list");
-      this.suppliers = res.data;
     },
   },
 
   mounted() {
-    this.loadList();
-    this.loadMaterial();
-    this.loadSupplier();
+    this.loadRefData();
   },
 };
 </script>
@@ -271,7 +145,6 @@ export default {
 .overflow-x-auto {
   -webkit-overflow-scrolling: touch;
 }
-
 ::-webkit-scrollbar {
   height: 6px;
   width: 6px;

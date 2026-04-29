@@ -190,7 +190,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import { useAuthStore } from "@/stores/auth";
 import api from "@/api/api";
 
@@ -218,9 +219,7 @@ export default {
         authStore.login(res.data);
         this.$router.push("/");
       } catch (e) {
-        // 기존 $toast 사용 유지
-        if (this.$toast) this.$toast.error(e.message);
-        else alert(e.message);
+        this.$toast?.error?.(e.message);
       } finally {
         this.loading = false;
       }

@@ -138,7 +138,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import TreeSelectNode from "@/components/base/TreeSelectNode.vue";
 
 export default {

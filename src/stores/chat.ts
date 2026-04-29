@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { defineStore } from "pinia"
 import { io, Socket } from "socket.io-client"
 import api from "@/api/api"

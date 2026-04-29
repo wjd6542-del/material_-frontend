@@ -29,37 +29,35 @@
   </TransitionGroup>
 </template>
 
-<script>
+<script setup lang="ts">
+// @ts-nocheck
+import { onMounted, onBeforeUnmount } from "vue";
 import { useModalStore } from "@/stores/modal";
 
-export default {
-  computed: {
-    // 모달 Pinia 스토어 인스턴스를 반환한다
-    modal() {
-      return useModalStore();
-    },
-  },
+const modal = useModalStore();
 
-  methods: {
-    // 모달 size 속성에 대응하는 Tailwind max-width 클래스를 반환한다
-    sizeClass(size) {
-      switch (size) {
-        case "sm":
-          return "max-w-sm";
-        case "md":
-          return "max-w-lg";
-        case "lg":
-          return "max-w-2xl";
-        case "xl":
-          return "max-w-4xl";
-        case "full":
-          return "max-w-7xl";
-        default:
-          return "max-w-lg";
-      }
-    },
-  },
+const SIZE_MAP: Record<string, string> = {
+  sm: "max-w-sm",
+  md: "max-w-lg",
+  lg: "max-w-2xl",
+  xl: "max-w-4xl",
+  full: "max-w-7xl",
 };
+
+// modal size 속성에 대응하는 Tailwind max-width 클래스를 반환
+function sizeClass(size: string) {
+  return SIZE_MAP[size] || SIZE_MAP.md;
+}
+
+// ESC 키로 최상단 모달 닫기
+function handleKeydown(e: KeyboardEvent) {
+  if (e.key === "Escape" && modal.isOpen) {
+    modal.closeModal();
+  }
+}
+
+onMounted(() => document.addEventListener("keydown", handleKeydown));
+onBeforeUnmount(() => document.removeEventListener("keydown", handleKeydown));
 </script>
 
 <style scoped>

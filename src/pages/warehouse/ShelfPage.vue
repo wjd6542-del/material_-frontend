@@ -392,11 +392,14 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
+import { createRefDataMixin } from "@/mixins/refData";
 
 export default {
   name: "ShelfPage",
+  mixins: [createRefDataMixin(["warehouses"])],
   data() {
     return {
       rows: 30,
@@ -610,23 +613,18 @@ export default {
       });
       this.racks = res.data || [];
     },
-    // 선택된 창고의 위치 목록을 로드한다
+    // 선택된 창고의 위치 목록을 로드한다 (warehouse_id 파라미터 필요해서 refData 미사용)
     async loadLocations() {
       const res = await api.post("/api/location/list", {
         warehouse_id: this.selectedWarehouse_id,
       });
       this.locations = res.data || [];
     },
-    // 창고 목록을 로드한다
-    async loadWarehouses() {
-      const res = await api.post("/api/warehouse/list");
-      this.warehouses = res.data || [];
-    },
   },
   // 마운트 시 그리드 크기 갱신과 창고 로드 및 리사이즈 리스너 등록
   mounted() {
     this.$nextTick(() => this.updateGridSize());
-    this.loadWarehouses();
+    this.loadRefData();
     window.addEventListener("resize", this.updateGridSize);
   },
   // 언마운트 직전 윈도우 리사이즈 리스너를 제거한다

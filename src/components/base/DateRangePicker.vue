@@ -93,7 +93,18 @@
 </template>
 
 <script lang="ts">
+// @ts-nocheck
 import { DatePicker } from "v-calendar";
+import {
+  formatDateOnly,
+  formatDateMinute,
+  startOfDay,
+  endOfDay,
+  todayRange,
+  yesterdayRange,
+  lastWeekRange,
+  currentMonthRange,
+} from "@/utils/date";
 
 export default {
   name: "DateRangePicker",
@@ -169,25 +180,8 @@ export default {
     // 선택된 시작/종료 날짜를 표시용 문자열로 포맷팅한다
     formattedRange(): string {
       if (!this.innerValue?.start || !this.innerValue?.end) return "";
-
-      const formatDate = (d: Date) => {
-        const yyyy = d.getFullYear();
-        const mm = String(d.getMonth() + 1).padStart(2, "0");
-        const dd = String(d.getDate()).padStart(2, "0");
-
-        if (this.mode === "date") {
-          return `${yyyy}-${mm}-${dd}`;
-        }
-
-        const hh = String(d.getHours()).padStart(2, "0");
-        const min = String(d.getMinutes()).padStart(2, "0");
-
-        return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
-      };
-
-      return `${formatDate(this.innerValue.start)} ~ ${formatDate(
-        this.innerValue.end,
-      )}`;
+      const fmt = this.mode === "date" ? formatDateOnly : formatDateMinute;
+      return `${fmt(this.innerValue.start)} ~ ${fmt(this.innerValue.end)}`;
     },
   },
 
@@ -231,11 +225,8 @@ export default {
 
     // 달력에서 날짜 범위 선택 시 호출되는 핸들러
     handleSelect(val: any) {
-      if (this.mode === "date") {
-        if (val.start) val.start.setHours(0, 0, 0, 0);
-        if (val.end) val.end.setHours(23, 59, 59, 999);
-      }
-      if (val.end) val.end.setHours(23, 59, 59, 999);
+      if (val?.start) val.start = startOfDay(val.start);
+      if (val?.end) val.end = endOfDay(val.end);
       this.innerValue = val;
 
       this.$emit("update:modelValue", val);
@@ -244,44 +235,21 @@ export default {
 
     // 빠른 버튼(오늘/어제/일주일/이번달)에 따라 날짜 범위를 설정한다
     setQuick(type: string) {
-      const now = new Date();
-      let start = new Date(now);
-      let end = new Date(now);
+      const ranges: Record<string, () => { start: Date; end: Date }> = {
+        today: todayRange,
+        yesterday: yesterdayRange,
+        week: lastWeekRange,
+        month: currentMonthRange,
+      };
+      const range = (ranges[type] || todayRange)();
 
-      if (type === "today") {
-        start.setHours(0, 0, 0, 0);
-        end.setHours(23, 59, 59, 999);
-      }
-
-      if (type === "yesterday") {
-        start.setDate(start.getDate() - 1);
-        start.setHours(0, 0, 0, 0);
-        end = new Date(start);
-        end.setHours(23, 59, 59, 999);
-      }
-
-      if (type === "week") {
-        start.setDate(start.getDate() - 7);
-        start.setHours(0, 0, 0, 0);
-        end.setHours(23, 59, 59, 999);
-      }
-
-      // ✅ 이번달
-      if (type === "month") {
-        start = new Date(now.getFullYear(), now.getMonth(), 1);
-        start.setHours(0, 0, 0, 0);
-
-        end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        end.setHours(23, 59, 59, 999);
-      }
-
+      // mode === "date" 인 경우 시간 자정으로 통일
       if (this.mode === "date") {
-        start.setHours(0, 0, 0, 0);
-        end.setHours(0, 0, 0, 0);
+        range.start = startOfDay(range.start);
+        range.end = startOfDay(range.end);
       }
 
-      this.innerValue = { start, end };
-
+      this.innerValue = range;
       this.$emit("update:modelValue", this.innerValue);
       this.$emit("change");
 

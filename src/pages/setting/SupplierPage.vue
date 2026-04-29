@@ -6,7 +6,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import Supplier from "@/components/setting/Supplier.vue";
 
 export default {

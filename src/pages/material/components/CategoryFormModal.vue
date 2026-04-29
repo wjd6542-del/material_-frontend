@@ -47,7 +47,8 @@
   </teleport>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 export default {
   name: "CategoryFormModal",
   props: {

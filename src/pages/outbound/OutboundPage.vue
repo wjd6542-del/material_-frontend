@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div>
     <!-- 테이블 -->
     <div
@@ -62,18 +62,18 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import BaseTable from "@/components/base/BaseTable.vue";
 import DateRangePicker from "@/components/base/DateRangePicker.vue";
 import BaseInput from "@/components/base/BaseInput.vue";
 import { useModalStore } from "@/stores/modal";
 import OutboundVoucherPrintModal from "@/components/outbound/OutboundVoucherPrintModal.vue";
 import { useAuthStore } from "@/stores/auth";
-
-import api from "@/api/api";
+import { createListMixin } from "@/mixins/listPage";
 
 export default {
-  name: "outboundPage",
+  name: "OutboundPage",
 
   components: {
     BaseTable,
@@ -81,144 +81,52 @@ export default {
     BaseInput,
   },
 
+  mixins: [
+    createListMixin({
+      endpoint: "/api/outbound/list",
+      deleteEndpoint: "/api/outbound/batchDelete",
+      tableRef: "outboundTable",
+      initialWhere: { outbound_no: "" },
+    }),
+  ],
+
   data() {
     return {
       auth: useAuthStore(),
       modal: useModalStore(),
       columns: [
-        {
-          key: "id",
-          label: "전표",
-          type: "button",
-          width: "80px",
-          align: "center",
-        },
-        {
-          key: "qrcode",
-          label: "QR",
-          type: "img",
-          width: "80px",
-          align: "center",
-          sortable: true,
-        },
-        {
-          key: "outbound_no",
-          label: "판매번호",
-          width: "200px",
-          align: "center",
-          sortable: true,
-        },
-        {
-          key: "username",
-          label: "작성자",
-          sortable: true,
-          width: "100px",
-        },
-        {
-          key: "memo",
-          label: "메모",
-          type: "text",
-          width: "250px",
-        },
-        {
-          key: "created_at",
-          label: "등록일",
-          type: "date",
-          align: "center",
-          width: "200px",
-          sortable: true,
-        },
+        { key: "id", label: "전표", type: "button", width: "80px", align: "center" },
+        { key: "qrcode", label: "QR", type: "img", width: "80px", align: "center", sortable: true },
+        { key: "outbound_no", label: "판매번호", width: "200px", align: "center", sortable: true },
+        { key: "username", label: "작성자", sortable: true, width: "100px" },
+        { key: "memo", label: "메모", type: "text", width: "250px" },
+        { key: "created_at", label: "등록일", type: "date", align: "center", width: "200px", sortable: true },
       ],
-
-      rows: [],
-      where: { outbound_no: "" },
-      dateRange: {
-        start: new Date(new Date().setHours(0, 0, 0, 0)),
-        end: new Date(new Date().setHours(23, 59, 59, 999)),
-      },
     };
   },
 
   methods: {
-    // 삭제
-    // 선택된 판매 전표들을 사용자 확인 후 일괄 삭제한다
-    async batchDelete() {
-      const rows = this.$refs.outboundTable.getSelectedRows();
-      if (!rows.length) {
-        this.$toast.error("테이블에서 데이터를 선택하세요");
-        return;
-      }
-
-      let ids = [];
-      for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        ids.push({ id: row.id });
-      }
-
-      const ok = await this.$confirm(
-        `선택된 정보를 삭제하시겠습니까?`,
-        "삭제 확인", "danger",
-      );
-      if (!ok) return;
-
-      try {
-        await api.post("/api/outbound/batchDelete", ids);
-        this.$toast.success("선택 항목이 삭제되었습니다");
-        this.loadList();
-      } catch (e) {
-        this.$toast.error(e.message);
-      }
-    },
-
     // 판매 등록 페이지로 이동한다
     goRegister() {
       this.$router.push("/outbound/register");
     },
 
-    // 데이터 로드 처리
-    // 검색 조건을 반영해 판매 목록을 로드한다
-    async loadList() {
-      this.rows = [];
-
-      const where = {
-        ...this.where,
-      };
-
-      if (this.dateRange?.start) {
-        where.startDate = this.dateRange.start.toISOString();
-      }
-      if (this.dateRange?.end) {
-        where.endDate = this.dateRange.end.toISOString();
-      }
-      const res = await api.post("/api/outbound/list", where);
-      this.rows = res.data;
-    },
-
-    // 셀클릭시
-    // 전표번호 셀은 수정 페이지, ID 셀은 전표 프린트 모달을 연다
+    // 셀 클릭: 판매번호 → 수정, 전표 → 프린트 모달
     onCellClick(data) {
-      if (data.key == "outbound_no") {
-        if (!this.auth.hasPermission("outbound.update")) {
-          return;
-        }
+      if (data.key === "outbound_no") {
+        if (!this.auth.hasPermission("outbound.update")) return;
         this.$router.push({
           path: "/outbound/register",
           query: { id: data.row.id },
         });
-      } else if (data.key == "id") {
+      } else if (data.key === "id") {
         this.modal.openModal(
           OutboundVoucherPrintModal,
-          {
-            id: data.row.id,
-          },
+          { id: data.row.id },
           "xl",
         );
       }
     },
-  },
-  // 마운트 시 판매 목록을 로드한다
-  mounted() {
-    this.loadList();
   },
 };
 </script>

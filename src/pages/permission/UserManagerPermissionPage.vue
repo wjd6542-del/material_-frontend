@@ -141,7 +141,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import UserManagerPermissionBoard from "./UserManagerPermissionBoard.vue";
 import api from "@/api/api";
 

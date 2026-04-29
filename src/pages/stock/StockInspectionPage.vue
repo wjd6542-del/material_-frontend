@@ -239,8 +239,10 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-nocheck
 import api from "@/api/api";
+import { buildLocationLabel } from "@/utils/location";
 
 export default {
   name: "StockInspectionPage",
@@ -389,7 +391,7 @@ export default {
 
       const categoryId = material.category_id ?? s.category_id ?? null;
       const categoryPath = this.categoryPathMap[categoryId] || null;
-      const locationLabel = this.buildLocationLabel(s);
+      const locationLabel = buildLocationLabel(s) || s.shelf_label || "-";
 
       this.rows.unshift({
         key,
@@ -404,17 +406,6 @@ export default {
         expected: Number(s.quantity ?? s.stock_qty ?? 0) || 0,
         counted: 1,
       });
-    },
-
-    // 창고 > 위치 > 선반 라벨 조립
-    buildLocationLabel(s) {
-      const parts = [
-        s.warehouse_name || s.warehouse?.name,
-        s.location_name || s.location?.name,
-        s.shelf_name || s.shelf?.name,
-      ].filter(Boolean);
-      if (parts.length) return parts.join(" > ");
-      return s.shelf_label || "-";
     },
 
     // 카테고리 트리 로드 → id → pathSegments 매핑

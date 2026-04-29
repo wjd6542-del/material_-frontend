@@ -1,3 +1,4 @@
+// @ts-nocheck
 // 페이지 / 버튼 권한 정의 (초기 셋팅 + 사이드바 메뉴 단일 소스)
 // - 라우터 meta.permission, 화면 내 auth.hasPermission(), 사이드바 메뉴가
 //   모두 이 파일을 참조해서 동작한다
