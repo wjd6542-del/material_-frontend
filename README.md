@@ -63,7 +63,7 @@ src/
 │   ├── warehouse/          # WarehouseModal, LocationModal
 │   ├── material/           # MaterialModal (이미지/태그 업로드 포함)
 │   ├── user/               # UserInfoModal
-│   └── log/                # LogModal (JSON 뷰어)
+│   └── log/                # LogModal (변경 이력 diff 비교 뷰어)
 └── pages/
     ├── auth/               # Login, Signup, ForgotPassword
     ├── dashboard/          # DashboardPage (KPI + 라인차트)
@@ -118,6 +118,7 @@ src/
 - 이동 / 정점 편집 / 회전 / 다중 선택(드래그 박스·Ctrl) / 그리드 스냅
 - 정점 추가(중점 클릭) / 정점 제거(더블클릭·우클릭)
 - 창고 → 위치 → 선반 3단계 레이어 편집 페이지 제공
+- 창고/위치 페이지는 `createSvgZoomPanMixin` 으로 휠 줌·드래그 팬·확대/축소/리셋 버튼 지원, 선반 페이지는 CSS 스케일 기반 자체 줌
 
 ### 통계 & 대시보드
 - 일별 통계 수동 갱신 API 호출 + 기간별 조회
@@ -139,6 +140,6 @@ src/
 - **권한 로직은 프론트에서 "UI 가드"용**으로만 동작한다. 실제 접근 제어는 백엔드에서 한 번 더 검사해야 한다.
 - **모든 API는 POST**로 통일되어 있다 (`/api/*/list`, `/api/*/save`, `/api/*/batchSave`, `/api/*/batchDelete`).
 - **AG Grid는 v33+ 모듈 방식**을 사용 (`main.ts`에서 `AllCommunityModule`, `RowSelectionModule` 등록).
-- **2D 에디터는 외부 라이브러리 없이 직접 구현**되어 있어 좌표 변환·스냅·회전·정점 편집 로직이 `LocationPage.vue` / `WarehousePage.vue`에 집중돼 있다.
+- **2D 에디터는 외부 라이브러리 없이 직접 구현**되어 있어 좌표 변환·스냅·회전·정점 편집 로직이 `mixins/shapeEditor.ts`(공통 도형 편집) + `mixins/svgZoomPan.ts`(viewBox 기반 줌/팬)로 분리돼 있고, `WarehousePage.vue` / `LocationPage.vue` 가 이를 조합한다.
 - **카테고리 트리 조작은 `utils/categoryTree.js`에 유틸화**되어 있어 페이지 컴포넌트는 얇게 유지된다.
 - **알림 카운트는 로그인 중 1분 간격 폴링** (`stores/notification.ts → startAutoRefresh`).
