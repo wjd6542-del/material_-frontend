@@ -48,36 +48,6 @@ export const permissions: PermissionGroup[] = [
 	},
 
 	{
-		group: "purchaseorder",
-		label: "발주관리",
-		icon: "fa-clipboard-list",
-		pages: [
-			{
-				code: "purchaseorder.view",
-				name: "발주 목록",
-				action: "view",
-				path: "/purchaseorder",
-				actions: [
-					{
-						code: "purchaseorder.create",
-						name: "발주 등록",
-						action: "create",
-						path: "/purchaseorder/register",
-					},
-					{ code: "purchaseorder.update", name: "발주 수정", action: "update" },
-					{ code: "purchaseorder.delete", name: "발주 삭제", action: "delete" },
-				],
-			},
-			{
-				code: "purchaseorder.detail.view",
-				name: "발주 세부내역",
-				action: "view",
-				path: "/purchaseorder/detail",
-			},
-		],
-	},
-
-	{
 		group: "material",
 		label: "품목관리",
 		icon: "fa-box",
@@ -116,6 +86,36 @@ export const permissions: PermissionGroup[] = [
 				actions: [
 					{ code: "material.rate.update", name: "품목 기본설정 저장", action: "update" },
 				],
+			},
+		],
+	},
+
+	{
+		group: "purchaseorder",
+		label: "발주관리",
+		icon: "fa-clipboard-list",
+		pages: [
+			{
+				code: "purchaseorder.view",
+				name: "발주 목록",
+				action: "view",
+				path: "/purchaseorder",
+				actions: [
+					{
+						code: "purchaseorder.create",
+						name: "발주 등록",
+						action: "create",
+						path: "/purchaseorder/register",
+					},
+					{ code: "purchaseorder.update", name: "발주 수정", action: "update" },
+					{ code: "purchaseorder.delete", name: "발주 삭제", action: "delete" },
+				],
+			},
+			{
+				code: "purchaseorder.detail.view",
+				name: "발주 세부내역",
+				action: "view",
+				path: "/purchaseorder/detail",
 			},
 		],
 	},

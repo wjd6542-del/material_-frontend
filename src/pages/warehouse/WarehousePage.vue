@@ -172,13 +172,45 @@
 
     <div class="flex-1 relative bg-slate-200 p-4">
       <div
-        class="w-full h-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-300"
+        class="w-full h-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-300 relative"
       >
+        <div
+          class="absolute top-3 right-3 z-10 flex flex-col gap-1 bg-white/90 backdrop-blur border border-slate-200 rounded-xl shadow-md p-1"
+        >
+          <button
+            @click="zoomIn"
+            class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 font-bold flex items-center justify-center transition-colors"
+            title="확대"
+          >
+            <i class="fa-solid fa-plus text-xs"></i>
+          </button>
+          <button
+            @click="zoomOut"
+            class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 font-bold flex items-center justify-center transition-colors"
+            title="축소"
+          >
+            <i class="fa-solid fa-minus text-xs"></i>
+          </button>
+          <button
+            @click="resetZoom"
+            class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 font-bold flex items-center justify-center transition-colors"
+            title="원래크기"
+          >
+            <i class="fa-solid fa-expand text-xs"></i>
+          </button>
+        </div>
+        <div
+          class="absolute bottom-3 right-3 z-10 bg-white/90 backdrop-blur border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 font-mono shadow-sm pointer-events-none"
+        >
+          {{ Math.round((1000 / viewBox.w) * 100) }}%
+        </div>
+
         <svg
           ref="svgCanvas"
-          viewBox="0 0 1000 1000"
+          :viewBox="`${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`"
           preserveAspectRatio="xMidYMid meet"
           class="w-full h-full cursor-crosshair touch-none"
+          @wheel.prevent="handleWheel"
           @mousedown="handleCanvasMouseDown"
           @mousemove="handleMouseMove"
           @mouseup="handleMouseUp"
@@ -214,7 +246,13 @@
               />
             </pattern>
           </defs>
-          <rect width="1000" height="1000" fill="url(#vGridLarge)" />
+          <rect
+            :x="viewBox.x"
+            :y="viewBox.y"
+            :width="viewBox.w"
+            :height="viewBox.h"
+            fill="url(#vGridLarge)"
+          />
 
           <rect
             v-if="selectionBox"
@@ -295,10 +333,19 @@
 // @ts-nocheck
 import api from "@/api/api";
 import { createShapeEditorMixin } from "@/mixins/shapeEditor";
+import { createSvgZoomPanMixin } from "@/mixins/svgZoomPan";
 
 export default {
   name: "WarehousePage",
-  mixins: [createShapeEditorMixin()],
+  mixins: [
+    createShapeEditorMixin(),
+    createSvgZoomPanMixin({
+      size: 1000,
+      minZoom: 200,
+      maxZoom: 3000,
+      svgRef: "svgCanvas",
+    }),
+  ],
 
   data() {
     return {

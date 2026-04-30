@@ -178,6 +178,21 @@ export default {
       const res = await api.post("/api/auditLog/list", where);
       this.rowData = res.data;
 
+      const actionBadgeMap = {
+        CREATE: { variant: "info", icon: "fa-plus", label: "생성" },
+        UPDATE: { variant: "warning", icon: "fa-pen", label: "수정" },
+        DELETE: { variant: "error", icon: "fa-trash", label: "삭제" },
+      };
+      const statusBadgeMap = {
+        SUCCESS: { variant: "success", icon: "fa-check", label: "성공" },
+        FAIL: { variant: "error", icon: "fa-xmark", label: "실패" },
+      };
+      const renderBadge = (map) => (p) => {
+        const meta = map[p.value];
+        if (!meta) return p.value || "";
+        return `<span class="badge badge-${meta.variant}"><i class="fa-solid ${meta.icon} badge-icon"></i>${meta.label}</span>`;
+      };
+
       // 해더  및 기능 설정
       this.columnDefs = [
         {
@@ -186,6 +201,7 @@ export default {
           flex: 0.5,
           filter: "agTextColumnFilter",
           cellClass: "text-center",
+          cellRenderer: renderBadge(actionBadgeMap),
         },
         {
           headerName: "페이지",
@@ -206,6 +222,7 @@ export default {
           flex: 0.5,
           filter: "agTextColumnFilter",
           cellClass: "text-center",
+          cellRenderer: renderBadge(statusBadgeMap),
         },
         {
           headerName: "아이피",
@@ -222,39 +239,30 @@ export default {
           cellRenderer: (p) => (p.value ? formatDateTime(p.value) : ""),
         },
         {
-          headerName: "이전",
-          field: "before_data",
-          flex: 0.5,
+          headerName: "변경이력",
+          colId: "diff",
+          flex: 0.6,
+          cellClass: "text-center",
+          sortable: false,
           cellRenderer: (p) => {
-            if (!p.value) return "";
-            return `<button class="log-btn">보기</button>`;
+            if (!p.data?.before_data && !p.data?.after_data) return "";
+            return `<button class="btn btn-xs"><i class="fa-solid fa-code-compare"></i>비교</button>`;
           },
           onCellClicked: (p) => {
-            if (!p.value) return;
-            this.openModal("이전 데이터", p.value);
-          },
-        },
-        {
-          headerName: "이후",
-          field: "after_data",
-          flex: 0.5,
-          cellRenderer: (p) => {
-            if (!p.value) return "";
-            return `<button class="log-btn">보기</button>`;
-          },
-          onCellClicked: (p) => {
-            if (!p.value) return;
-            this.openModal("이후 데이터", p.value);
+            if (!p.data?.before_data && !p.data?.after_data) return;
+            this.openDiffModal(p.data);
           },
         },
       ];
     },
 
-    // 모달 열기
-    // 로그 데이터 상세 모달을 연다
-    openModal(title, data) {
-      // 모달 열기
-      this.modal.openModal(LogModal, { title: title, data: data }, "lg");
+    // 변경 이력 통합 비교 모달을 연다
+    openDiffModal(row) {
+      this.modal.openModal(
+        LogModal,
+        { row, title: `${row.page || row.target_type || ""} 변경이력` },
+        "lg",
+      );
     },
   },
 

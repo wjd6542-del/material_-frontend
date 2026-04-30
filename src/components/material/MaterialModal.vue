@@ -393,8 +393,19 @@ export default {
       const cost = Number(f.inbound_price) || 0;
 
       if (key === "inbound_price") {
-        // 원가 변경 → 원가 대비 비율만 재계산 (base 유지)
-        f.outbound_rate1 = cost > 0 ? this.roundRate(base / cost) : 0;
+        // 원가 변경 → 기존 비율을 유지하고 BASE 와 종속 단가를 모두 재계산한다
+        const r1 = Number(f.outbound_rate1) || 0;
+        if (r1 > 0) {
+          const newBase = this.roundPrice(cost * r1);
+          f.outbound_price1 = newBase;
+          this.dependentPriceRows.forEach((row) => {
+            const r = Number(f[row.rate]) || 0;
+            f[row.price] = this.roundPrice(newBase * r);
+          });
+        } else {
+          // 비율이 없으면(신규 등) 비율만 base/cost 로 재계산
+          f.outbound_rate1 = cost > 0 ? this.roundRate(base / cost) : 0;
+        }
       } else if (key === "outbound_price1") {
         // BASE 변경 → 원가 대비 비율 재계산 + 종속 단가 4종 재계산
         f.outbound_rate1 = cost > 0 ? this.roundRate(base / cost) : 0;

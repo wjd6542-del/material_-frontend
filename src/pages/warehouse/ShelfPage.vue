@@ -330,15 +330,56 @@
         </div>
 
         <!-- 그리드 -->
-        <div v-else class="flex-1 overflow-hidden p-3">
+        <div v-else class="flex-1 relative overflow-hidden p-3">
           <div
-            class="border border-slate-200 bg-slate-100 rounded-xl overflow-hidden p-1.5 h-full"
+            class="absolute top-5 right-5 z-20 flex flex-col gap-1 bg-white/90 backdrop-blur border border-slate-200 rounded-xl shadow-md p-1"
+          >
+            <button
+              @click="zoomIn"
+              class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 font-bold flex items-center justify-center transition-colors"
+              title="확대"
+            >
+              <i class="fa-solid fa-plus text-xs"></i>
+            </button>
+            <button
+              @click="zoomOut"
+              class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 font-bold flex items-center justify-center transition-colors"
+              title="축소"
+            >
+              <i class="fa-solid fa-minus text-xs"></i>
+            </button>
+            <button
+              @click="resetZoom"
+              class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 font-bold flex items-center justify-center transition-colors"
+              title="원래크기"
+            >
+              <i class="fa-solid fa-expand text-xs"></i>
+            </button>
+          </div>
+          <div
+            class="absolute bottom-5 right-5 z-20 bg-white/90 backdrop-blur border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 font-mono shadow-sm pointer-events-none"
+          >
+            {{ Math.round(zoom * 100) }}%
+          </div>
+          <div
+            ref="zoomScroll"
+            class="w-full h-full overflow-auto"
+            @wheel="onWheelZoom"
           >
             <div
-              ref="grid"
-              class="relative w-full h-full shadow-inner"
-              @click="focusedRackId = null"
+              :style="{
+                width: `${zoom * 100}%`,
+                height: `${zoom * 100}%`,
+                minWidth: '100%',
+                minHeight: '100%',
+              }"
+              class="border border-slate-200 bg-slate-100 rounded-xl overflow-hidden p-1.5"
             >
+              <div
+                ref="grid"
+                class="relative w-full h-full shadow-inner"
+                @click="focusedRackId = null"
+              >
               <!-- 격자 배경 -->
               <div
                 class="grid gap-[1px] w-full h-full"
@@ -386,6 +427,7 @@
               </div>
             </div>
           </div>
+          </div>
         </div>
       </div>
     </div>
@@ -420,6 +462,9 @@ export default {
       selectedLocation: {},
       offsetX: 0,
       offsetY: 0,
+      zoom: 1,
+      minZoom: 0.4,
+      maxZoom: 4,
     };
   },
   computed: {
@@ -619,6 +664,64 @@ export default {
         warehouse_id: this.selectedWarehouse_id,
       });
       this.locations = res.data || [];
+    },
+    // 휠 입력으로 커서 위치 기준 줌 조절 (Ctrl 없이도 동작)
+    onWheelZoom(e) {
+      e.preventDefault();
+      const scroller = this.$refs.zoomScroll;
+      if (!scroller) return;
+      const rect = scroller.getBoundingClientRect();
+      const cx = e.clientX - rect.left + scroller.scrollLeft;
+      const cy = e.clientY - rect.top + scroller.scrollTop;
+      const prev = this.zoom;
+      const factor = e.deltaY > 0 ? 1 / 1.15 : 1.15;
+      const next = Math.max(this.minZoom, Math.min(this.maxZoom, prev * factor));
+      if (next === prev) return;
+      const ratio = next / prev;
+      this.zoom = next;
+      this.$nextTick(() => {
+        scroller.scrollLeft = cx * ratio - (e.clientX - rect.left);
+        scroller.scrollTop = cy * ratio - (e.clientY - rect.top);
+        this.updateGridSize();
+      });
+    },
+    // 버튼 확대 (스크롤 중심 기준)
+    zoomIn() {
+      this.zoomBy(1.25);
+    },
+    // 버튼 축소
+    zoomOut() {
+      this.zoomBy(1 / 1.25);
+    },
+    // 줌을 100%로 리셋한다
+    resetZoom() {
+      this.zoom = 1;
+      this.$nextTick(() => {
+        const scroller = this.$refs.zoomScroll;
+        if (scroller) {
+          scroller.scrollLeft = 0;
+          scroller.scrollTop = 0;
+        }
+        this.updateGridSize();
+      });
+    },
+    // 스크롤 중심 기준 배율 변경
+    zoomBy(factor) {
+      const scroller = this.$refs.zoomScroll;
+      if (!scroller) return;
+      const rect = scroller.getBoundingClientRect();
+      const cx = scroller.scrollLeft + rect.width / 2;
+      const cy = scroller.scrollTop + rect.height / 2;
+      const prev = this.zoom;
+      const next = Math.max(this.minZoom, Math.min(this.maxZoom, prev * factor));
+      if (next === prev) return;
+      const ratio = next / prev;
+      this.zoom = next;
+      this.$nextTick(() => {
+        scroller.scrollLeft = cx * ratio - rect.width / 2;
+        scroller.scrollTop = cy * ratio - rect.height / 2;
+        this.updateGridSize();
+      });
     },
   },
   // 마운트 시 그리드 크기 갱신과 창고 로드 및 리사이즈 리스너 등록
