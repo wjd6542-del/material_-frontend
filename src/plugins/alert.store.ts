@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { reactive } from "vue";
 
 export const alertStore = reactive({

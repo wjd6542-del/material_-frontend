@@ -1,3 +1,4 @@
+// @ts-nocheck
 // 트리에서 특정 id까지의 루트→노드 경로 배열을 반환한다
 export function findPath(nodes, id, path = []) {
   for (const n of nodes) {

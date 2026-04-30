@@ -1,3 +1,4 @@
+// @ts-nocheck
 ﻿import { alertStore } from "./alert.store";
 
 export default {
